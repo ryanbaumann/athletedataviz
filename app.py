@@ -47,8 +47,10 @@ def homepage():
 def login():
     client = stravalib.client.Client()
     #Update redirect uri when testing on developers.strava.com
-    #redirect_uri = r'http://' + app.config['HOST_NAME'] + '/auth'
-    redirect_uri = r'http://' + app.config['HOST_NAME'] + ':' + str(app.config['PORT']) + '/auth'
+    if str(app.config['PORT']) = '':
+        redirect_uri = r'http://' + app.config['HOST_NAME'] + '/auth'
+    else:
+        redirect_uri = r'http://' + app.config['HOST_NAME'] + ':' + str(app.config['PORT']) + '/auth'
     print redirect_uri
     auth_url = client.authorization_url(client_id=app.config['STRAVA_CLIENT_ID'],
             redirect_uri= redirect_uri)
