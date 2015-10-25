@@ -5,7 +5,7 @@ from flask import Flask, request, flash, url_for, redirect, \
 from flask.ext.sqlalchemy import SQLAlchemy
 import json
 import stravalib
-from lib import stravaParse as sp
+import stravaParse as sp
 import psycopg2
 from sqlalchemy import create_engine
 import json
