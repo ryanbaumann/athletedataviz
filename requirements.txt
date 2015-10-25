@@ -8,7 +8,6 @@ geoalchemy2
 MarkupSafe
 pygresql
 pg8000
-cherrypy
 pyglfw
 geojson
 gevent
@@ -17,3 +16,4 @@ static3==0.5.1
 wsgiref==0.1.2
 requests==2.3.0
 gunicorn
+psycopg2
