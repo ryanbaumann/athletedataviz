@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Athlete Data Viz - Your Data on a Map!</title>
+
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+<script src='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+</style>
+</head>
+
+<body>
+
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js'></script>
+<style>
+.ui-button {
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:1000;
+  }
+#map {
+  width:90%;
+  }
+#snapshot {
+  position:absolute;
+  top:0;bottom:0;right:0;
+  width:10%;
+  }
+</style>
+
+<button id='snap' class='ui-button'>Save Image! (no go yet)</button>
+<div id='snapshot'></div>
+
+<div id='map'></div>
+<script>
+L.mapbox.accessToken = 'pk.eyJ1IjoicnNiYXVtYW5uIiwiYSI6IjdiOWEzZGIyMGNkOGY3NWQ4ZTBhN2Y5ZGU2Mzg2NDY2In0.jycgv7qwF8MMIWt4cT0RaQ';
+var snapshot = document.getElementById('snapshot');
+var stravaGeoJson = {{ geojson_data|safe }} ;
+
+var style2 = {
+    width : 5,
+    weight: 3,
+    opacity : 0.3,
+    color: 'red'
+               };
+
+var map = L.mapbox.map('map', 'mapbox.dark')
+    .setView([41, -89], 11);
+
+var featureLayer = L.mapbox.featureLayer()
+                   .setGeoJSON(stravaGeoJson)
+                   .addTo(map);
+
+featureLayer.setStyle(style2)
+
+map.fitBounds(featureLayer.getBounds());
+
+document.getElementById('snap').addEventListener('click', function() {
+    leafletImage(map, doImage);
+});
+
+function doImage(err, canvas) {
+    var img = document.createElement('img');
+    var dimensions = map.getSize();
+    img.width = dimensions.x;
+    img.height = dimensions.y;
+    img.src = canvas.toDataURL();
+    snapshot.innerHTML = '';
+    snapshot.appendChild(img);
+}
+
+</script>
+</body>
+</html>

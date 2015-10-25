@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 import json
 
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
+app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 
 import models
@@ -47,12 +47,13 @@ def homepage():
 def login():
     client = stravalib.client.Client()
     #Update redirect uri when testing on developers.strava.com
-    redirect_uri = r'http://' + app.config['HOST_NAME'] + '/auth'
-    #redirect_uri = r'http://' + app.config['HOST_NAME'] + ':' + str(app.config['PORT']) + '/auth'
+    #redirect_uri = r'http://' + app.config['HOST_NAME'] + '/auth'
+    redirect_uri = r'http://' + app.config['HOST_NAME'] + ':' + str(app.config['PORT']) + '/auth'
+    print redirect_uri
     auth_url = client.authorization_url(client_id=app.config['CLIENT_ID'],
             redirect_uri= redirect_uri)
     return render_template('login.html', auth_url=auth_url)
-"""
+
 @app.route('/logout')
 def logout():
     session.pop('access_token')
@@ -115,7 +116,7 @@ def strava_activity_download():
                            zip_file = base_filename + '.zip',
                            geojson_file = base_filename + '.geojson')
 
-
+"""
 @app.route('/uploads/<path:filename>')
 def download_strava():
     try:
@@ -148,4 +149,4 @@ def internal_error(exception):
     return render_template('500.html'), 500
 """
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

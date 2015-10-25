@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<head>
+<title>Athlete Data Viz</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+<script src="http://code.jquery.com/jquery-1.11.0.js"></script>
+<script type="text/javascript">
+</script>
+
+evtSrc.onerror = function(e) {
+        location.reload();
+    }
+
+</head>
+
+{% block body %}
+
+<div id="header">
+  <h1>Athlete Data Viz</h1>
+  <a href="{{ url_for('logout') }}" class="close button">Log out</a>
+</div>
+
+<div class="page">
+
+<h2>Heres your data preview!</h2>
+<body>
+    {% block content %}
+        <h1>Data</h1>
+            {{data | safe}}
+    {% endblock %}
+</body> 
+
+</p>
+
+
+<div class="section" id="data">
+  <h3 class="marginless">data</h3>
+  
+<p>
+<a href="{{ url_for('strava_mapbox', filename = geojson_file) }}" class="button">View your data on a map!</a>
+</p>
+
+</div>
+
+{% endblock %}

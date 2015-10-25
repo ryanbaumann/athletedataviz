@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<head>
+<title>Your data is downloading!</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+{% block body %}
+
+<div id="header">
+  <h1>Your data is downloading!  Please wait.</h1>
+  <a href="{{ url_for('logout') }}" class="close button">Log out</a>
+</div>
+
+<div class="page">
+
+  <p class="progress-text">
+  Waiting...
+  </p>
+
+</div>
+
+{% endblock %}

@@ -1,18 +1,44 @@
-# Map of US National Parks
-*powered by Flask, PostGIS, and Leaflet maps*
+# Athlete Data Viz
+*powered by Flask, PostGis, Mapbox, and Strava*
 
-[![Build Status](http://img.shields.io/jenkins/s/https/build-shifter.rhcloud.com/parkgis-build.svg)](https://build-shifter.rhcloud.com/job/parkgis-build/) [![Deploy](https://img.shields.io/badge/Launch_on-OpenShift-brightgreen.svg)](https://openshift.redhat.com/app/console/application_type/custom?cartridges%5B%5D=python-2.6&cartridges%5B%5D=postgresql-9.2&initial_git_url=https%3A%2F%2Fgithub.com%2Fryanj%2Fflask-postGIS.git)
+## Deployed on Heroku PAAS
+To deploy a clone of this application using the [`heroku` command line tool](https://devcenter.heroku.com/articles/heroku-command):
+    cd <your working dir for athletedataviz>
+    heroku create <your_app_name>
+    git remote add pro https://git.heroku.com/<your_app_name>.git
+    git push pro master
 
-## OpenShift Hosting
-To deploy a clone of this application using the [`rhc` command line tool](http://rubygems.org/gems/rhc):
+## A mapbox dev account is required.  
+See https://www.mapbox.com/developers/ for details
+Obtain a mapbox API public key and place it in the "config.py" file in the root dir of this repo
+    heroku config:set MAPBOX_GL_ACCESS_TOKEN=<your_mapbox_gl_access_token> --remote pro
 
-    rhc app create parks python-2.6 postgresql-9.2 --from-code=https://github.com/ryanj/flask-postGIS.git
-    
-Or [link to a web-based clone+deploy](https://openshift.redhat.com/app/console/application_type/custom?cartridges%5B%5D=python-2.6&cartridges%5B%5D=postgresql-9.2&initial_git_url=https%3A%2F%2Fgithub.com%2Fryanj%2Fflask-postGIS.git) on [OpenShift Online](http://OpenShift.com) or on [your own OpenShift cloud](http://openshift.github.io): 
+## A Strava dev account is required
+See https://strava.com/developers for details
+Obtain an application ID, then set environment variables
+    heroku config:set STRAVA_CLIENT_ID=<your_strava_client_id> --remote <your_app_name>
+    heroku config:set STRAVA_CLIENT_SECRET=<your_strava_client_secret> --remote <your_app_name>
 
-    https://openshift.redhat.com/app/console/application_type/custom?cartridges%5B%5D=python-2.6&cartridges%5B%5D=postgresql-9.2&initial_git_url=https%3A%2F%2Fgithub.com%2Fryanj%2Fflask-postGIS.git
-
-A demo is available at: [http://parkgis-shifter.rhcloud.com/](http://parkgis-shifter.rhcloud.com/)
 
 ## License
-This code is dedicated to the public domain to the maximum extent permitted by applicable law, pursuant to CC0 (http://creativecommons.org/publicdomain/zero/1.0/)
+The MIT License (MIT)
+
+Copyright (c) 2015, Ryan Baumann
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Athlete Data Viz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .container {
+          max-width: 1000px;
+        }
+    </style>
+    <script src="http://code.jquery.com/jquery-1.11.0.js"></script>
+    <script type="text/javascript">
+    $( document ).ready(
+        function(){
+        $('.bikes').on('click','.radio-button',function () {
+          $('.bikes .radio-button').removeClass('selected');
+          $(this).addClass('selected')
+          });
+        }
+    );
+
+    $( document ).ready(
+        function(){
+        $('.activities').on('click','.radio-button',function () {
+          $('.activities .radio-button').removeClass('selected');
+          $(this).addClass('selected')
+          });
+        }
+    );
+
+    $( document ).ready(
+        function(){
+        $('.shoes').on('click','.radio-button',function () {
+          $('.shoes .radio-button').removeClass('selected');
+          $(this).addClass('selected')
+          });
+        }
+    );
+
+    </script>
+  </head>
+
+{% block body %}
+
+<div id="header">
+  <h1>Athlete Data Viz</h1>
+  <a href="{{ url_for('logout') }}" class="close button">Log out</a>
+</div>
+
+<div class="page">
+
+  <h2>Hello {{ athlete.firstname }} </h2>
+  <p>
+  This is Athlete Data Viz. Making your data into art.
+  </p>
+
+    <div class="section" id="bikes">
+      <h3 class="marginless">Bikes</h3>
+      <table class="gear bikes">
+        <thead style="">
+        <tr>
+          <th style="width: 20%">Bike</th>
+          <th style="width: 20%">Distance (mi)</th>
+        </tr>
+        </thead>
+        <tbody>
+          {% for bike in athlete.bikes %}
+          <tr class="{{'%s' % 'default' if bike.primary}}" data-id="{{bike.id}}">
+        <td>{{ bike.name }}</td>
+        <td>
+          <a class="radio-button {{'%s' % 'selected' if bike.primary}}" data-id="{{bike.id}}"></a>
+        </td>
+        <td>{{ bike.distance*0.621371 }}</td>
+        </tr>
+        {% else %}
+        <tr><td>None!</td></tr>
+        {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section" id="activities">
+      <h3 class="marginless">Activities</h3>
+      <table class="activity list">
+        <thead style="">
+          <tr>
+            <th style="width: 20%">Name</th>
+            <th style="width: 20%">Distance (mi)</th>
+          </tr>
+        </thead>
+        <tbody>
+
+        {% for activity in client.get_activities(limit=10) %}
+        <tr class="{{'%s' % 'default' if activity.name}}" data-id="{{activity.name}}">
+        <td>{{ activity.name }}</td>
+        <td>
+          <a class="radio-button {{'%s' % 'selected' if activity.name}}" data-id="{{activity.name}}"></a>
+        </td>
+        <td>{{ activity.distance*0.000621371 }}</td>
+        </tr>
+        {% else %}
+        <tr><td>None!</td></tr>
+        {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+    <a href="{{ url_for('strava_activity_download') }}" class="button">View your last 50 activities!  (Please wait up to 2 mins the first time you load your data)</a>
+    </p>
+  </div>
+  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</html>
+{% endblock %}
