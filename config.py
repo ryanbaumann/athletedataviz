@@ -14,19 +14,23 @@ class Config(object):
 
     HOST_NAME = os.environ.get('OPENSHIFT_APP_DNS','localhost')
     APP_NAME = os.environ.get('OPENSHIFT_APP_NAME','webdev5')
+    
     """
     PG_DB_HOST = os.environ.get('OPENSHIFT_POSTGRESQL_DB_HOST','localhost')
     PG_DB_PORT = int(os.environ.get('OPENSHIFT_POSTGRESQL_DB_PORT',5432))
     PG_DB_USERNAME = os.environ.get('OPENSHIFT_POSTGRESQL_DB_USERNAME','admin')
     PG_DB_PASSWORD = os.environ.get('OPENSHIFT_POSTGRESQL_DB_PASSWORD','password')
     """
+    MAPBOX_GL_ACCESS_TOKEN=os.environ['MAPBOX_GL_ACCESS_TOKEN']
     STRAVA_CLIENT_ID=os.environ['STRAVA_CLIENT_ID']
     STRAVA_CLIENT_SECRET=os.environ['STRAVA_CLIENT_SECRET']
     UPLOAD_FOLDER='uploads'
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
-class ProductionConfig(Config):
+class ProductionConfig(Config): 
     DEBUG = False
+    HOST_NAME = r'athletedataviz-pro.herokuapp.com'
+    APP_NAME = r'athletedataviz-pro'
 
 class StagingConfig(Config):
     DEVELOPMENT = True
