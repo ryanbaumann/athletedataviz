@@ -50,7 +50,7 @@ def login():
     #redirect_uri = r'http://' + app.config['HOST_NAME'] + '/auth'
     redirect_uri = r'http://' + app.config['HOST_NAME'] + ':' + str(app.config['PORT']) + '/auth'
     print redirect_uri
-    auth_url = client.authorization_url(client_id=app.config['CLIENT_ID'],
+    auth_url = client.authorization_url(client_id=app.config['STRAVA_CLIENT_ID'],
             redirect_uri= redirect_uri)
     return render_template('login.html', auth_url=auth_url)
 
@@ -75,8 +75,8 @@ def auth_done():
 
     try:
         token = client.exchange_code_for_token(
-                client_id=app.config['CLIENT_ID'],
-                client_secret=app.config['CLIENT_SECRET'],
+                client_id=app.config['STRAVA_CLIENT_ID'],
+                client_secret=app.config['STRAVA_CLIENT_SECRET'],
                 code = code)
     except:
         print 'error exchanging token with Strava API!'
