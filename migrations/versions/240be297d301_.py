@@ -1,17 +1,18 @@
 """empty message
 
-Revision ID: 512b208efe83
-Revises: 40371e0ae8a9
-Create Date: 2015-10-25 15:53:13.222000
+Revision ID: 240be297d301
+Revises: 4405fa1df685
+Create Date: 2015-10-25 18:16:07.309000
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '512b208efe83'
-down_revision = '40371e0ae8a9'
+revision = '240be297d301'
+down_revision = '4405fa1df685'
 
 from alembic import op
 import sqlalchemy as sa
+import geoalchemy2
 
 
 def upgrade():

@@ -10,54 +10,98 @@ import psycopg2
 from sqlalchemy import create_engine
 import json
 
+#################
+# configuration #
+#################
+
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 
-import models
+from models import *
 
 
-#---------Strava Pages---------------
-"""
-@app.route('/')
+##########
+# routes #
+##########     
+
+@app.route('/', methods=['GET', 'POST'])
 def homepage():
-
-    title = "Epic Tutorials"
-    paragraph = ["wow I am learning so much great stuff!"]
-
-    try:
-        return render_template("index.html", title = title, paragraph=paragraph)
-    except Exception, e:
-        return str(e)
-"""        
-
-@app.route('/')
-def homepage():
+    global client, athlete
+    errors = []
+    #Check if the user is logged in, otherwise forward them to the login page
     if 'access_token' not in session:
         return redirect(url_for('login'))
 
-    client = stravalib.client.Client(access_token=session['access_token'])
-    athlete = client.get_athlete()
-    #session['client'] = client
-    session['athlete_id'] = athlete.id
-    session['table_name'] = athlete.lastname + '_' + athlete.firstname
-    return render_template('main.html', athlete=athlete, client=client)
+    #Render the homepage with the user's Strava access token
+    if request.method == 'GET':
+        client = stravalib.client.Client(access_token=session['access_token'])
+        athlete = client.get_athlete()
+
+        #Save the results to the database
+        try:
+            #Check if the athlete already exists in the db
+            existing_athlete = Athlete.query.filter_by(ath_id=athlete.id).first()
+            
+            if not existing_athlete:
+                print "new athlete - adding to db!"
+                new_athlete = Athlete(data_source='strava',
+                                      ath_id=athlete.id,
+                                      api_code=session['access_token'],
+                                      first_name=athlete.firstname,
+                                      last_name=athlete.lastname)
+                db.session.add(new_athlete)
+            
+            else:
+                print "athlete already in db - updating existing record"
+                existing_athlete.api_code = session['access_token']
+                existing_athlete.last_updated_datetime_utc = str(datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'))
+
+            #Commit the update or new row insertion
+            db.session.commit()
+        except:
+            errors.append("Unable to add or update athlete in database.")
+            print errors
+
+        session['table_name'] = athlete.lastname + '_' + athlete.firstname
+        base_filename = athlete.lastname + '_' + athlete.firstname + \
+                    '_Data_' + str(datetime.now().strftime('%Y%m%d%H%M%S'))
+        path_to_geojsonfile = app.config['UPLOAD_FOLDER'] + '/' + base_filename + '.geojson'
+        session['geojson_file'] = path_to_geojsonfile
+        return render_template('main.html', act_limit=session.get('act_limit', 1),
+                                            athlete=athlete, 
+                                            client=client,
+                                            errors=errors)
+
+    #Get the user number of activities to query
+    if request.method == 'POST':
+        try:
+            act_limit = int(request.form.get('act_limit', 1))
+        except:
+            act_limit = 1
+            flash("Please enter a valid integer between 1 and 100")
+        session['act_limit'] = act_limit
+        flash("Activity limit updated to %s!" %(str(act_limit)))
+        return render_template('main.html', act_limit=session.get('act_limit', 1),
+                                            athlete=athlete, 
+                                            client=client)
 
 @app.route('/login')
 def login():
     client = stravalib.client.Client()
-    #Update redirect uri when testing on developers.strava.com
+    #Check port configuration for dev vs. deployed environments
     if str(app.config['PORT']) == '':
         redirect_uri = r'http://' + app.config['HOST_NAME'] + '/auth'
     else:
         redirect_uri = r'http://' + app.config['HOST_NAME'] + ':' + str(app.config['PORT']) + '/auth'
-    print redirect_uri
+
     auth_url = client.authorization_url(client_id=app.config['STRAVA_CLIENT_ID'],
             redirect_uri= redirect_uri)
     return render_template('login.html', auth_url=auth_url)
 
 @app.route('/logout')
 def logout():
+    """ End a users session and return them to the homepage """
     session.pop('access_token')
     return redirect(url_for('homepage'))
 
@@ -67,6 +111,7 @@ def update():
 
 @app.route('/auth')
 def auth_done():
+    """ Authenticate a user with the Strava api and obtain a token """
     try:
         code = request.args.get('code')
     except:
@@ -151,4 +196,4 @@ def internal_error(exception):
     return render_template('500.html'), 500
 """
 if __name__ == '__main__':
-    app.run()
+    app.run(port=int(app.config['PORT']))

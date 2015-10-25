@@ -109,6 +109,17 @@
       </table>
     </div>
 
+    <div id="act_input">
+      <form method="POST">
+        <p>How many activities to vizualize?: <input type="number" name="act_limit" min="1" max="100" value="{{ act_limit }}"></p>
+        <input type="submit" name="submit" value="Update Activity Limit!">
+      </form>
+
+      {% for message in get_flashed_messages() %}
+      <p style="color: red;">{{ message }}</p>
+      {% endfor %}
+    </div>
+
     <p>
     <a href="{{ url_for('strava_activity_download') }}" class="button">View your last 50 activities!  (Please wait up to 2 mins the first time you load your data)</a>
     </p>

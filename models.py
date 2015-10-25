@@ -11,7 +11,7 @@ class Athlete(db.Model):
     data_source = db.Column(db.String(), index=True)
     ath_id = db.Column(db.Integer, index=True)
     last_updated_datetime_utc = db.Column(db.DateTime(), default=datetime.utcnow)
-    api_code = db.Column(db.Integer)
+    api_code = db.Column(db.String(50))
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
 
