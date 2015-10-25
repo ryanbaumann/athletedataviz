@@ -1,0 +1,15 @@
+flask
+stravalib 
+pandas
+pg
+sqlalchemy
+flask-sqlalchemy
+geoalchemy2
+MarkupSafe
+pygresql
+pg8000
+cherrypy
+pyglfw
+geojson
+gevent
+flask-migrate
