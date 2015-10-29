@@ -5,11 +5,11 @@ from flask import Flask, request, flash, url_for, redirect, \
 from flask.ext.sqlalchemy import SQLAlchemy
 import json
 import stravalib
-import stravaParse as sp
+import stravaParse_v2 as sp
 import psycopg2
 from sqlalchemy import create_engine
 import json
-
+import logging
 #################
 # configuration #
 #################
@@ -17,6 +17,9 @@ import json
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], convert_unicode=True)
+#logging.basicConfig()
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 from models import *
 
@@ -37,7 +40,8 @@ def homepage():
     if request.method == 'GET':
         client = stravalib.client.Client(access_token=session['access_token'])
         athlete = client.get_athlete()
-
+        #Add athlete ID to the session
+        session['ath_id'] = athlete.id
         #Save the results to the database
         try:
             #Check if the athlete already exists in the db
@@ -63,24 +67,19 @@ def homepage():
             errors.append("Unable to add or update athlete in database.")
             print errors
 
-        session['table_name'] = athlete.lastname + '_' + athlete.firstname
-        base_filename = athlete.lastname + '_' + athlete.firstname + \
-                    '_Data_' + str(datetime.now().strftime('%Y%m%d%H%M%S'))
-        path_to_geojsonfile = app.config['UPLOAD_FOLDER'] + '/' + base_filename + '.geojson'
-        session['geojson_file'] = path_to_geojsonfile
         return render_template('main.html', act_limit=session.get('act_limit', 1),
                                             athlete=athlete, 
-                                            client=client,
-                                            errors=errors)
+                                            client=client)
 
     #Get the user number of activities to query
     if request.method == 'POST':
         try:
             act_limit = int(request.form.get('act_limit', 1))
+            session['act_limit'] = act_limit
         except:
             act_limit = 1
             flash("Please enter a valid integer between 1 and 100")
-        session['act_limit'] = act_limit
+        #Tell the user that the value has been updated    
         flash("Activity limit updated to %s!" %(str(act_limit)))
         return render_template('main.html', act_limit=session.get('act_limit', 1),
                                             athlete=athlete, 
@@ -134,32 +133,89 @@ def auth_done():
 
 @app.route('/stravaData')
 def strava_activity_download():
+    """
+    Get strava activities and store the stream data in the database.
+    Then return the user to a webpage with a preview of the data.
+    """
+    #Get the activity limit from the HTTP request parameters
+    try:
+        act_limit = request.args.get('act_limit')
+    except:
+        print 'Act limit not found! - Initializing to 20'
+        act_limit = 20
 
+    #Get a client
     client = stravalib.client.Client(access_token=session['access_token'])
-    types = ['time', 'distance', 'latlng', 'altitude', 'velocity_smooth', 'grade_smooth']
-    limit = 50
+    types = ['latlng', 'time', 'distance', 'velocity_smooth', 'altitude', 'grade_smooth',
+              'watts', 'temp', 'heartrate', 'cadence', 'moving']
+    resolution = 'low'
+    #Get a list of activities, compare to what's in the DB, return only activities not in DB items
+    acts_list = sp.GetActivities(client, 20)
+    #Return a list of already cached activities in the database
+    print 'ath_id is ' + str(session['ath_id'])
+    acts_dl_list = []
+    for act in Activity.query.filter_by\
+               (ath_id=session['ath_id']).with_entities(Activity.act_id).all():
+        acts_dl_list += act
+    print "already downloaded list is : " + str(acts_dl_list)
+
+    #Now loop through each activity if it's not in the list and download the stream
+    for act in acts_list:
+        print "checkin act id: " + str(act.id)
+        if act.id not in acts_dl_list:
+            #try:
+                #Add results to dictionary
+            df = sp.ParseActivity(client, act, types, resolution)
+            if not df.empty:
+                print "cleaning data..."
+                df = sp.cleandf(df)
+                print "activities parsed!  Returning dataframe"
+            else:
+                print "no new data to clean"
+
+            print "okay, now inserting into the database!"
+
+            new_act = Activity(ath_id=session['ath_id'],
+                                  act_id=act.id,
+                                  act_type=act.type,
+                                  act_name=act.name,
+                                  act_description=act.description,
+                                  act_startDate=act.start_date_local,
+                                  act_dist=act.distance,
+                                  act_totalElevGain=act.total_elevation_gain,
+                                  act_avgSpd=act.average_speed,
+                                  act_calories=act.calories
+                                  )
+            db.session.add(new_act)
+            db.session.commit()
+            print "successfully added activity to db!"
+
+            #Write stream dataframe to db
+            df.to_sql('Stream', engine,
+                  if_exists='append',
+                  index=False)
+
+            print "Successfully added stream to db!"
+
+
+            #except:
+            #    print "error entering activity or stream data into db!"
+
     uploads = app.config['UPLOAD_FOLDER']
     now = datetime.now()
     athlete = client.get_athlete()
     base_filename = athlete.lastname + '_' + athlete.firstname + \
-                    '_Data_' + str(now.strftime('%Y%m%d%H%M%S'))
-
+                '_Data_' + str(datetime.now().strftime('%Y%m%d%H%M%S'))
+    path_to_geojsonfile = app.config['UPLOAD_FOLDER'] + '/' + base_filename + '.geojson'
+    session['geojson_file'] = path_to_geojsonfile      
     path_to_csvfile = uploads + '/'  + base_filename + '.csv'
     path_to_zipfile = uploads + '/' + base_filename + '.zip'
     path_to_geojsonfile = uploads + '/' + base_filename + '.geojson'
-
-    #Get data and write to database... 
-    flash("please wait, getting your data.  Can take up to 2 mins the first time you visit the site")
-    df, preview, no_new_data = sp.fully_process_acts(client, limit, types, 
-                                        path_to_csvfile, path_to_zipfile, 
-                                        engine, session['table_name'])
-
-    view_name = sp.df_to_postgis_db(df, engine, session['table_name'], no_new_data)
-    session['view_name'] = view_name
+    view_name = '"V_Stream_LineString"'
     print "generating geojson file..."
     sp.to_geojson(engine, view_name, path_to_geojsonfile)
     return render_template('stravaData.html',
-                           data = preview.to_html(),
+                           data =  '<div> </div>', #preview.to_html()
                            zip_file = base_filename + '.zip',
                            geojson_file = base_filename + '.geojson')
 

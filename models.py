@@ -9,7 +9,7 @@ class Athlete(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     data_source = db.Column(db.String(), index=True)
-    ath_id = db.Column(db.Integer, index=True)
+    ath_id = db.Column(db.Integer, index=True, unique=True)
     last_updated_datetime_utc = db.Column(db.DateTime(), default=datetime.utcnow)
     api_code = db.Column(db.String(50))
     first_name = db.Column(db.String(50))
@@ -32,8 +32,8 @@ class Activity(db.Model):
     __tablename__ = 'Activity'
 
     id = db.Column(db.Integer, primary_key=True)
-    ath_id = db.Column(db.Integer, db.ForeignKey('Athlete.id'), index=True)
-    act_id = db.Column(db.Integer, index=True)
+    ath_id = db.Column(db.Integer, db.ForeignKey('Athlete.ath_id'), index=True)
+    act_id = db.Column(db.Integer, index=True, unique=True)
     last_updated_datetime_utc = db.Column(db.DateTime(), default=datetime.utcnow)
     act_type = db.Column(db.String(20), index=True)
     act_name = db.Column(db.String(200))
@@ -67,7 +67,7 @@ class Stream(db.Model):
     __tablename__ = 'Stream'
 
     id = db.Column(db.Integer, primary_key=True)
-    act_id = db.Column(db.Integer, db.ForeignKey('Activity.id'), index=True)
+    act_id = db.Column(db.Integer, db.ForeignKey('Activity.act_id'), index=True)
     last_updated_datetime_utc = db.Column(db.DateTime(), default=datetime.utcnow)
     timestamp = db.Column(db.DateTime())
     lat = db.Column(db.Float(precision=8))
