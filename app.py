@@ -10,6 +10,7 @@ import psycopg2
 from sqlalchemy import create_engine
 import json
 import logging
+
 #################
 # configuration #
 #################
@@ -18,11 +19,7 @@ app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], convert_unicode=True)
-#logging.basicConfig()
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-
 from models import *
-
 
 ##########
 # routes #
@@ -42,6 +39,7 @@ def homepage():
         athlete = client.get_athlete()
         #Add athlete ID to the session
         session['ath_id'] = athlete.id
+        session['act_limit'] = 1
         #Save the results to the database
         try:
             #Check if the athlete already exists in the db
@@ -74,8 +72,11 @@ def homepage():
     #Get the user number of activities to query
     if request.method == 'POST':
         try:
+            client = stravalib.client.Client(access_token=session['access_token'])
+            athlete = client.get_athlete()
             act_limit = int(request.form.get('act_limit', 1))
             session['act_limit'] = act_limit
+            print "act limit updated to : " + str(act_limit)
         except:
             act_limit = 1
             flash("Please enter a valid integer between 1 and 100")
@@ -131,93 +132,113 @@ def auth_done():
     session['access_token'] = token
     return redirect(url_for('homepage'))
 
-@app.route('/stravaData')
+@app.route('/stravaData', methods=['GET', 'POST'])
 def strava_activity_download():
     """
     Get strava activities and store the stream data in the database.
     Then return the user to a webpage with a preview of the data.
     """
-    #Get the activity limit from the HTTP request parameters
-    try:
-        act_limit = request.args.get('act_limit')
-    except:
-        print 'Act limit not found! - Initializing to 20'
-        act_limit = 20
+    if request.method == 'POST':
+        try:
+            client = stravalib.client.Client(access_token=session['access_token'])
+            athlete = client.get_athlete()
+            act_delete = request.form.get('act_delete', False)
+            if act_delete == True:
+                print "deleting all activities from current athlete ..."
+                Activity.query.filter_by(ath_id=session['ath_id']).\
+                                         delete(synchronize_session='evaluate')
+                print "deleted activities from ath_id = " + session['ath_id']
+                flash("Activity limit updated to %s!" %(str(act_limit)))
+                return render_template('stravaData.html', 
+                                            act_limit=session.get('act_limit', 1),
+                                            athlete=athlete, 
+                                            client=client)
+        except:
+            print "error reading arguments from delete reuqest form!"
+    
+    if request.method == 'GET':
+        #Get the activity limit from the HTTP request parameters
+        try:
+            act_limit = int(request.args.get('act_limit'))
+        except:
+            print 'Act limit not found! - Initializing to 20'
+            act_limit = int(20)
 
-    #Get a client
-    client = stravalib.client.Client(access_token=session['access_token'])
-    types = ['latlng', 'time', 'distance', 'velocity_smooth', 'altitude', 'grade_smooth',
-              'watts', 'temp', 'heartrate', 'cadence', 'moving']
-    resolution = 'low'
-    #Get a list of activities, compare to what's in the DB, return only activities not in DB items
-    acts_list = sp.GetActivities(client, 20)
-    #Return a list of already cached activities in the database
-    print 'ath_id is ' + str(session['ath_id'])
-    acts_dl_list = []
-    for act in Activity.query.filter_by\
-               (ath_id=session['ath_id']).with_entities(Activity.act_id).all():
-        acts_dl_list += act
-    print "already downloaded list is : " + str(acts_dl_list)
+        #Get a client
+        client = stravalib.client.Client(access_token=session['access_token'])
+        types = ['latlng', 'time', 'distance', 'velocity_smooth', 'altitude', 'grade_smooth',
+                  'watts', 'temp', 'heartrate', 'cadence', 'moving']
+        resolution = 'medium'
+        #Get a list of activities, compare to what's in the DB, return only activities not in DB items
+        acts_list = sp.GetActivities(client, act_limit)
+        #Return a list of already cached activities in the database
+        print 'ath_id is ' + str(session['ath_id'])
+        acts_dl_list = []
+        for act in Activity.query.filter_by\
+                   (ath_id=session['ath_id']).with_entities(Activity.act_id).all():
+            acts_dl_list += act
 
-    #Now loop through each activity if it's not in the list and download the stream
-    for act in acts_list:
-        print "checkin act id: " + str(act.id)
-        if act.id not in acts_dl_list:
-            #try:
-                #Add results to dictionary
-            df = sp.ParseActivity(client, act, types, resolution)
-            if not df.empty:
-                print "cleaning data..."
-                df = sp.cleandf(df)
-                print "activities parsed!  Returning dataframe"
-            else:
-                print "no new data to clean"
+        #Now loop through each activity if it's not in the list and download the stream
+        for act in acts_list:
+            print "checking act id: " + str(act.id)
+            if act.id not in acts_dl_list:
+                #try:
+                    #Add results to dictionary
+                df = sp.ParseActivity(client, act, types, resolution)
+                if not df.empty:
+                    print "cleaning data..."
+                    df = sp.cleandf(df)
+                    print "activities parsed!  Returning dataframe"
+                else:
+                    print "no new data to clean"
 
-            print "okay, now inserting into the database!"
+                print "okay, now inserting into the database!"
 
-            new_act = Activity(ath_id=session['ath_id'],
-                                  act_id=act.id,
-                                  act_type=act.type,
-                                  act_name=act.name,
-                                  act_description=act.description,
-                                  act_startDate=act.start_date_local,
-                                  act_dist=act.distance,
-                                  act_totalElevGain=act.total_elevation_gain,
-                                  act_avgSpd=act.average_speed,
-                                  act_calories=act.calories
-                                  )
-            db.session.add(new_act)
-            db.session.commit()
-            print "successfully added activity to db!"
+                new_act = Activity(ath_id=session['ath_id'],
+                                      act_id=act.id,
+                                      act_type=act.type,
+                                      act_name=act.name,
+                                      act_description=act.description,
+                                      act_startDate=act.start_date_local,
+                                      act_dist=act.distance,
+                                      act_totalElevGain=act.total_elevation_gain,
+                                      act_avgSpd=act.average_speed,
+                                      act_calories=act.calories
+                                      )
+                db.session.add(new_act)
+                db.session.commit()
+                print "successfully added activity to db!"
 
-            #Write stream dataframe to db
-            df.to_sql('Stream', engine,
-                  if_exists='append',
-                  index=False)
+                #Write stream dataframe to db
+                df.to_sql('Stream', engine,
+                      if_exists='append',
+                      index=False)
 
-            print "Successfully added stream to db!"
+                print "Successfully added stream to db!"
 
 
-            #except:
-            #    print "error entering activity or stream data into db!"
+                #except:
+                #    print "error entering activity or stream data into db!"
 
-    uploads = app.config['UPLOAD_FOLDER']
-    now = datetime.now()
-    athlete = client.get_athlete()
-    base_filename = athlete.lastname + '_' + athlete.firstname + \
-                '_Data_' + str(datetime.now().strftime('%Y%m%d%H%M%S'))
-    path_to_geojsonfile = app.config['UPLOAD_FOLDER'] + '/' + base_filename + '.geojson'
-    session['geojson_file'] = path_to_geojsonfile      
-    path_to_csvfile = uploads + '/'  + base_filename + '.csv'
-    path_to_zipfile = uploads + '/' + base_filename + '.zip'
-    path_to_geojsonfile = uploads + '/' + base_filename + '.geojson'
-    view_name = '"V_Stream_LineString"'
-    print "generating geojson file..."
-    sp.to_geojson(engine, view_name, path_to_geojsonfile)
-    return render_template('stravaData.html',
-                           data =  '<div> </div>', #preview.to_html()
-                           zip_file = base_filename + '.zip',
-                           geojson_file = base_filename + '.geojson')
+        uploads = app.config['UPLOAD_FOLDER']
+        now = datetime.now()
+        athlete = client.get_athlete()
+        base_filename = athlete.lastname + '_' + athlete.firstname + \
+                    '_Data_' + str(datetime.now().strftime('%Y%m%d%H%M%S'))
+        path_to_geojsonfile = app.config['UPLOAD_FOLDER'] + '/' + base_filename + '.geojson'
+        session['geojson_file'] = path_to_geojsonfile      
+        path_to_csvfile = uploads + '/'  + base_filename + '.csv'
+        path_to_zipfile = uploads + '/' + base_filename + '.zip'
+        path_to_geojsonfile = uploads + '/' + base_filename + '.geojson'
+        view_name = '"V_Stream_LineString"'
+        print "generating geojson file..."
+        sp.to_geojson(engine, view_name, path_to_geojsonfile)
+        print base_filename
+        print 'geojson file is : ' + path_to_geojsonfile
+        return render_template('stravaData.html',
+                               data =  '<div> </div>', #preview.to_html()
+                               zip_file = base_filename + '.zip',
+                               geojson_file = path_to_geojsonfile) #base_filename + '.geojson')
 
 """
 @app.route('/uploads/<path:filename>')
@@ -230,11 +251,11 @@ def download_strava():
     
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename, as_attachment=True)
-
+"""
 @app.route('/strava_mapbox')
 def strava_mapbox():
     filename = request.args.get('filename')
-    file_path = app.config['UPLOAD_FOLDER'] + '/' + filename
+    file_path = filename
     print "geojson file path is : " + file_path
     with open(file_path, 'r') as f:
         geojson_data = json.load(f)
@@ -250,6 +271,6 @@ def page_not_found(error):
 def internal_error(exception):
     app.logger.exception(exception)
     return render_template('500.html'), 500
-"""
+
 if __name__ == '__main__':
     app.run(port=int(app.config['PORT']))

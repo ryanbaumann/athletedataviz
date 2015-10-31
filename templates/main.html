@@ -12,6 +12,7 @@
     </style>
     <script src="http://code.jquery.com/jquery-1.11.0.js"></script>
     <script type="text/javascript">
+
     $( document ).ready(
         function(){
         $('.bikes').on('click','.radio-button',function () {
@@ -41,90 +42,94 @@
 
     </script>
   </head>
+  <body>
+    {% block body %}
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md col-sm-offset-1">
+        <div id="header">
+          <h1>Athlete Data Viz</h1>
+          <a href="{{ url_for('logout') }}" class="close button">Log out</a>
+        </div>
 
-{% block body %}
-
-<div id="header">
-  <h1>Athlete Data Viz</h1>
-  <a href="{{ url_for('logout') }}" class="close button">Log out</a>
-</div>
-
-<div class="page">
-
-  <h2>Hello {{ athlete.firstname }} </h2>
-  <p>
-  This is Athlete Data Viz. Making your data into art.
-  </p>
-
-    <div class="section" id="bikes">
-      <h3 class="marginless">Bikes</h3>
-      <table class="gear bikes">
-        <thead style="">
-        <tr>
-          <th style="width: 20%">Bike</th>
-          <th style="width: 20%">Distance (mi)</th>
-        </tr>
-        </thead>
-        <tbody>
-          {% for bike in athlete.bikes %}
-          <tr class="{{'%s' % 'default' if bike.primary}}" data-id="{{bike.id}}">
-        <td>{{ bike.name }}</td>
-        <td>
-          <a class="radio-button {{'%s' % 'selected' if bike.primary}}" data-id="{{bike.id}}"></a>
-        </td>
-        <td>{{ bike.distance*0.621371 }}</td>
-        </tr>
-        {% else %}
-        <tr><td>None!</td></tr>
-        {% endfor %}
-
-        </tbody>
-      </table>
-    </div>
-
-    <div class="section" id="activities">
-      <h3 class="marginless">Activities</h3>
-      <table class="activity list">
-        <thead style="">
+        <div class="col-md col-sm-offset-1">
+          <div id="greeting">
+          <h2>Hello {{ athlete.firstname }} </h2>
+          <p>
+          This is Athlete Data Viz. Making your data into art.
+          </p>
+        </div>
+      <div class="section" id="bikes">
+        <h3 class="marginless">Bikes</h3>
+        <table class="gear bikes">
+          <thead style="">
           <tr>
-            <th style="width: 20%">Name</th>
+            <th style="width: 20%">Bike</th>
             <th style="width: 20%">Distance (mi)</th>
           </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
+            {% for bike in athlete.bikes %}
+            <tr class="{{'%s' % 'default' if bike.primary}}" data-id="{{bike.id}}">
+          <td>{{ bike.name }}</td>
+          <td>
+            <a class="radio-button {{'%s' % 'selected' if bike.primary}}" data-id="{{bike.id}}"></a>
+          </td>
+          <td>{{ bike.distance*0.621371 }}</td>
+          </tr>
+          {% else %}
+          <tr><td>None!</td></tr>
+          {% endfor %}
 
-        {% for activity in client.get_activities(limit=10) %}
-        <tr class="{{'%s' % 'default' if activity.name}}" data-id="{{activity.name}}">
-        <td>{{ activity.name }}</td>
-        <td>
-          <a class="radio-button {{'%s' % 'selected' if activity.name}}" data-id="{{activity.name}}"></a>
-        </td>
-        <td>{{ activity.distance*0.000621371 }}</td>
-        </tr>
-        {% else %}
-        <tr><td>None!</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section" id="activities">
+        <h3 class="marginless">Activities</h3>
+        <table class="activity list">
+          <thead style="">
+            <tr>
+              <th style="width: 20%">Name</th>
+              <th style="width: 20%">Distance (mi)</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          {% for activity in client.get_activities(limit=10) %}
+          <tr class="{{'%s' % 'default' if activity.name}}" data-id="{{activity.name}}">
+          <td>{{ activity.name }}</td>
+          <td>
+            <a class="radio-button {{'%s' % 'selected' if activity.name}}" data-id="{{activity.name}}"></a>
+          </td>
+          <td>{{ activity.distance*0.000621371 }}</td>
+          </tr>
+          {% else %}
+          <tr><td>None!</td></tr>
+          {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+
+      <div id="act_input">
+        <form method="POST">
+          <p>How many activities to vizualize?: <input type="number" name="act_limit" min="1" max="100" value="{{ act_limit }}"></p>
+          <input type="submit" name="submit" value="Update Activity Limit!">
+        </form>
+
+        {% for message in get_flashed_messages() %}
+        <p style="color: red;">{{ message }}</p>
         {% endfor %}
+      </div>
 
-        </tbody>
-      </table>
+      <p>
+      <a href="{{ url_for('strava_activity_download', act_limit = act_limit) }}" class="button">View your last 50 activities!  (Please wait up to 2 mins the first time you load your data)</a>
+      </p>
     </div>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    {% endblock %}
 
-    <div id="act_input">
-      <form method="POST">
-        <p>How many activities to vizualize?: <input type="number" name="act_limit" min="1" max="100" value="{{ act_limit }}"></p>
-        <input type="submit" name="submit" value="Update Activity Limit!">
-      </form>
-
-      {% for message in get_flashed_messages() %}
-      <p style="color: red;">{{ message }}</p>
-      {% endfor %}
-    </div>
-
-    <p>
-    <a href="{{ url_for('strava_activity_download') }}" class="button">View your last 50 activities!  (Please wait up to 2 mins the first time you load your data)</a>
-    </p>
-  </div>
-  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </html>
-{% endblock %}
+

@@ -7,6 +7,7 @@ class Config(object):
     TESTING = False
     PROPAGATE_EXCEPTIONS = True
     CSRF_ENABLED = True
+    WTF_CSRF_ENABLED = True
     SECRET_KEY = os.environ.get('SECRET_KEY','\xfb\x13\xdf\xa1@i\xd6>V\xc0\xbf\x8fp\x16#Z\x0b\x81\xeb\x16')
     
     IP = os.environ.get('OPENSHIFT_PYTHON_IP','127.0.0.1')

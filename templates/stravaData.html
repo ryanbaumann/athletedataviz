@@ -1,45 +1,51 @@
 <!DOCTYPE html>
-<head>
-<title>Athlete Data Viz</title>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+<html>
+    <head>
+        <title>Athlete Data Viz</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+        <style>
+            .container {
+              max-width: 1000px;
+            }
+        </style>
+        <script src="http://code.jquery.com/jquery-1.11.0.js"></script>
+        <script type="text/javascript">
 
-<script src="http://code.jquery.com/jquery-1.11.0.js"></script>
-<script type="text/javascript">
-</script>
+            evtSrc.onerror = function(e) {
+                location.reload();
+            }
+        </script>
+    </head>
 
-evtSrc.onerror = function(e) {
-        location.reload();
-    }
-
-</head>
-
-{% block body %}
-
-<div id="header">
-  <h1>Athlete Data Viz</h1>
-  <a href="{{ url_for('logout') }}" class="close button">Log out</a>
-</div>
-
-<div class="page">
-
-<h2>Heres your data preview!</h2>
-<body>
-    {% block content %}
-        <h1>Data</h1>
-            {{data | safe}}
+    {% block body %}
+    <div id="header">
+        <h1>Athlete Data Viz</h1>
+        <a href="{{ url_for('logout') }}" class="close button">Log out</a>
+    </div>
+    <div class="page">
+      <h2>Heres your data preview!</h2>
+        <body>
+            {% block content %}
+                <h1>Data</h1>
+                    <!-- {{data | safe}} Commented out for testing-->
+            {% endblock %}
+        </body> 
+        </p>
+        <div class="section" id="data">
+            <h3 class="marginless">data</h3>
+        <p>
     {% endblock %}
-</body> 
+        <a href="{{ url_for('strava_mapbox', filename = geojson_file) }}" class="button">View your data on a map!</a>
+        </p>
+    </div>
 
-</p>
-
-
-<div class="section" id="data">
-  <h3 class="marginless">data</h3>
-  
-<p>
-<a href="{{ url_for('strava_mapbox', filename = geojson_file) }}" class="button">View your data on a map!</a>
-</p>
-
-</div>
-
-{% endblock %}
+    <div id="delete_acts">
+        <form action="{{ url_for('delete_acts')}}" method="POST">
+          <input type="submit" name="submit" value="Delete All Activities?">
+        </form>
+    
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</html>
