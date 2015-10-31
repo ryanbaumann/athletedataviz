@@ -124,7 +124,7 @@
       </div>
 
       <p>
-      <a href="{{ url_for('strava_activity_download', act_limit = act_limit) }}" class="button">View your last 50 activities!  (Please wait up to 2 mins the first time you load your data)</a>
+      <a href="{{ url_for('strava_activity_download', act_limit = act_limit) }}" class="button">View your last {{ act_limit }} activities!  (Please wait up to 2 mins the first time you load your data)</a>
       </p>
     </div>
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>

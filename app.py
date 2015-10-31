@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Flask, request, flash, url_for, redirect, \
      render_template, abort, session, send_from_directory, Response
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask_debugtoolbar import DebugToolbarExtension
 import json
 import stravalib
 import stravaParse_v2 as sp
@@ -19,6 +20,7 @@ app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], convert_unicode=True)
+#toolbar = DebugToolbarExtension(app)
 from models import *
 
 ##########
@@ -132,29 +134,12 @@ def auth_done():
     session['access_token'] = token
     return redirect(url_for('homepage'))
 
-@app.route('/stravaData', methods=['GET', 'POST'])
+@app.route('/stravaData', methods=['GET'])
 def strava_activity_download():
     """
     Get strava activities and store the stream data in the database.
     Then return the user to a webpage with a preview of the data.
     """
-    if request.method == 'POST':
-        try:
-            client = stravalib.client.Client(access_token=session['access_token'])
-            athlete = client.get_athlete()
-            act_delete = request.form.get('act_delete', False)
-            if act_delete == True:
-                print "deleting all activities from current athlete ..."
-                Activity.query.filter_by(ath_id=session['ath_id']).\
-                                         delete(synchronize_session='evaluate')
-                print "deleted activities from ath_id = " + session['ath_id']
-                flash("Activity limit updated to %s!" %(str(act_limit)))
-                return render_template('stravaData.html', 
-                                            act_limit=session.get('act_limit', 1),
-                                            athlete=athlete, 
-                                            client=client)
-        except:
-            print "error reading arguments from delete reuqest form!"
     
     if request.method == 'GET':
         #Get the activity limit from the HTTP request parameters
@@ -175,7 +160,7 @@ def strava_activity_download():
         print 'ath_id is ' + str(session['ath_id'])
         acts_dl_list = []
         for act in Activity.query.filter_by\
-                   (ath_id=session['ath_id']).with_entities(Activity.act_id).all():
+                   (ath_id=int(session['ath_id'])).with_entities(Activity.act_id).all():
             acts_dl_list += act
 
         #Now loop through each activity if it's not in the list and download the stream
@@ -205,6 +190,7 @@ def strava_activity_download():
                                       act_avgSpd=act.average_speed,
                                       act_calories=act.calories
                                       )
+                flash("processing activities... " + act.name)
                 db.session.add(new_act)
                 db.session.commit()
                 print "successfully added activity to db!"
@@ -262,6 +248,34 @@ def strava_mapbox():
 
     return render_template('strava_mapbox.html', 
                             geojson_data = json.dumps(geojson_data))
+
+@app.route('/delete_acts', methods=['POST'])
+def delete_acts():
+    """Delete all activities from the user currently logged in"""
+    if request.method == 'POST':
+        client = stravalib.client.Client(access_token=session['access_token'])
+        athlete = client.get_athlete()
+        #try:
+        print "deleting all activities from current athlete ..."
+        acts_dl_list = []
+        for act in Activity.query.filter_by\
+                   (ath_id=int(session['ath_id'])).with_entities(Activity.act_id).all():
+            acts_dl_list += act
+        for act in acts_dl_list:
+            flash("deleting activity " + str(act))
+            #Delete the stream     
+            Stream.query.filter_by(act_id=act).delete(synchronize_session='evaluate')
+            #Delete the activity 
+            Activity.query.filter_by(act_id=act).delete(synchronize_session='evaluate')
+
+        print "deleted activities from ath_id = " + str(session['ath_id'])
+        #except:
+        #    print "error reading arguments from delete reuqest form!"
+
+        return render_template('stravaData.html', 
+                                        act_limit=session.get('act_limit', 1),
+                                        athlete=athlete, 
+                                        client=client)
 
 @app.errorhandler(404)
 def page_not_found(error):

@@ -17,3 +17,4 @@ wsgiref==0.1.2
 requests==2.3.0
 gunicorn
 psycopg2
+flask-debugtoolbar

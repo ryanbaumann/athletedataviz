@@ -37,15 +37,21 @@
             <h3 class="marginless">data</h3>
         <p>
     {% endblock %}
-        <a href="{{ url_for('strava_mapbox', filename = geojson_file) }}" class="button">View your data on a map!</a>
-        </p>
+    <a href="{{ url_for('strava_mapbox', filename = geojson_file) }}" class="button">View your data on a map!</a>
+    </p>
     </div>
 
     <div id="delete_acts">
-        <form action="{{ url_for('delete_acts')}}" method="POST">
+        <form action="delete_acts" method="POST">
           <input type="submit" name="submit" value="Delete All Activities?">
         </form>
-    
+    <div id="Return_Main">
+        <a href="{{ url_for('homepage') }}" class="close button">Return to Main Page</a>
+
+    {% for message in get_flashed_messages() %}
+        <p style="color: red;">{{ message }}</p>
+    {% endfor %}
+
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </html>
