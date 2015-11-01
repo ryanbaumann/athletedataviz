@@ -259,7 +259,7 @@ def df_to_postgis_db(df, engine, table_name, no_new_data):
         print "inserted data into table!"
 
         print "creating view..."
-        my_view = 'SELECT act_id, act_name, ST_MakeLine(st_point(long, lat) ORDER BY id) AS linestring \
+        my_view = 'SELECT ath_id, act_id, act_name, ST_MakeLine(st_point(long, lat) ORDER BY id) AS linestring \
                    FROM "%s" GROUP BY act_id, act_name;' %(table_name)
 
         try:
@@ -269,7 +269,7 @@ def df_to_postgis_db(df, engine, table_name, no_new_data):
     
     return 'v_%s_ls'.lower() %(table_name)
 
-def to_geojson(engine, view_name, filename):
+def to_geojson_file(engine, view_name, filename):
     ##check the output, this geojson isn't perfect as expected...
     geojson_sql = "SELECT row_to_json(fc) \
                    FROM (SELECT 'FeatureCollection' As type, \
@@ -298,7 +298,7 @@ def to_geojson(engine, view_name, filename):
 
     return None
 
-def get_geojson_from_db(engine, view_name):
+def to_geojson_data(engine, view_name, ath_id):
     ##check the output, this geojson isn't perfect as expected...
     geojson_sql = "SELECT row_to_json(fc) \
                    FROM (SELECT 'FeatureCollection' As type, \
@@ -306,11 +306,11 @@ def get_geojson_from_db(engine, view_name):
                         FROM (SELECT 'Feature' As type, \
                                 ST_AsGeoJSON(linestring)::json As geometry, \
                                 row_to_json((SELECT l \
-                                    FROM (SELECT act_id, act_name) As l)) \
+                                    FROM (SELECT act_id, act_name Where ath_id = %s) As l)) \
                                 As properties \
-                            FROM %s As lg) \
+                            FROM %s As lg)\
                         As f ) \
-                    As fc;" %(view_name)
+                    As fc;" %(str(ath_id), view_name)
     
     result = engine.execute(geojson_sql)
     for row in result:

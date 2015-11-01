@@ -29,6 +29,12 @@ from models import *
 
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
+    """
+    Render the AthleteDataViz homepage.
+    Homepage is only viewable if user has been logged in (access_token in session)
+    Otherwise the user will be redirected to the /login.html render_template
+    """
+
     global client, athlete
     errors = []
     #Check if the user is logged in, otherwise forward them to the login page
@@ -157,7 +163,6 @@ def strava_activity_download():
         #Get a list of activities, compare to what's in the DB, return only activities not in DB items
         acts_list = sp.GetActivities(client, act_limit)
         #Return a list of already cached activities in the database
-        print 'ath_id is ' + str(session['ath_id'])
         acts_dl_list = []
         for act in Activity.query.filter_by\
                    (ath_id=int(session['ath_id'])).with_entities(Activity.act_id).all():
@@ -167,64 +172,46 @@ def strava_activity_download():
         for act in acts_list:
             print "checking act id: " + str(act.id)
             if act.id not in acts_dl_list:
-                #try:
+                try:
                     #Add results to dictionary
-                df = sp.ParseActivity(client, act, types, resolution)
-                if not df.empty:
-                    print "cleaning data..."
-                    df = sp.cleandf(df)
-                    print "activities parsed!  Returning dataframe"
-                else:
-                    print "no new data to clean"
+                    df = sp.ParseActivity(client, act, types, resolution)
+                    if not df.empty:
+                        print "cleaning data..."
+                        df = sp.cleandf(df)
+                        print "activities parsed!  Returning dataframe"
+                    else:
+                        print "no new data to clean"
 
-                print "okay, now inserting into the database!"
+                    print "okay, now inserting into the database!"
 
-                new_act = Activity(ath_id=session['ath_id'],
-                                      act_id=act.id,
-                                      act_type=act.type,
-                                      act_name=act.name,
-                                      act_description=act.description,
-                                      act_startDate=act.start_date_local,
-                                      act_dist=act.distance,
-                                      act_totalElevGain=act.total_elevation_gain,
-                                      act_avgSpd=act.average_speed,
-                                      act_calories=act.calories
-                                      )
-                flash("processing activities... " + act.name)
-                db.session.add(new_act)
-                db.session.commit()
-                print "successfully added activity to db!"
+                    new_act = Activity(ath_id=session['ath_id'],
+                                          act_id=act.id,
+                                          act_type=act.type,
+                                          act_name=act.name,
+                                          act_description=act.description,
+                                          act_startDate=act.start_date_local,
+                                          act_dist=act.distance,
+                                          act_totalElevGain=act.total_elevation_gain,
+                                          act_avgSpd=act.average_speed,
+                                          act_calories=act.calories
+                                          )
+                    flash("processing activities... " + act.name)
+                    db.session.add(new_act)
+                    db.session.commit()
+                    print "successfully added activity to db!"
 
-                #Write stream dataframe to db
-                df.to_sql('Stream', engine,
-                      if_exists='append',
-                      index=False)
+                    #Write stream dataframe to db
+                    df.to_sql('Stream', engine,
+                          if_exists='append',
+                          index=False)
+                    print "Successfully added stream to db!"
+                except:
+                    print "error entering activity or stream data into db!"
 
-                print "Successfully added stream to db!"
-
-
-                #except:
-                #    print "error entering activity or stream data into db!"
-
-        uploads = app.config['UPLOAD_FOLDER']
-        now = datetime.now()
-        athlete = client.get_athlete()
-        base_filename = athlete.lastname + '_' + athlete.firstname + \
-                    '_Data_' + str(datetime.now().strftime('%Y%m%d%H%M%S'))
-        path_to_geojsonfile = app.config['UPLOAD_FOLDER'] + '/' + base_filename + '.geojson'
-        session['geojson_file'] = path_to_geojsonfile      
-        path_to_csvfile = uploads + '/'  + base_filename + '.csv'
-        path_to_zipfile = uploads + '/' + base_filename + '.zip'
-        path_to_geojsonfile = uploads + '/' + base_filename + '.geojson'
-        view_name = '"V_Stream_LineString"'
-        print "generating geojson file..."
-        sp.to_geojson(engine, view_name, path_to_geojsonfile)
-        print base_filename
-        print 'geojson file is : ' + path_to_geojsonfile
         return render_template('stravaData.html',
-                               data =  '<div> </div>', #preview.to_html()
-                               zip_file = base_filename + '.zip',
-                               geojson_file = path_to_geojsonfile) #base_filename + '.geojson')
+                               data =  '<div> </div>') #preview.to_html()
+                               #zip_file = base_filename + '.zip',
+                               #geojson_file = path_to_geojsonfile) #base_filename + '.geojson')
 
 """
 @app.route('/uploads/<path:filename>')
@@ -238,16 +225,36 @@ def download_strava():
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename, as_attachment=True)
 """
+
 @app.route('/strava_mapbox')
 def strava_mapbox():
-    filename = request.args.get('filename')
-    file_path = filename
-    print "geojson file path is : " + file_path
-    with open(file_path, 'r') as f:
-        geojson_data = json.load(f)
-
-    return render_template('strava_mapbox.html', 
-                            geojson_data = json.dumps(geojson_data))
+    args = """
+        SELECT 
+            avg(a.lat) as avg_lat,
+            avg(a.long) as avg_long
+        FROM
+            "V_Stream_Activity" a
+        WHERE
+            ath_id = %s
+        GROUP BY
+            ath_id""" %(int(session['ath_id']))
+    try:
+        print "getting map extents from db..."
+        ext = db.session.execute(args)
+        for item in ext:
+            avg_lat, avg_long = item[0], item[1]
+    except:
+        print "error retrieving map extents!"
+    try:
+        #Get the geojson data for the athlete from the database
+        geojson_data = sp.to_geojson_data(
+                           engine, '"V_Stream_LineString"', int(session['ath_id']))
+    except:
+        print "error getting geojson data from the db!"
+    return render_template('strava_mapbox_gl.html', 
+                            geojson_data = geojson_data,
+                            avg_lat = avg_lat, 
+                            avg_long = avg_long)
 
 @app.route('/delete_acts', methods=['POST'])
 def delete_acts():

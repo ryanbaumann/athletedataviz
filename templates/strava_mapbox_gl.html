@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:80%; }
+    </style>
+</head>
+<body>
+
+<div id='map'></div>
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoicnNiYXVtYW5uIiwiYSI6IjdiOWEzZGIyMGNkOGY3NWQ4ZTBhN2Y5ZGU2Mzg2NDY2In0.jycgv7qwF8MMIWt4cT0RaQ';
+var center_point = [{{ avg_long|safe }}, {{ avg_lat|safe }}]
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/dark-v8',
+    center : center_point,
+    "zoom": 6
+});
+var stravaGeoJson = {{ geojson_data|safe }} ;
+
+var source = new mapboxgl.GeoJSONSource({
+    data: stravaGeoJson,
+    maxzoom : 15
+});
+
+
+map.on('style.load', function () {
+    map.addSource('athleteDataViz', source);
+    map.addLayer({
+        "id": "athleteDataViz",
+        "type": "line",
+        "source": "athleteDataViz",
+        "layout": {
+            "line-cap" : "round",
+            "line-join": "round",
+        },
+        "paint": {
+            "line-opacity": .2,
+            "line-width": 2,
+            "line-color": "#ff0"
+        }
+    });
+  
+});
+</script>
+
+</body>
+</html>
+
