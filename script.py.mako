@@ -12,7 +12,7 @@ down_revision = ${repr(down_revision)}
 
 from alembic import op
 import sqlalchemy as sa
-import geoalchemy2 
+from geoalchemy2 import Geometry
 
 ${imports if imports else ""}
 
