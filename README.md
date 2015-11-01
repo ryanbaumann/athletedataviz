@@ -16,6 +16,8 @@ Now provision a POSTGIS database on Heroku (this is the $50/month version FYI)
             ---------------------------------------
             2.1 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
 
+#Set an environement variable for the configuration version you have (Production in this case, below)
+    heroku config:set APP_SETTINGS=config.ProductionConfig --remote pro
 
 ## A mapbox dev account is required.  
 See https://www.mapbox.com/developers/ for details

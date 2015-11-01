@@ -16,13 +16,13 @@
 <div id='map'></div>
 
 <script>
-mapboxgl.accessToken = 'pk.eyJ1IjoicnNiYXVtYW5uIiwiYSI6IjdiOWEzZGIyMGNkOGY3NWQ4ZTBhN2Y5ZGU2Mzg2NDY2In0.jycgv7qwF8MMIWt4cT0RaQ';
+mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
 var center_point = [{{ avg_long|safe }}, {{ avg_lat|safe }}]
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/dark-v8',
     center : center_point,
-    "zoom": 6
+    "zoom": 7
 });
 var stravaGeoJson = {{ geojson_data|safe }} ;
 

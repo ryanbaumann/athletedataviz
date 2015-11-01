@@ -15,7 +15,7 @@ class Config(object):
 
     HOST_NAME = os.environ.get('OPENSHIFT_APP_DNS','localhost')
     APP_NAME = os.environ.get('OPENSHIFT_APP_NAME','webdev5')
-    
+    REDIS_URL = os.environ['REDIS_URL']
     """
     PG_DB_HOST = os.environ.get('OPENSHIFT_POSTGRESQL_DB_HOST','localhost')
     PG_DB_PORT = int(os.environ.get('OPENSHIFT_POSTGRESQL_DB_PORT',5432))

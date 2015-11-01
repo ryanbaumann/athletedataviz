@@ -254,7 +254,8 @@ def strava_mapbox():
     return render_template('strava_mapbox_gl.html', 
                             geojson_data = geojson_data,
                             avg_lat = avg_lat, 
-                            avg_long = avg_long)
+                            avg_long = avg_long,
+                            mapbox_gl_accessToken = app.config['MAPBOX_GL_ACCESS_TOKEN'])
 
 @app.route('/delete_acts', methods=['POST'])
 def delete_acts():

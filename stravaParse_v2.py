@@ -306,12 +306,13 @@ def to_geojson_data(engine, view_name, ath_id):
                         FROM (SELECT 'Feature' As type, \
                                 ST_AsGeoJSON(linestring)::json As geometry, \
                                 row_to_json((SELECT l \
-                                    FROM (SELECT act_id, act_name Where ath_id = %s) As l)) \
+                                    FROM (SELECT act_id, act_name) As l)) \
                                 As properties \
-                            FROM %s As lg)\
+                            FROM %s As lg \
+                            WHERE lg.ath_id=%s) \
                         As f ) \
-                    As fc;" %(str(ath_id), view_name)
-    
+                    As fc;" %(view_name, str(ath_id))
+    print geojson_sql
     result = engine.execute(geojson_sql)
     for row in result:
         data = row.values()
