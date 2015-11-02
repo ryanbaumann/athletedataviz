@@ -154,7 +154,7 @@ def stravaData():
         client = stravalib.client.Client(access_token=session['access_token'])
         types = ['latlng', 'time', 'distance', 'velocity_smooth', 'altitude', 'grade_smooth',
                   'watts', 'temp', 'heartrate', 'cadence', 'moving']
-        resolution = 'medium'
+        resolution = 'low'
         #Get a list of activities, compare to what's in the DB, return only activities not in DB items
         acts_list = sp.GetActivities(client, act_limit)
         #Return a list of already cached activities in the database
