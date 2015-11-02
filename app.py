@@ -253,8 +253,6 @@ def strava_mapbox():
 def delete_acts():
     """Delete all activities from the user currently logged in"""
     if request.method == 'POST':
-        client = stravalib.client.Client(access_token=session['access_token'])
-        athlete = client.get_athlete()
         try:
             print "deleting all activities from current athlete ..."
             acts_dl_list = []
@@ -267,6 +265,7 @@ def delete_acts():
                 #Delete the activity 
                 Activity.query.filter_by(act_id=act).delete(synchronize_session='evaluate')
 
+            db.session.commit()
             print "deleted activities from ath_id = " + str(session['ath_id'])
             flash("deleted all activities for athlete " + str(athlete.firstname) + " " +
                                                           str(athlete.lastname))
