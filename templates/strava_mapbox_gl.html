@@ -35,6 +35,18 @@
   right:10px;
   z-index:1000;
   }
+  .ui-button4 {
+  position:absolute;
+  top: 125px;
+  right:10px;
+  z-index:1000;
+  }
+  .ui-button5 {
+  position:absolute;
+  top: 175px;
+  right:10px;
+  z-index:1000;
+  }
 #map {
   width:100%;
   }
@@ -49,11 +61,29 @@
     <input type="submit" value="Return to Home" style="font-size: 20px;">
 </form>
 
-<select id='line_color' name="line_color" onkeyup="formChanged()" onchange="formChanged()"/ class="ui-button3" style="font-size: 20px;">
+<div title="Choose line Color">
+<select id='line_color' name="line_color" onclick='render();' class="ui-button3" style="font-size: 20px;">
   <option value="#FFFF00">Yellow</option>
   <option value="#FF0000">Red</option>
   <option value="#0000FF">Blue</option>
 </select>
+</div>
+
+<div title="Choose line width">
+<select id='line_width' name="line_width" onclick='render();' class="ui-button4" style="font-size: 20px;">
+  <option value=2>Normal</option>
+  <option value=1>Thin</option>
+  <option value=3>Bold</option>
+</select>
+</div>
+
+<div title="Choose opacity">
+<select id='line_opacity' onclick='render();' name="line_opacity" class="ui-button5" style="font-size: 20px;">
+  <option value=0.2>Medium</option>
+  <option value=0.1>Low</option>
+  <option value=0.3>High</option>
+</select>
+</div>
 
 <style>
     #render_map {
@@ -62,7 +92,7 @@
         margin: 0px auto;
         width: 25%;
         height: 40px;
-        padding: 10px;
+        padding: 5px;
         border: none;
         border-radius: 3px;
         font-size: 16px;
@@ -73,12 +103,15 @@
 </style>
 
 <div id='map'></div>
-<button onclick='map.render()' id='render_map'>Update Map</button>
-
+<!-- <button onclick='map.render()' id='render_map'>Update Map</button> -->
+<button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Save And Order Map!</button>
 <script>
 mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
 
 var line_color = document.getElementById("line_color").value;
+var line_opacity = document.getElementById("line_opacity").value;
+var line_width = document.getElementById("line_width").value;
+
 var center_point = [{{ avg_long|safe }}, {{ avg_lat|safe }}]
 var map = new mapboxgl.Map({
     container: 'map',
@@ -107,8 +140,8 @@ map.on('style.load', function () {
             "line-join": "round",
         },
         "paint": {
-            "line-opacity": 0.2,
-            "line-width": 2,
+            "line-opacity": line_opacity,
+            "line-width": line_width,
             "line-color": line_color
         }
     });
@@ -118,13 +151,10 @@ map.on('style.load', function () {
 // disable map rotation
 map.dragRotate.disable();
 
-map.on('click', function (e) {
-    map.update();
-});
+function render() {
+    map.render();
+}
 
-function formChanged() {
-    var line_color = document.getElementById("line_color").value;
-};
 </script>
 
 </body>
