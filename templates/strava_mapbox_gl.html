@@ -8,21 +8,85 @@
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.css' rel='stylesheet' />
     <style>
         body { margin:0; padding:0; }
-        #map { position:absolute; top:0; bottom:0; width:80%; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
     </style>
 </head>
 <body>
 
+
+<br>
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js'></script>
+<style>
+.ui-button {
+  position:absolute;
+  top:25px;
+  right:10px;
+  z-index:1000;
+  }
+.ui-button2 {
+  position:absolute;
+  top: 25px;
+  right:10px;
+  z-index:1000;
+  }
+.ui-button3 {
+  position:absolute;
+  top: 75px;
+  right:10px;
+  z-index:1000;
+  }
+#map {
+  width:100%;
+  }
+#snapshot {
+  position:absolute;
+  top:0;bottom:0;right:0;
+  width:10%;
+  }
+</style>
+
+<form action="{{ url_for('homepage') }}" class='ui-button2'>
+    <input type="submit" value="Return to Home" style="font-size: 20px;">
+</form>
+
+<select id='line_color' name="line_color" onkeyup="formChanged()" onchange="formChanged()"/ class="ui-button3" style="font-size: 20px;">
+  <option value="#FFFF00">Yellow</option>
+  <option value="#FF0000">Red</option>
+  <option value="#0000FF">Blue</option>
+</select>
+
+<style>
+    #render_map {
+        display: block;
+        position: relative;
+        margin: 0px auto;
+        width: 25%;
+        height: 40px;
+        padding: 10px;
+        border: none;
+        border-radius: 3px;
+        font-size: 16px;
+        text-align: center;
+        color: #fff;
+        background: #ee8a65;
+    }
+</style>
+
 <div id='map'></div>
+<button onclick='map.render()' id='render_map'>Update Map</button>
 
 <script>
 mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
+
+var line_color = document.getElementById("line_color").value;
 var center_point = [{{ avg_long|safe }}, {{ avg_lat|safe }}]
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/dark-v8',
     center : center_point,
-    "zoom": 7
+    zoom: 10,
+    minZoom: 4,
+    maxZoom: 18
 });
 var stravaGeoJson = {{ geojson_data|safe }} ;
 
@@ -43,13 +107,24 @@ map.on('style.load', function () {
             "line-join": "round",
         },
         "paint": {
-            "line-opacity": .2,
+            "line-opacity": 0.2,
             "line-width": 2,
-            "line-color": "#ff0"
+            "line-color": line_color
         }
     });
   
 });
+
+// disable map rotation
+map.dragRotate.disable();
+
+map.on('click', function (e) {
+    map.update();
+});
+
+function formChanged() {
+    var line_color = document.getElementById("line_color").value;
+};
 </script>
 
 </body>

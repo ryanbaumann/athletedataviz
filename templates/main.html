@@ -4,7 +4,7 @@
     <title>Athlete Data Viz</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
     <style>
         .container {
           max-width: 1000px;
@@ -40,6 +40,16 @@
         }
     );
 
+    function confirmDelete() {
+      var x;
+      if (confirm("Are you sure you want to delete all activities?") == true) {
+        x = "Are you sure";
+      } else {
+        x = "You pressed Cancel!";
+      }
+      document.getElementById("delete_acts").innerHTML = x;
+    }
+
     </script>
   </head>
   <body>
@@ -59,6 +69,11 @@
           This is Athlete Data Viz. Making your data into art.
           </p>
         </div>
+
+        {% for message in get_flashed_messages() %}
+          <p style="color: red;">{{ message }}</p>
+        {% endfor %}
+
       <div class="section" id="bikes">
         <h3 class="marginless">Bikes</h3>
         <table class="gear bikes">
@@ -96,7 +111,7 @@
           </thead>
           <tbody>
 
-          {% for activity in client.get_activities(limit=10) %}
+          {% for activity in client.get_activities(limit=5) %}
           <tr class="{{'%s' % 'default' if activity.name}}" data-id="{{activity.name}}">
           <td>{{ activity.name }}</td>
           <td>
@@ -111,25 +126,46 @@
           </tbody>
         </table>
       </div>
+      
+      <br> <br>
 
-      <div id="act_input">
-        <form method="POST">
-          <p>How many activities to vizualize?: <input type="number" name="act_limit" min="1" max="100" value="{{ act_limit }}"></p>
-          <input type="submit" name="submit" value="Update Activity Limit!">
+      <div id="act_limit">
+        <form action="act_limit" method="POST">
+          How many activities do you want to download?: <br>
+          <input type="number" name="act_limit" min="1" max="100" value="{{ act_limit }}">
+          <input type="submit" value="Update!">
         </form>
-
-        {% for message in get_flashed_messages() %}
-        <p style="color: red;">{{ message }}</p>
-        {% endfor %}
       </div>
 
-      <p>
-      <a href="{{ url_for('strava_activity_download', act_limit = act_limit) }}" class="button">View your last {{ act_limit }} activities!  (Please wait up to 2 mins the first time you load your data)</a>
-      </p>
-    </div>
-    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    {% endblock %}
+      <br> <br>
 
+      <div id="stravaData">
+        <form action="stravaData" method="POST">
+          <input type="hidden" name="act_limit" value="{{ act_limit }}" />
+          <input type="submit" name="submit" value="Download {{ act_limit }} Activities?">
+        </form>
+      </div>
+
+      <br>
+
+      <div id="view_map">
+        <form action="strava_mapbox" method="GET">
+          <input type="submit" name="submit" value="View Map of all my Activities!">
+        </form>
+    </div>
+
+    <br> <br> <br>
+    
+    <div id="delete_acts">
+      <form action="delete_acts" method="POST" onsubmit="return confirm('Comfirm Deletion? - This cannot be undone!');">
+      <input type="submit" name="submit" value="Delete all my Activities">
+      </form>
+    </div>
+    </a>
+  </p>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+{% endblock %}
 </html>
 
