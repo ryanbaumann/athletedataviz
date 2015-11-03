@@ -72,7 +72,7 @@
         </div>
 
       <div class="section" id="bikes">
-        <h3 class="marginless">Bikes</h3>
+        <h3 class="marginless">Your Bikes from Strava</h3>
         <table class="gear bikes">
           <thead style="">
           <tr>
@@ -98,7 +98,7 @@
       </div>
 
       <div class="section" id="activities">
-        <h3 class="marginless">Activities From Strava - A Sample</h3>
+        <h3 class="marginless">Your Last 2 Strava Activities</h3>
         <table class="activity list">
           <thead style="">
             <tr>
@@ -108,7 +108,7 @@
           </thead>
           <tbody>
 
-          {% for activity in client.get_activities(limit=2) %}
+          {% for activity in client.get_activities(limit=5) %}
           <tr class="{{'%s' % 'default' if activity.name}}" data-id="{{activity.name}}">
           <td>{{ activity.name }}</td>
           <td>
@@ -135,14 +135,17 @@
       </div>
 
       <br> <br>
-      <!--
+
       <div id="stravaData">
         <form action="stravaData" method="POST">
           <input type="hidden" name="act_limit" value="{{ act_limit }}" />
           <input type="submit" name="submit" value="Download {{ act_limit }} Activities?">
         </form>
       </div>
-      !-->
+
+        {% for message in get_flashed_messages() %}
+          <p style="color: red;">{{ message }}</p>
+        {% endfor %}
 
       <br>
       <div id="Start Job">
