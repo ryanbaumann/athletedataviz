@@ -360,7 +360,7 @@ def longtask():
                            ['latlng', 'time', 'distance', 'velocity_smooth', 'altitude', 
                             'grade_smooth', 'watts', 'temp', 'heartrate', 'cadence', 'moving'],
                            session['access_token'],
-                           'low')
+                           'medium')
     flash('Downloading data...please see progress bar.  Press "View Map" when complete!')
     return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
