@@ -18,3 +18,5 @@ requests==2.3.0
 gunicorn
 psycopg2
 flask-debugtoolbar
+celery
+redis-py
