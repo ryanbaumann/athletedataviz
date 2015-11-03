@@ -19,4 +19,4 @@ gunicorn
 psycopg2
 flask-debugtoolbar
 celery
-redis-py
+redis
