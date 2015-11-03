@@ -133,28 +133,23 @@
           <input type="submit" value="Update!">
         </form>
       </div>
-
+        {% for message in get_flashed_messages() %}
+          <p style="color: red;">{{ message }}</p>
+        {% endfor %}
       <br> <br>
-
+      <!--
       <div id="stravaData">
         <form action="stravaData" method="POST">
           <input type="hidden" name="act_limit" value="{{ act_limit }}" />
           <input type="submit" name="submit" value="Download {{ act_limit }} Activities?">
         </form>
       </div>
-
-        {% for message in get_flashed_messages() %}
-          <p style="color: red;">{{ message }}</p>
-        {% endfor %}
-
+      !-->
       <br>
-      <!--
       <div id="Start Job">
         <button id="start-bg-job">Get your last {{ act_limit }} Activities from Strava!</button>
       </div>
       <br>
-      !-->
-      
       <div class="container-fluid">
         <div class="row">
         <div class="col-md col-sm-offset-1">
