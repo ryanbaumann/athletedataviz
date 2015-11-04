@@ -291,7 +291,7 @@ def internal_error(exception):
 @celery.task(name='long_task.add', bind=True)
 def long_task(self, act_limit, ath_id, types, access_token, resolution):
     self.update_state(state='PROGRESS',
-                  meta={'current': 0.05, 'total': 1,
+                  meta={'current': 0.01, 'total': 1,
                         'status': 'Starting Job - Getting Activities from Strava!'})
     client = stravalib.client.Client(access_token=access_token)
 

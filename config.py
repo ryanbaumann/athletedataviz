@@ -16,7 +16,7 @@ class Config(object):
     HOST_NAME = os.environ.get('OPENSHIFT_APP_DNS','localhost')
     APP_NAME = os.environ.get('OPENSHIFT_APP_NAME','webdev5')
     REDIS_URL = os.environ['REDIS_URL']
-
+    
     MAPBOX_GL_ACCESS_TOKEN=os.environ['MAPBOX_GL_ACCESS_TOKEN']
     STRAVA_CLIENT_ID=os.environ['STRAVA_CLIENT_ID']
     STRAVA_CLIENT_SECRET=os.environ['STRAVA_CLIENT_SECRET']

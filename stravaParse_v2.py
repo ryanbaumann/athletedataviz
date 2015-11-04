@@ -13,7 +13,21 @@ import json
 def GetActivities(client,limit):
     #Returns a list of Strava activity objects, up to the number specified by limit
     activities = client.get_activities(limit=limit)
-    assert len(list(activities)) == limit
+    try:
+        assert len(list(activities)) == limit
+    except:
+        "not enough Strava acts for user!  changing limit..."
+        result = None
+        while result is None:
+            try:
+                if limit >10:
+                    limit -= 10
+                elif limit > 1:
+                    limit -= 1
+                assert len(list(activities)) == limit
+            except:
+                pass
+                
     for item in activities:
         print item
     return activities

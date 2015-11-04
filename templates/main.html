@@ -60,14 +60,21 @@
         <div class="col-md col-sm-offset-1">
         <div id="header">
           <h1>Athlete Data Viz</h1>
+        </div>
+        <div id= "col-xs col-sm-offset-1">
           <a href="{{ url_for('logout') }}" class="close button">Log out</a>
         </div>
-
         <div class="col-md col-sm-offset-1">
           <div id="greeting">
           <h2>Hello {{ athlete.firstname }} </h2>
           <p>
-          This is Athlete Data Viz. Making your data into art.
+          This is Athlete Data Viz. Making your data into art.<br><br>
+          1)  Enter the # of rides you want to vizualize (10 -100) <br>
+          2)  Press "Get your last X Activities from Strava!"<br>
+          3)  When the progress bar is at 100%, click "View Map!"<br><br>
+
+          To clear your data, click "Delete all my Activities"
+
           </p>
         </div>
 
@@ -108,7 +115,7 @@
           </thead>
           <tbody>
 
-          {% for activity in client.get_activities(limit=5) %}
+          {% for activity in client.get_activities(limit=2) %}
           <tr class="{{'%s' % 'default' if activity.name}}" data-id="{{activity.name}}">
           <td>{{ activity.name }}</td>
           <td>
@@ -122,21 +129,19 @@
 
           </tbody>
         </table>
-      </div>
-      
+
       <br> <br>
 
       <div id="act_limit">
         <form action="act_limit" method="POST">
-          How many activities do you want to download?: <br>
+          <p><strong> How many activities do you want to download? (1-100) </strong> </p>
           <input type="number" name="act_limit" min="1" max="100" value="{{ act_limit }}">
-          <input type="submit" value="Update!">
+          <input type="submit" class="btn btn-primary" value="Update!">
         </form>
       </div>
         {% for message in get_flashed_messages() %}
           <p style="color: red;">{{ message }}</p>
         {% endfor %}
-      <br>
       <!--
       <div id="stravaData">
         <form action="stravaData" method="POST">
@@ -147,13 +152,11 @@
       !-->
       <br>
       <div id="Start Job">
-        <button id="start-bg-job">Get your last {{ act_limit }} Activities from Strava!</button>
+        <button id="start-bg-job" class="btn btn-primary">  Get your last {{ act_limit }} Activities from Strava! </button>
       </div>
       <br>
       <div class="container-fluid">
-        <div class="row">
-        <div class="col-md col-sm-offset-1">
-        <div id="progress">&nbsp; <br></div>
+        <div id="progress">&nbsp; </div>
       </div>
       
       <script>
@@ -203,7 +206,7 @@
                       // rerun in 2 seconds
                       setTimeout(function() {
                           update_progress(status_url, nanobar, status_div);
-                      }, 2000);
+                      }, 1500);
                   }
               });
           }
@@ -216,15 +219,15 @@
 
     <div id="view_map">
         <form action="strava_mapbox" method="GET">
-          <input type="submit" name="submit" value="View Map of all my Activities!">
+          <input type="submit" name="submit" class="btn btn-success" value="View Map">
         </form>
     </div>
 
-    <br> <br> <br>
+    <br> <br> <br> <br>
     
     <div id="delete_acts">
       <form action="delete_acts" method="POST" onsubmit="return confirm('Comfirm Deletion? - This cannot be undone!');">
-      <input type="submit" name="submit" value="Delete all my Activities">
+      <input type="submit" name="submit" class="btn btn-danger" value="Delete all my Activities">
       </form>
     </div>
     </a>
