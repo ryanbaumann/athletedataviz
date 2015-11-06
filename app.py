@@ -40,6 +40,7 @@ def homepage():
 
     global client, athlete
     errors = []
+
     #Check if the user is logged in, otherwise forward them to the login page
     if 'access_token' not in session:
         return redirect(url_for('login'))
@@ -361,7 +362,7 @@ def longtask():
                             'grade_smooth', 'watts', 'temp', 'heartrate', 'cadence', 'moving'],
                            session['access_token'],
                            'medium')
-    flash('Downloading data...please see progress bar.  Press "View Map" when complete!')
+
     return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
 

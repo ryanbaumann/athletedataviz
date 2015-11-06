@@ -62,7 +62,7 @@
 </form>
 
 <div title="Choose line Color">
-<select id='line_color' name="line_color" onclick='render();' class="ui-button3" style="font-size: 20px;">
+<select id='line_color' name="line_color" onclick="render()" class="ui-button3" style="font-size: 20px;">
   <option value="#FFFF00">Yellow</option>
   <option value="#FF0000">Red</option>
   <option value="#0000FF">Blue</option>
@@ -70,7 +70,7 @@
 </div>
 
 <div title="Choose line width">
-<select id='line_width' name="line_width" onclick='render();' class="ui-button4" style="font-size: 20px;">
+<select id='line_width' name="line_width" onclick="render()" class="ui-button4" style="font-size: 20px;">
   <option value=2>Normal</option>
   <option value=1>Thin</option>
   <option value=3>Bold</option>
@@ -78,7 +78,7 @@
 </div>
 
 <div title="Choose opacity">
-<select id='line_opacity' onclick='render();' name="line_opacity" class="ui-button5" style="font-size: 20px;">
+<select id='line_opacity' onclick="render()" name="line_opacity" class="ui-button5" style="font-size: 20px;">
   <option value=0.2>Medium</option>
   <option value=0.1>Low</option>
   <option value=0.3>High</option>
@@ -91,10 +91,10 @@
         position: relative;
         margin: 0px auto;
         width: 25%;
-        height: 40px;
-        padding: 5px;
+        height: 25px auto;
+        padding: 5px auto;
         border: none;
-        border-radius: 3px;
+        border-radius: 10px;
         font-size: 16px;
         text-align: center;
         color: #fff;
@@ -103,8 +103,9 @@
 </style>
 
 <div id='map'></div>
-<!-- <button onclick='map.render()' id='render_map'>Update Map</button> -->
-<button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Save And Order Map!</button>
+
+<button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Order Viz!</button>
+
 <script>
 mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
 
@@ -152,6 +153,9 @@ map.on('style.load', function () {
 map.dragRotate.disable();
 
 function render() {
+    var line_color = document.getElementById("line_color").value;
+    var line_opacity = document.getElementById("line_opacity").value;
+    var line_width = document.getElementById("line_width").value;
     map.render();
 }
 
