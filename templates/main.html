@@ -69,7 +69,7 @@
           <h2>Hello {{ athlete.firstname }} </h2>
           <p>
           This is Athlete Data Viz (beta). Making your data into art.<br><br>
-          1)  Enter the # of rides you want to vizualize below (10 -250), then click "Update"
+          1)  Enter the # of rides you want to vizualize below (1 - 500), then click "Update"
           <p> If your download doesn't pass 1% after 1 minute, you likely tried to download more activities than you have loaded into Strava.  Please choose a lower activity limit and try again.</p>
           2)  Click "Get your last X Activities from Strava!" to begin the download!<br>
           <p> Your data download may take several minutes, especially with 100+ activities. </p>
@@ -137,8 +137,8 @@
 
       <div id="act_limit">
         <form action="act_limit" method="POST">
-          <p><strong> How many activities do you want to download? (1-400) </strong> </p>
-          <input type="number" name="act_limit" min="1" max="400" value="{{ act_limit }}">
+          <p><strong> How many activities do you want to download? (1-500) </strong> </p>
+          <input type="number" name="act_limit" min="1" max="500" value="{{ act_limit }}">
           <input type="submit" class="btn btn-primary" value="Update!">
         </form>
       </div>
