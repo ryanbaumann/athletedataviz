@@ -69,6 +69,29 @@
   top:0;bottom:0;right:0;
   width:10%;
   }
+#loader {
+position:absolute; top:0; bottom:0; width:100%;
+background:rgba(255, 255, 255, 1);
+transition:background 1s ease-out;
+-webkit-transition:background 1s ease-out;
+}
+#loader.done {
+    background:rgba(255, 255, 255, 0);
+}
+#loader.hide {
+    display:none;
+}
+#loader .message {
+    position:absolute;
+    left:50%;
+    top:50%;
+}
+#heattype {
+    position: absolute;
+    top: 225px;
+    right: 10px;
+    z-index:1000;;
+    }
 </style>
 
 <form action="{{ url_for('homepage') }}" class='ui-button2'>
@@ -99,6 +122,13 @@
 </select>
 </div>
 
+<div title="Choose Heatmap">
+<select id='heattype' name="line_color" onclick="render()" class="ui-button3" style="font-size: 20px;">
+  <option value="density">density</option>
+  <option value="speed">speed</option>
+  <option value="grade">grade</option>
+</select>
+
 <style>
     #render_map {
         display: block;
@@ -113,12 +143,14 @@
         text-align: center;
         color: #fff;
         background: #ee8a65;
-    }
+      }
 </style>
 
 <div id='map'></div>
-
+<div id='loader'><span class='message'>loading</span></div>
 <button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Order Viz!</button>
+
+</div>
 
 <!-- Mapbox JS extended to Mapbox GL JS !-->
 <script src="/static/js/leaflet-mapbox-gl.js"></script>
@@ -132,6 +164,8 @@ L.mapbox.accessToken = '{{ mapbox_accessToken|safe }}';
 mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
 
 // user-selected variables 
+var loader = document.getElementById('loader');
+var heattype = document.getElementById('heattype').value;
 var line_color = document.getElementById("line_color").value;
 var line_opacity = document.getElementById("line_opacity").value;
 var line_width = document.getElementById("line_width").value;
@@ -141,12 +175,12 @@ var center_point = [{{ avg_lat|safe }}, {{ avg_long|safe }}]
 //var stravaLineGeoJson = {{ geojson_data|safe }} ;
 //var stravaPointGeoJson = {{ geojson_points|safe }} ;
 //var stravaPointsLst = {{ pointslst|safe }} ;
-var heatPoints =  {{ heatpoints|safe }} ; 
+var heatPointsRaw =  {{ heatpoints|safe }} ; 
 
 // Mapbox JS Api - import heatmap layer 
 var map = L.mapbox.map('map', 'mapbox.dark').setView(center_point, 7);
-
-heatPoints = heatPoints.map(function (p) { return [p['lat'], p['long'], p['density']]; });
+startLoading();
+heatPoints = heatPointsRaw.map(function (p) { return [p['lat'], p['long'], p[heattype]]; });
 var heat = L.heatLayer(heatPoints, 
                        {minOpacity: 10,
                         maxZoom: 16,
@@ -156,6 +190,22 @@ var heat = L.heatLayer(heatPoints,
                         gradient: {0.4: 'blue', 
                                    0.8: 'lime', 
                                    0.9: 'red'} }).addTo(map);
+finishedLoading();
+function startLoading() {
+    loader.className = '';
+}
+
+function finishedLoading() {
+    // first, toggle the class 'done', which makes the loading screen
+    // fade out
+    loader.className = 'done';
+    setTimeout(function() {
+        // then, after a half-second, add the class 'hide', which hides
+        // it completely and ensures that the user can interact with the
+        // map again.
+        loader.className = 'hide';
+    }, 500);
+}
 
 /*
 var map = L.mapbox.map('map', 'mapbox.light');
@@ -247,7 +297,18 @@ function render() {
     var line_color = document.getElementById("line_color").value;
     var line_opacity = document.getElementById("line_opacity").value;
     var line_width = document.getElementById("line_width").value;
-    heat.redraw();
+    var heattype = document.getElementById("heattype").value;
+    heatPoints = heatPointsRaw.map(function (p) { return [p['lat'], p['long'], p[heattype]]; });
+    var heat = L.heatLayer(heatPoints, 
+                       {minOpacity: 10,
+                        maxZoom: 16,
+                        max: 5,
+                        radius: 4,
+                        blur: 8,
+                        gradient: {0.4: 'blue', 
+                                   0.8: 'lime', 
+                                   0.9: 'red'} }).addTo(map);
+    //heat.redraw();
 }
 
 function log(msg) {

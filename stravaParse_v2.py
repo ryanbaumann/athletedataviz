@@ -380,7 +380,9 @@ def get_heatmap_points(engine, ath_id):
                 SELECT 
                 st_y(point) as lat, 
                 st_x(point) as long, 
-                density
+                density,
+                speed,
+                grade
                 FROM "V_Point_Heatmap"
                 Where ath_id = %s
                 ) as f) as fc;""" %(str(ath_id))
