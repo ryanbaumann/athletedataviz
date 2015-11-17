@@ -18,6 +18,7 @@ class Config(object):
     REDIS_URL = os.environ['REDIS_URL']
     
     MAPBOX_GL_ACCESS_TOKEN=os.environ['MAPBOX_GL_ACCESS_TOKEN']
+    MAPBOX_ACCESS_TOKEN=os.environ['MAPBOX_ACCESS_TOKEN']
     STRAVA_CLIENT_ID=os.environ['STRAVA_CLIENT_ID']
     STRAVA_CLIENT_SECRET=os.environ['STRAVA_CLIENT_SECRET']
     UPLOAD_FOLDER='uploads'

@@ -8,7 +8,6 @@
     <!-- Leaflet -->
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
     <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js'></script>
-    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js'></script>
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 
     <!-- Mapbox GL -->
@@ -121,18 +120,69 @@
 
 <button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Order Viz!</button>
 
-<!-- Mapbox JS Api - import heatmap layer !-->
+<!-- Mapbox JS extended to Mapbox GL JS !-->
 <script src="/static/js/leaflet-mapbox-gl.js"></script>
+<!-- Leaflet Heat !-->
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js'></script>
 
-<!-- Mapbox GL and JS elements -->
+<!-- Create the map -->
 <script>
+// API tokens 
 L.mapbox.accessToken = '{{ mapbox_accessToken|safe }}';
 mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
 
+// user-selected variables 
 var line_color = document.getElementById("line_color").value;
 var line_opacity = document.getElementById("line_opacity").value;
 var line_width = document.getElementById("line_width").value;
-var center_point = [{{ avg_long|safe }}, {{ avg_lat|safe }}]
+
+// data passed from flask back-end 
+var center_point = [{{ avg_lat|safe }}, {{ avg_long|safe }}]
+//var stravaLineGeoJson = {{ geojson_data|safe }} ;
+//var stravaPointGeoJson = {{ geojson_points|safe }} ;
+//var stravaPointsLst = {{ pointslst|safe }} ;
+var heatPoints =  {{ heatpoints|safe }} ; 
+
+// Mapbox JS Api - import heatmap layer 
+var map = L.mapbox.map('map', 'mapbox.dark').setView(center_point, 7);
+
+heatPoints = heatPoints.map(function (p) { return [p['lat'], p['long'], p['density']]; });
+var heat = L.heatLayer(heatPoints, 
+                       {minOpacity: 10,
+                        maxZoom: 16,
+                        max: 5,
+                        radius: 4,
+                        blur: 8,
+                        gradient: {0.4: 'blue', 
+                                   0.8: 'lime', 
+                                   0.9: 'red'} }).addTo(map);
+
+/*
+var map = L.mapbox.map('map', 'mapbox.light');
+var heat = L.heatLayer(heatPoints, {maxZoom: 18}).addTo(map);
+map.fitBounds(heat.getBounds());
+
+var style2 = {
+    width : 5,
+    weight: 3,
+    opacity : 0.3,
+    color: 'red'
+    };
+*/
+/*
+var featureLayer = L.mapbox.featureLayer()
+                   .setGeoJSON(stravaLineGeoJson)
+                   .addTo(map);
+*/
+//featureLayer.setStyle(style2)
+//map.fitBounds(featureLayer.getBounds());
+//map.fitBounds(heat.getBounds());
+/*var gl = L.mapboxGL({
+    accessToken: mapboxgl.accessToken,
+    style: 'mapbox://styles/mapbox/dark-v8'
+}).addTo(map);*/
+
+/*
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/dark-v8',
@@ -141,30 +191,6 @@ var map = new mapboxgl.Map({
     minZoom: 4,
     maxZoom: 18
 });
-
-var stravaLineGeoJson = {{ geojson_data|safe }} ;
-
-/* Mapbox JS Api - import heatmap layer */
-
-var style2 = {
-    width : 5,
-    weight: 3,
-    opacity : 0.3,
-    color: 'red'
-               };
-
-var map = L.mapbox.map('map', 'mapbox.dark')
-    .setView([41, -89], 11);
-
-var featureLayer = L.mapbox.featureLayer()
-                   .setGeoJSON(stravaGeoJson)
-                   .addTo(map);
-
-featureLayer.setStyle(style2)
-
-map.fitBounds(featureLayer.getBounds());
-
-
 
 var stravaPointGeoJson = {{ geojson_points|safe }} ;
 
@@ -181,9 +207,9 @@ var point_src = new mapboxgl.GeoJSONSource({
     buffer : 5,
     tolerance : 100
 });
+*/
 
-
-map.on('style.load', function () {/*
+/*map.on('style.load', function () {
     map.addSource('linestring', linestring_src);
     map.addLayer({
         "id": "linestring",
@@ -198,7 +224,7 @@ map.on('style.load', function () {/*
             "line-width": line_width,
             "line-color": line_color
         }
-    });*/
+    });
     map.addSource('point', point_src);
 
     map.addLayer({
@@ -212,18 +238,22 @@ map.on('style.load', function () {/*
     });
 
 });
-
-
-var heat = L.heatLayer(stravaPointGeoJson, {maxZoom: 18});
+*/
 // disable map rotation
-map.dragRotate.disable();
+//map.dragging.disable();
 
 
 function render() {
     var line_color = document.getElementById("line_color").value;
     var line_opacity = document.getElementById("line_opacity").value;
     var line_width = document.getElementById("line_width").value;
-    map.render();
+    heat.redraw();
+}
+
+function log(msg) {
+    setTimeout(function() {
+        throw new Error(msg);
+    }, 0);
 }
 
 </script>

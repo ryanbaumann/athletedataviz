@@ -2,7 +2,7 @@ from app import db
 from sqlalchemy.dialects.postgresql import JSON
 from datetime import datetime
 from geoalchemy2 import Geometry
-
+from geoalchemy2.functions import GenericFunction
 
 class Athlete(db.Model):
     __tablename__ = 'Athlete'

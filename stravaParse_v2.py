@@ -309,7 +309,7 @@ def to_geojson_data(engine, view_name, ath_id):
                    FROM (SELECT 'FeatureCollection' As type, \
                         array_to_json(array_agg(f)) As features \
                         FROM (SELECT 'Feature' As type, \
-                                ST_AsGeoJSON(linestring)::json As geometry, \
+                                ST_AsGeoJSON(linestring,6,0)::json As geometry, \
                                 row_to_json((SELECT l \
                                     FROM (SELECT act_id, act_name) As l)) \
                                 As properties \
@@ -317,7 +317,6 @@ def to_geojson_data(engine, view_name, ath_id):
                             WHERE lg.ath_id=%s) \
                         As f ) \
                     As fc;" %(view_name, str(ath_id))
-    print geojson_sql
     result = engine.execute(geojson_sql)
     for row in result:
         data = row.values()
@@ -325,4 +324,73 @@ def to_geojson_data(engine, view_name, ath_id):
     geojson_data = str(json.dumps(data)[1:-1])
     return geojson_data
 
+def to_geojson_points(engine, view_name, ath_id):
+    ##get an output of geojson points
+    geojson_sql = """
+                SELECT ST_AsGeoJson(r)::json
+                FROM  (
+                    SELECT ST_Union(point) AS r 
+                    FROM %s
+                    Where ath_id = %s) as foo """ %(view_name, str(ath_id))
 
+    result = engine.execute(geojson_sql)
+    for row in result:
+        data = row.values()
+
+    geojson_data = str(json.dumps(data)[1:-1])
+    return geojson_data
+
+def get_acts_centroid(engine, ath_id):
+    args = """
+        SELECT ST_XMax(r) AS long, ST_YMax(r) AS lat
+        FROM  (
+            SELECT ST_Centroid(ST_Union(Point)) AS r 
+            FROM "V_Stream_Activity"
+            WHERE
+            ath_id = %s) as foo """ %(str(ath_id))
+
+    #Second get a list of points to draw for the heatmap as geojson
+    try:
+        print "getting map centroid from db..."
+        ext = engine.execute(args)
+        for item in ext:
+            avg_long, avg_lat = item[0], item[1]
+    except:
+        print "error retrieving map extents!"
+    return avg_long, avg_lat
+
+def get_heatmap_points(engine, ath_id):
+    args = """
+        Select row_to_json(fc)::json
+        FROM(
+            SELECT array_to_json(array_agg(lg))::json as points
+            FROM (
+                  SELECT ST_AsGeoJson(point,6,0), density
+                  FROM "V_Point_Heatmap"
+                  Where ath_id = %s
+                  ) as lg
+             ) as f
+        ) as fc; """ %(str(ath_id))
+
+    args2 = """
+        Select row_to_json(fc)::json
+        FROM(
+            SELECT array_to_json(array_agg(f))::json as points
+            FROM(
+                SELECT 
+                st_y(point) as lat, 
+                st_x(point) as long, 
+                density
+                FROM "V_Point_Heatmap"
+                Where ath_id = %s
+                ) as f) as fc;""" %(str(ath_id))
+
+    #try:
+    print "calculating heatmap points from db..."
+    result = engine.execute(args2)
+    for row in result:
+        data = row.values()
+
+    heatpoints = str(json.dumps(data)[1:-1])
+
+    return heatpoints

@@ -7,8 +7,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 import stravalib
 import stravaParse_v2 as sp
 #import psycopg2
-from sqlalchemy import create_engine
-#import json
+from sqlalchemy import create_engine, func
+import json
 import logging
 from celery import Celery
 
@@ -226,32 +226,48 @@ def download_strava():
 
 @app.route('/strava_mapbox')
 def strava_mapbox():
-    args = """
-        SELECT 
-            avg(a.lat) as avg_lat,
-            avg(a.long) as avg_long
-        FROM
-            "V_Stream_Activity" a
-        WHERE
-            ath_id = %s """ %(int(session['ath_id']))
+    #First get the map extents so we can draw a point at the center
     try:
-        print "getting map extents from db..."
-        ext = db.session.execute(args)
-        for item in ext:
-            avg_lat, avg_long = item[0], item[1]
+        avg_long, avg_lat = sp.get_acts_centroid(engine, int(session['ath_id']))
     except:
         print "error retrieving map extents!"
+        """
+    #Get the geojson point data for the athlete from the database    
     try:
-        #Get the geojson data for the athlete from the database
-        geojson_data = sp.to_geojson_data(
+        geojsonpoints = sp.to_geojson_points(
+                           engine, '"V_Stream_Activity"', int(session['ath_id']))
+    except:
+        print "error getting geojson lines data from the db!"
+    #Extract a list from the points
+    try:
+        pointslst = json.loads(geojsonpoints)['coordinates']
+    except:
+        print "error transcording points to list from geojson!"
+        """
+    #Get points with a density for the heatmap
+    #try:
+    heatpoints = json.loads(sp.get_heatmap_points(engine, int(session['ath_id'])))['points']
+    heatpoints = json.dumps(heatpoints)
+    #except:
+    #    print "error getting heatmap points from db!"
+    #Get the geojson lines data for the athlete from the database
+    """
+    try:       
+        geojsonlines = sp.to_geojson_data(
                            engine, '"V_Stream_LineString"', int(session['ath_id']))
     except:
-        print "error getting geojson data from the db!"
-    return render_template('strava_mapbox_gl.html', 
-                            geojson_data = geojson_data,
+        print "error getting geojson lines data from the db!"
+        """
+
+    return render_template('strava_mapbox_gl_v2.html', 
+                            #geojson_data = geojsonlines,
+                            #geojson_points = geojsonpoints,
+                            #pointslst = pointslst,
+                            heatpoints = heatpoints,
                             avg_lat = avg_lat, 
                             avg_long = avg_long,
-                            mapbox_gl_accessToken = app.config['MAPBOX_GL_ACCESS_TOKEN'])
+                            mapbox_gl_accessToken = app.config['MAPBOX_GL_ACCESS_TOKEN'],
+                            mapbox_accessToken = app.config['MAPBOX_ACCESS_TOKEN'])
 
 @app.route('/delete_acts', methods=['POST'])
 def delete_acts():
