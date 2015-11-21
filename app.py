@@ -143,74 +143,6 @@ def auth_done():
     session['access_token'] = token
     return redirect(url_for('homepage'))
 
-@app.route('/stravaData', methods=['POST'])
-def stravaData():
-    """
-    Get strava activities and store the stream data in the database.
-    Then return the user to a webpage with a preview of the data.
-    """
-    
-    if request.method == 'POST':
-        #Get the activity limit from the session variable
-        act_limit = int(session.get('act_limit', 10))
-        #Get a client
-        client = stravalib.client.Client(access_token=session['access_token'])
-        types = ['latlng', 'time', 'distance', 'velocity_smooth', 'altitude', 'grade_smooth',
-                  'watts', 'temp', 'heartrate', 'cadence', 'moving']
-        resolution = 'low'
-
-        #Get a list of activities, compare to what's in the DB, return only activities not in DB items
-        acts_list = sp.GetActivities(client, act_limit)
-        #Return a list of already cached activities in the database
-        acts_dl_list = []
-        for act in Activity.query.filter_by\
-                   (ath_id=int(session['ath_id'])).with_entities(Activity.act_id).all():
-            acts_dl_list += act
-
-        #Now loop through each activity if it's not in the list and download the stream
-        count = 0
-        for act in acts_list:
-            print "checking act id: " + str(act.id)
-            if act.id not in acts_dl_list:
-                count += 1
-                try:
-                    #Add results to dictionary
-                    df = sp.ParseActivity(client, act, types, resolution)
-                    if not df.empty:
-                        print "cleaning data..."
-                        df = sp.cleandf(df)
-                        print "activities parsed!  Returning dataframe"
-                    else:
-                        print "no new data to clean"
-
-                    print "okay, now inserting into the database!"
-
-                    new_act = Activity(ath_id=session['ath_id'],
-                                          act_id=act.id,
-                                          act_type=act.type,
-                                          act_name=act.name,
-                                          act_description=act.description,
-                                          act_startDate=act.start_date_local,
-                                          act_dist=act.distance,
-                                          act_totalElevGain=act.total_elevation_gain,
-                                          act_avgSpd=act.average_speed,
-                                          act_calories=act.calories
-                                          )
-                    
-                    db.session.add(new_act)
-                    db.session.commit()
-                    print "successfully added activity to db!"
-
-                    #Write stream dataframe to db
-                    df.to_sql('Stream', engine,
-                          if_exists='append',
-                          index=False)
-                    print "Successfully added stream to db!"
-                except:
-                    print "error entering activity or stream data into db!"
-        flash("Added " + str(count) + " new activities!  Click 'View Map' to see them.")
-        return redirect(url_for('homepage'))
-
 """
 @app.route('/uploads/<path:filename>')
 def download_strava():
@@ -226,6 +158,10 @@ def download_strava():
 
 @app.route('/strava_mapbox')
 def strava_mapbox():
+    """
+    A function to get the data for vizualization from the database,
+    and return the template for the user's vizualization (map)
+    """
     #First get the map extents so we can draw a point at the center
     try:
         avg_long, avg_lat = sp.get_acts_centroid(engine, int(session['ath_id']))
@@ -251,16 +187,14 @@ def strava_mapbox():
     #except:
     #    print "error getting heatmap points from db!"
     #Get the geojson lines data for the athlete from the database
-    """
     try:       
         geojsonlines = sp.to_geojson_data(
                            engine, '"V_Stream_LineString"', int(session['ath_id']))
     except:
         print "error getting geojson lines data from the db!"
-        """
 
     return render_template('strava_mapbox_gl_v2.html', 
-                            #geojson_data = geojsonlines,
+                            geojson_data = geojsonlines,
                             #geojson_points = geojsonpoints,
                             #pointslst = pointslst,
                             heatpoints = heatpoints,
@@ -307,6 +241,9 @@ def internal_error(exception):
 
 @celery.task(name='long_task.add', bind=True)
 def long_task(self, act_limit, ath_id, types, access_token, resolution):
+    """
+    A celery task to update the Strava rides into the AthleteDataViz database
+    """
     self.update_state(state='PROGRESS',
                   meta={'current': 0.01, 'total': 1,
                         'status': 'Starting Job - Getting Activities from Strava!'})

@@ -1,6 +1,6 @@
 ﻿-- View: "V_Stream_Activity"
 
--- DROP VIEW "V_Stream_Activity";
+DROP VIEW "V_Stream_Activity" CASCADE;
 
 CREATE OR REPLACE VIEW "V_Stream_Activity" AS 
  SELECT act.ath_id,
@@ -9,6 +9,7 @@ CREATE OR REPLACE VIEW "V_Stream_Activity" AS
     act.act_id,
     act.act_name,
     act.act_description,
+    st.id as stream_id,
     st.last_updated_datetime_utc,
     st."timestamp",
     st.lat,

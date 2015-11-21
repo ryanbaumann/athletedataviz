@@ -360,31 +360,28 @@ def get_acts_centroid(engine, ath_id):
     return avg_long, avg_lat
 
 def get_heatmap_points(engine, ath_id):
-    args = """
-        Select row_to_json(fc)::json
-        FROM(
-            SELECT array_to_json(array_agg(lg))::json as points
-            FROM (
-                  SELECT ST_AsGeoJson(point,6,0), density
-                  FROM "V_Point_Heatmap"
-                  Where ath_id = %s
-                  ) as lg
-             ) as f
-        ) as fc; """ %(str(ath_id))
 
     args2 = """
         Select row_to_json(fc)::json
         FROM(
             SELECT array_to_json(array_agg(f))::json as points
             FROM(
+                WITH points as (SELECT 
+                                *
+                                FROM "V_Point_Heatmap"
+                                WHERE ath_id = %s)
                 SELECT 
-                st_y(point) as lat, 
-                st_x(point) as long, 
-                density,
-                speed,
-                grade
-                FROM "V_Point_Heatmap"
-                Where ath_id = %s
+                round(st_y(point)::numeric,6) as lt, 
+                round(st_x(point)::numeric,6) as lg, 
+                round((density/max_d)::numeric,2) as d,
+                round((speed/max_s)::numeric,2) as s,
+                round((grade/max_g)::numeric,2) as g
+                FROM 
+                points, (SELECT
+                    max(density) as max_d,
+                    max(speed) as max_s,
+                    max(grade) as max_g
+                    FROM points) as max
                 ) as f) as fc;""" %(str(ath_id))
 
     #try:

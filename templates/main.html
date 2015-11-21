@@ -7,7 +7,16 @@
 
     <style>
         .container {
-          max-width: 1000px;
+          max-width: 800px;
+        }
+        body {
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        color: #000000;
+        font-size: 13px;
+        background-color: #D8D8D8;
+        line-height: 1.5em;
+        margin: 30px auto;
+        padding: 0 50px;
         }
     </style>
     <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
@@ -55,61 +64,35 @@
   </head>
   <body>
     {% block body %}
-    <div class="container-fluid">
+
+    <div class="container">
       <div class="row">
         <div class="col-md col-sm-offset-1">
+          
         <div id="header">
           <h1>Athlete Data Viz</h1>
         </div>
+
         <div id= "col-xs col-sm-offset-1">
           <a href="{{ url_for('logout') }}" class="close button">Log out</a>
         </div>
+
         <div class="col-md col-sm-offset-1">
           <div id="greeting">
           <h2>Hello {{ athlete.firstname }} </h2>
           <p>
-          This is Athlete Data Viz (beta). Making your data into art.<br><br>
+          This is Athlete Data Viz beta. Making your data into art.<br><br>
           1)  Enter the # of rides you want to vizualize below (1 - 500), then click "Update"
-          <p> If your download doesn't pass 1% after 1 minute, you likely tried to download more activities than you have loaded into Strava.  Please choose a lower activity limit and try again.</p>
           2)  Click "Get your last X Activities from Strava!" to begin the download!<br>
-          <p> Your data download may take several minutes, especially with 100+ activities. </p>
-          3)  At any time you can view a preview of your ctivities by clicking "View Map!"<br>
-          4)  If you want to order your map, on the map page click "Order Viz!" <br>
-          5)  Email AthleteDataViz@gmail.com with any bug reports or performance issues.<br> <br>
-
-          To clear your data, click "Delete all my Activities"
-
+          <p>     Your data download may take several minutes </p>
+          3)  View your viz by clicking "View Map!"<br>
+          4)  To order your map, click "Order Viz!" <br>
+          5)  Email AthleteDataViz@gmail.com with any bugs. <br> <br>
           </p>
         </div>
-
-      <div class="section" id="bikes">
-        <h3 class="marginless">Your Bikes from Strava</h3>
-        <table class="gear bikes">
-          <thead style="">
-          <tr>
-            <th style="width: 20%">Bike</th>
-            <th style="width: 20%">Distance (mi)</th>
-          </tr>
-          </thead>
-          <tbody>
-            {% for bike in athlete.bikes %}
-            <tr class="{{'%s' % 'default' if bike.primary}}" data-id="{{bike.id}}">
-          <td>{{ bike.name }}</td>
-          <td>
-            <a class="radio-button {{'%s' % 'selected' if bike.primary}}" data-id="{{bike.id}}"></a>
-          </td>
-          <td>{{ bike.distance*0.621371 }}</td>
-          </tr>
-          {% else %}
-          <tr><td>None!</td></tr>
-          {% endfor %}
-
-          </tbody>
-        </table>
-      </div>
-
+<!--
       <div class="section" id="activities">
-        <h3 class="marginless">Your Last 2 Strava Activities</h3>
+        <h3 class="marginless">Available Strava Activity Count</h3>
         <table class="activity list">
           <thead style="">
             <tr>
@@ -132,8 +115,8 @@
           {% endfor %}
           </tbody>
         </table>
+-->
 
-      <br> <br>
 
       <div id="act_limit">
         <form action="act_limit" method="POST">
@@ -142,9 +125,19 @@
           <input type="submit" class="btn btn-primary" value="Update!">
         </form>
       </div>
-        {% for message in get_flashed_messages() %}
+      {% for message in get_flashed_messages() %}
+      <div class="container">
+      <div  class="col-sm">
+      <div class="alert alert-success" ng-show="get_flashed_messages() != null">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <strong>
           <p style="color: red;">{{ message }}</p>
-        {% endfor %}
+          </strong>
+     </div>
+     </div>
+     </div>
+     {% endfor %}
+
       <!--
       <div id="stravaData">
         <form action="stravaData" method="POST">
@@ -226,7 +219,9 @@
         </form>
     </div>
 
-    <br> <br> <br> <br>
+    <br> <br>
+    To clear your data, click "Delete all my Activities"
+     <br>
     
     <div id="delete_acts">
       <form action="delete_acts" method="POST" onsubmit="return confirm('Comfirm Deletion? - This cannot be undone!');">
