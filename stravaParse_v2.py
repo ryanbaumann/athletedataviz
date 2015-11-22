@@ -389,7 +389,18 @@ def get_heatmap_points(engine, ath_id):
     result = engine.execute(args2)
     for row in result:
         data = row.values()
-
     heatpoints = str(json.dumps(data)[1:-1])
-
     return heatpoints
+
+def get_acts_html(engine, ath_id):
+    args = """ 
+            SELECT "act_startDate" as "Date",
+                    act_name as "Activity Name", 
+                    act_description as "Description"
+            FROM "Activity"
+            WHERE ath_id = %s""" %(str(ath_id))
+    df = pd.read_sql(args, engine)
+    df.index.name = 'Activity #'
+    df.sort(ascending=False, inplace=True)
+
+    return df

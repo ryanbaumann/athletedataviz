@@ -75,9 +75,16 @@ def homepage():
         except:
             errors.append("Unable to add or update athlete in database.")
             print errors
+        try:
+            act_data = sp.get_acts_html(engine, int(session['ath_id']))
+            act_count = len(act_data.index)
+        except:
+            print "error getting current activity list from DB!"
 
         return render_template('main.html', act_limit=int(session.get('act_limit', 1)),
-                                            athlete=athlete, 
+                                            act_list_html = act_data,
+                                            act_count = act_count,
+                                            athlete=athlete,
                                             client=client)
 
 @app.route('/act_limit', methods=['POST'])
@@ -166,25 +173,14 @@ def strava_mapbox():
         avg_long, avg_lat = sp.get_acts_centroid(engine, int(session['ath_id']))
     except:
         print "error retrieving map extents!"
-        """
-    #Get the geojson point data for the athlete from the database    
-    try:
-        geojsonpoints = sp.to_geojson_points(
-                           engine, '"V_Stream_Activity"', int(session['ath_id']))
-    except:
-        print "error getting geojson lines data from the db!"
-    #Extract a list from the points
-    try:
-        pointslst = json.loads(geojsonpoints)['coordinates']
-    except:
-        print "error transcording points to list from geojson!"
-        """
+
     #Get points with a density for the heatmap
-    #try:
-    heatpoints = json.loads(sp.get_heatmap_points(engine, int(session['ath_id'])))['points']
-    heatpoints = json.dumps(heatpoints)
-    #except:
-    #    print "error getting heatmap points from db!"
+    try:
+        heatpoints = json.loads(sp.get_heatmap_points(engine, int(session['ath_id'])))['points']
+        heatpoints = json.dumps(heatpoints)
+    except:
+        print "error getting heatmap points from db!"
+
     #Get the geojson lines data for the athlete from the database
     try:       
         geojsonlines = sp.to_geojson_data(
@@ -192,10 +188,9 @@ def strava_mapbox():
     except:
         print "error getting geojson lines data from the db!"
 
+
     return render_template('strava_mapbox_gl_v2.html', 
                             geojson_data = geojsonlines,
-                            #geojson_points = geojsonpoints,
-                            #pointslst = pointslst,
                             heatpoints = heatpoints,
                             avg_lat = avg_lat, 
                             avg_long = avg_long,
@@ -303,6 +298,7 @@ def long_task(self, act_limit, ath_id, types, access_token, resolution):
             except:
                 print "error entering activity or stream data into db!"         
     db.session.close()
+    flash("finished getting activities!")
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
             'result': 'View your Map!'}
 
