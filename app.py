@@ -65,14 +65,13 @@ def homepage():
                                       first_name=athlete.firstname,
                                       last_name=athlete.lastname)
                 db.session.add(new_athlete)
-            
             else:
                 print "athlete already in db - updating existing record"
                 existing_athlete.api_code = session['access_token']
                 existing_athlete.last_updated_datetime_utc = str(datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'))
-
             #Commit the update or new row insertion
             db.session.commit()
+            db.session.close()
         except:
             errors.append("Unable to add or update athlete in database.")
             print errors
@@ -223,7 +222,7 @@ def delete_acts():
             print "deleted activities from ath_id = " + str(session['ath_id'])
             flash("deleted all activities for athlete " + str(athlete.firstname) + " " +
                                                           str(athlete.lastname))
-
+            db.session.close()
         except:
             print "error reading arguments from delete reuqest form!"
 
@@ -302,8 +301,8 @@ def long_task(self, act_limit, ath_id, types, access_token, resolution):
                 print "Successfully added stream to db!"
 
             except:
-                print "error entering activity or stream data into db!"
-
+                print "error entering activity or stream data into db!"         
+    db.session.close()
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
             'result': 'View your Map!'}
 

@@ -8,25 +8,41 @@
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <style>
-      .container {
-        max-width: 1000px;
+        .container {
+          max-width: 800px;
+        }
+        body {
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        color: #000000;
+        font-size: 13px;
+        background-color: #D8D8D8;
+        line-height: 1.5em;
+        margin: 30px auto;
+        padding: 0 50px;
+        }
+        div.header {
+        font-size: 20px;
       }
     </style>
   </head>
   <body>
     <div class="container">
+      <div class="row">
+        <div class="col-md col-sm-offset-1">
       {% block body %}
-      <div id="header">
+      <div id="header" class="header">
         <h1>Athlete Data Viz</h1>
       </div>
 
       <div class="page">
+        <br>
         <a href="{{auth_url}}"> 
           <img src="/static/img/ConnectWithStrava.png" alt="Connect with Strava"
           title="Connect with Strava">
         </a>
         <br>
         <p> 
+          <br>
         This application requires read access to your Strava profile.
         <br> <br>
         No password information is received by the app; just an authentication token.
@@ -40,6 +56,8 @@
       {% for error in errors %}
         <h4>{{ error }}</h4>
       {% endfor %}
+    </div>
+    </div>
     </div>
   </body>
   <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>

@@ -38,32 +38,52 @@ body {
   margin: 30px auto;
   padding: 0 50px;
 }
-#map { position:absolute; 
-       top:0; 
-       bottom:0; 
-       right:0;
-       width:100%; }
+#map { 
+   position:absolute; 
+   top:0; 
+   bottom:0; 
+   right:0;
+   width:100%; 
+  }
 #render_map {
-        display: block;
-        position: absolute;
-        top: 5px;
-        margin-right: auto;
-        margin-left: auto;
-        width: 125px;
-        height: 30px;
-        padding: 5px auto;
-        border-radius: 5px;
-        font-size: 18px;
-        text-align: center;
-        color: #fff;
-        background: #ee8a65;
-      }
+  display: block;
+  position: absolute;
+  top: 5px;
+  margin-right: auto;
+  margin-left: auto;
+  width: 125px;
+  height: 30px;
+  padding: 5px auto;
+  border-radius: 5px;
+  font-size: 18px;
+  text-align: center;
+  color: #fff;
+  background: #ee8a65;
+  }
 #snapshot {
   position:absolute;
   top:500px;
   right:10px;
   width:25%;
   }
+#loader {
+  position:absolute; top:0; bottom:0; width:100%;
+  background:rgba(255, 255, 255, 1);
+  transition:background 1s ease-out;
+  -webkit-transition:background 1s ease-out;
+  }
+#loader.done {
+    background:rgba(255, 255, 255, 0);
+  }
+#loader.hide {
+    display:none;
+  }
+#loader .message {
+    position:absolute;
+    left:50%;
+    top:50%;
+  }
+/*  ---------  Now the UI buttons  ---------  */
 .ui-button1 {
   position:absolute;
   top: 5px;
@@ -72,12 +92,12 @@ body {
   background: white;
   }
 div.ui-button2Label {
-    position: absolute;
-    top: 50px;
-    right: 10px;
-    z-index:1000;
-    background: #00CC33;
-    } 
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  z-index:1000;
+  background: #00CC33;
+  } 
 .ui-button2 {
   position:absolute;
   top: 80px;
@@ -86,12 +106,12 @@ div.ui-button2Label {
   background: white;
   }
  div.ui-button3Label {
-    position: absolute;
-    top: 120px;
-    right: 10px;
-    z-index:1000;
-    background: #00CCFF;
-    } 
+  position: absolute;
+  top: 120px;
+  right: 10px;
+  z-index:1000;
+  background: #00CCFF;
+  } 
 .ui-button3 {
   position:absolute;
   top: 150px;
@@ -99,51 +119,34 @@ div.ui-button2Label {
   z-index:1000;
   background: white;
   }
-  div.ui-button4Label {
-    position: absolute;
-    top: 180px;
-    right: 10px;
-    z-index:1000;
-    background: #00CCFF;
-    } 
-  .ui-button4 {
+div.ui-button4Label {
+  position: absolute;
+  top: 180px;
+  right: 10px;
+  z-index:1000;
+  background: #00CCFF;
+  } 
+.ui-button4 {
   position:absolute;
   top: 210px;
   right:10px;
   z-index:1000;
   background: white;
   }
-  div.ui-button5Label {
-    position: absolute;
-    top: 240px;
-    right: 10px;
-    z-index:1000;
-    background: #00CCFF;
-    } 
-  .ui-button5 {
+div.ui-button5Label {
+  position: absolute;
+  top: 240px;
+  right: 10px;
+  z-index:1000;
+  background: #00CCFF;
+  } 
+.ui-button5 {
   position:absolute;
   top: 270px;
   right:10px;
   z-index:1000;
   background: white;
   }
-#loader {
-position:absolute; top:0; bottom:0; width:100%;
-background:rgba(255, 255, 255, 1);
-transition:background 1s ease-out;
--webkit-transition:background 1s ease-out;
-}
-#loader.done {
-    background:rgba(255, 255, 255, 0);
-}
-#loader.hide {
-    display:none;
-}
-#loader .message {
-    position:absolute;
-    left:50%;
-    top:50%;
-}
 div.heattypeLabel {
     position: absolute;
     top: 330px;
@@ -224,38 +227,35 @@ div.minOpacityLabel {
 <form>
 
 <div class="ui-button3Label">
-<label for="line_color" style="font-size: 18px; color:black">Line Color</label> </div>
+<label for="line_color" style="font-size: 18px; color:black">&nbsp;Line Color&nbsp;</label> </div>
 <select id='line_color' name="line_color" onclick="render()" class="ui-button3" style="font-size: 16px;">
-  <option value="#FFFF00">Yellow</option>
-  <option value="#FF0000">Red</option>
-  <option value="#0000FF">Blue</option>
+  <option value="#FFFF00">Dark Yellow</option>
+  <option value="#FF0000">Dark Red</option>
+  <option value="#0000FF">Dark Blue</option>
+  <option value="#9900FF">Dark Purple</option>
+  <option value="#FF0099">Light Pink</option>
+  <option value="#00CCFF">Light Blue</option>
+  <option value="#33FF00">Light Green</option>
+  <option value="#FF9900">Light Orange</option>
 </select> 
 
 <div class="ui-button4Label">
-<label for="line_width" style="font-size: 18px; color:black">Line Width</label> </div>
-<select id='line_width' name="line_width" onclick="render()" class="ui-button4" style="font-size: 16px;">
-  <option value=2>Normal</option>
-  <option value=1>Thin</option>
-  <option value=3>Bold</option>
-</select>
+<label for="line_width" style="font-size: 18px; color:black">&nbsp;Line Width&nbsp;</label> </div>
+<input type="range" id="line_width" min="0.2" value="2" max="10" step="0.1" onclick="render()" class="ui-button4" style="font-size: 16px;">
 
 <div class="ui-button5Label">
-<label for="line_opacity" style="font-size: 18px; color:black">Line Opacity</label> </div>
-<select id='line_opacity' onclick="render()" name="line_opacity" class="ui-button5" style="font-size: 16px;">
-  <option value=0.2>Medium</option>
-  <option value=0.1>Low</option>
-  <option value=0.3>High</option>
-</select>
+<label for="line_opacity" style="font-size: 18px; color:black">&nbsp;Line Opacity&nbsp;</label> </div>
+<input type="range" id="line_opacity" min="0.1" value="0.5" max="1" step="0.05" onclick="render()" class="ui-button5" style="font-size: 16px;">
 
 <div class="ui-button2Label">
-<label for="VizType" style="font-size: 18px; color:black">Viz Type</label> </div>
-<select id='VizType' name="VizType" onclick="render()" class="ui-button2" style="font-size: 16px;">
+<label for="VizType" style="font-size: 18px; color:black">&nbsp;Viz Type&nbsp;</label> </div>
+<select id='VizType' name="VizType" onclick="render()" class="ui-button2" style="font-size: 20px;">
   <option value="heat-point">heat-point</option>
   <option value="heat-line">heat-line</option>
 </select>
 
 <div class="heattypeLabel">
-<label for="heattype" style="font-size: 18px; color:black">Heat Type</label> </div>
+<label for="heattype" style="font-size: 18px; color:black">&nbsp;Heat Type&nbsp;</label> </div>
 <select id='heattype' name="line_color" onclick="render()" class="ui-button3" style="font-size: 16px;">
   <option value="d">Frequency</option>
   <option value="s">Speed</option>
@@ -263,15 +263,15 @@ div.minOpacityLabel {
 </select>
 
 <div class="blurLabel">
-<label for="blur" style="font-size: 18px; color:black" >Heat Blur</label> </div>
-<input type="range" id="blur" min="1" value="5" max="30" step="1" onclick="render()" class="blur" style="font-size: 26px;">
+<label for="blur" style="font-size: 18px; color:black" >&nbsp;Heat Blur&nbsp;</label> </div>
+<input type="range" id="blur" min="1" value="5" max="20" step="1" onclick="render()" class="blur" style="font-size: 26px;">
 
 <div class="radiusLabel">
-<label for="radius" style="font-size: 18px; color:black" >Heat Radius</label> </div>
-<input type="range" id="radius" min="1.5" value="5" max="30" step="0.5" onclick="render()" class="radius" style="font-size: 16px;">
+<label for="radius" style="font-size: 18px; color:black" >&nbsp;Heat Radius&nbsp;</label> </div>
+<input type="range" id="radius" min="1.5" value="5" max="20" step="0.5" onclick="render()" class="radius" style="font-size: 16px;">
 
 <div class="minOpacityLabel">
-<label for="minOpacity" style="font-size: 18px; color:black" >Heat Opacity</label> </div>
+<label for="minOpacity" style="font-size: 18px; color:black" >&nbsp;Heat Opacity&nbsp;</label> </div>
 <input type="range" name="minOpacityRange" id="minOpacity" min="0.05" value="0.5" max="1" step="0.05" class="minOpacity" onclick="render()" style="font-size: 16px;">
 </form>
 
@@ -280,7 +280,7 @@ div.minOpacityLabel {
 </form>
 
 <nav id='menu-ui' class='menu-ui'></nav>
-<button id='snap' class='snapshot' id="snapshot">Take a snapshot</button>
+<button id='snap' class='snapshot' id="snapshot">&nbsp;Take a snapshot&nbsp;</button>
 <div id='snapshot'></div>
 <div id='map'></div>
 <div id='loader'><span class='message'>loading</span></div>
@@ -305,7 +305,8 @@ var heatPointsRaw =  {{ heatpoints|safe }} ;
 
 // Mapbox JS Api - import heatmap layer 
 var map = L.map('map').setView(center_point, 10);
-heatPoints = heatPointsRaw.map(function (p) { return [p['lt'], p['lg'], p[heattype]]; });
+heatPoints = heatPointsRaw.map(function (p) { return [p['lt'], p['lg'], 
+                           p[document.getElementById('heattype').value]]; });
 var heatColors = {
                   0.4: 'blue',
                   0.6: 'cyan',
@@ -327,12 +328,12 @@ var gl = L.mapboxGL({
     center : center_point,
     zoom: 10,
     minZoom: 4,
-    maxZoom: 16
+    maxZoom: 17
 }).addTo(map);
 
 var linestring_src = new mapboxgl.GeoJSONSource({
     data: stravaLineGeoJson,
-    maxzoom : 14,
+    maxzoom : 17,
     buffer : 5,
     tolerance : 10
 });
@@ -349,9 +350,6 @@ var lineHeatStyle = {
             "line-width": parseFloat(document.getElementById("line_width").value),
             "line-color": document.getElementById("line_color").value}
         };
-
-// Add zoom and rotation controls to the map.
-//gl._glMap.addControl(new mapboxgl.Navigation());
 
 finishedLoading();
 
@@ -381,33 +379,38 @@ function paintLayer(color, width, opacity, layer) {
     gl._glMap.setPaintProperty(layer, 'line-opacity', opacity);
 }
 
+function updateHeat() {
+  heatConfig = {minOpacity: parseFloat(document.getElementById('minOpacity').value),
+                    radius: parseFloat(document.getElementById('radius').value),
+                    blur: parseFloat(document.getElementById('blur').value),
+                    max: 1,
+                    gradient: heatColors};
+  heatPoints = heatPointsRaw.map(function (p) { return [p['lt'], p['lg'], 
+                           p[document.getElementById('heattype').value]]; });
+}
+
 function render() {
+  //Check if the viz type is a heat point, otherwise remove the existing layer
     if (document.getElementById("VizType").value == "heat-point") {
       try {gl._glMap.removeLayer('linestring');
            gl._glMap.removeSource('linestring');} 
        catch(err) {console.log(err);}
       try { heat.addTo(map)}
        catch(err) {console.log(err);}
-
-      heatConfig = {minOpacity: parseFloat(document.getElementById('minOpacity').value),
-                    radius: parseFloat(document.getElementById('radius').value),
-                    blur: parseFloat(document.getElementById('blur').value),
-                    max: 1,
-                    gradient: heatColors};
-      heatPoints = heatPointsRaw.map(function (p) { return [p['lt'], p['lg'], 
-                           p[document.getElementById('heattype').value]]; });
+    //update the heatmap
+      updateHeat();
       heat.setLatLngs(heatPoints);
       heat.setOptions(heatConfig);
     }
+  //Check if the viz type is a heat line, otherwise remove the existing layer
   else if (document.getElementById("VizType").value == "heat-line") {
        try {map.removeLayer(heat);} 
        catch(err) {console.log(err);}
        try {
         gl._glMap.addSource('linestring', linestring_src); 
-        gl._glMap.addLayer(lineHeatStyle)
-        }
-      
+        gl._glMap.addLayer(lineHeatStyle);}
       catch(err) {console.log(err);}
+      //Update the linestring layer
       paintLayer(document.getElementById("line_color").value, 
                  parseFloat(document.getElementById("line_width").value),
                  parseFloat(document.getElementById("line_opacity").value),
