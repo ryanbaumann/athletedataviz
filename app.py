@@ -68,7 +68,8 @@ def homepage():
             else:
                 print "athlete already in db - updating existing record"
                 existing_athlete.api_code = session['access_token']
-                existing_athlete.last_updated_datetime_utc = str(datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'))
+                existing_athlete.last_updated_datetime_utc = str(datetime.utcnow().\
+                                                             strftime('%Y/%m/%d %H:%M:%S'))
             #Commit the update or new row insertion
             db.session.commit()
             db.session.close()
@@ -84,8 +85,7 @@ def homepage():
         return render_template('main.html', act_limit=int(session.get('act_limit', 1)),
                                             act_list_html = act_data,
                                             act_count = act_count,
-                                            athlete=athlete,
-                                            client=client)
+                                            athlete=athlete)
 
 @app.route('/act_limit', methods=['POST'])
 def act_input():

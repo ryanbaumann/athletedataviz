@@ -395,11 +395,14 @@ def get_heatmap_points(engine, ath_id):
 def get_acts_html(engine, ath_id):
     args = """ 
             SELECT "act_startDate" as "Date",
+                    act_type as "Type",
                     act_name as "Activity Name", 
                     act_description as "Description"
             FROM "Activity"
-            WHERE ath_id = %s""" %(str(ath_id))
+            WHERE ath_id = %s
+            Order By act_id desc""" %(str(ath_id))
     df = pd.read_sql(args, engine)
+    df.index += 1
     df.index.name = 'Activity #'
     df.sort(ascending=False, inplace=True)
 

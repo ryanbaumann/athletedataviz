@@ -31,33 +31,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script type="text/javascript">
 
-    $( document ).ready(
-        function(){
-        $('.bikes').on('click','.radio-button',function () {
-          $('.bikes .radio-button').removeClass('selected');
-          $(this).addClass('selected')
-          });
-        }
-    );
-
-    $( document ).ready(
-        function(){
-        $('.activities').on('click','.radio-button',function () {
-          $('.activities .radio-button').removeClass('selected');
-          $(this).addClass('selected')
-          });
-        }
-    );
-
-    $( document ).ready(
-        function(){
-        $('.shoes').on('click','.radio-button',function () {
-          $('.shoes .radio-button').removeClass('selected');
-          $(this).addClass('selected')
-          });
-        }
-    );
-
     function confirmDelete() {
       var x;
       if (confirm("Are you sure you want to delete all activities?") == true) {
@@ -107,37 +80,6 @@
                                               "table table-condensed"]) | safe}}
         {% endblock %}
           </div>
-      
-
-
-
-<!--
-      <div class="section" id="activities">
-        <h3 class="marginless">Available Strava Activity Count</h3>
-        <table class="activity list">
-          <thead style="">
-            <tr>
-              <th style="width: 20%">Name</th>
-              <th style="width: 20%">Distance (mi)</th>
-            </tr>
-          </thead>
-          <tbody>
-
-          {% for activity in client.get_activities(limit=2) %}
-          <tr class="{{'%s' % 'default' if activity.name}}" data-id="{{activity.name}}">
-          <td>{{ activity.name }}</td>
-          <td>
-            <a class="radio-button {{'%s' % 'selected' if activity.name}}" data-id="{{activity.name}}"></a>
-          </td>
-          <td>{{ activity.distance*0.000621371 }}</td>
-          </tr>
-          {% else %}
-          <tr><td>None!</td></tr>
-          {% endfor %}
-          </tbody>
-        </table>
--->
-
 
       <div id="act_limit">
         <form action="act_limit" method="POST">
@@ -160,14 +102,6 @@
      </div>
      {% endfor %}
 
-      <!--
-      <div id="stravaData">
-        <form action="stravaData" method="POST">
-          <input type="hidden" name="act_limit" value="{{ act_limit }}" />
-          <input type="submit" name="submit" value="Download {{ act_limit }} Activities?">
-        </form>
-      </div>
-      !-->
       <br>
       <div id="Start Job">
         <button id="start-bg-job" class="btn btn-primary">  Get your last {{ act_limit }} Activities from Strava! </button>
