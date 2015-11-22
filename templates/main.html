@@ -82,9 +82,9 @@
           <h2>Hello {{ athlete.firstname }} </h2>
           <p>
           This is Athlete Data Viz beta. Making your data into art.<br><br>
-          1)  Enter the # of rides you want to vizualize below (1 - 500), then click "Update"
+          1)  Enter the # of rides you want to vizualize below (1 - 500), then click "Update"<br>
           2)  Click "Get your last X Activities from Strava!" to begin the download!<br>
-          <p>     Your data download may take several minutes </p>
+          3)  Wait for the progress bar to reach 100% <br>
           3)  View your viz by clicking "View Map!"<br>
           4)  To order your map, click "Order Viz!" <br>
           5)  Email AthleteDataViz@gmail.com with any bugs. <br> <br>
@@ -127,7 +127,7 @@
       </div>
       {% for message in get_flashed_messages() %}
       <div class="container">
-      <div  class="col-sm">
+      <div  class="col-xs">
       <div class="alert alert-success" ng-show="get_flashed_messages() != null">
       <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
       <strong>
@@ -150,7 +150,6 @@
       <div id="Start Job">
         <button id="start-bg-job" class="btn btn-primary">  Get your last {{ act_limit }} Activities from Strava! </button>
       </div>
-      <br>
       <div class="container-fluid">
         <div id="progress">&nbsp; </div>
       </div>
@@ -158,7 +157,13 @@
       <script>
       function start_long_task() {
               // add task status elements
-              div = $('<div class="progress"><div></div><div>0%</div><div>...</div><div>&nbsp;</div></div><hr>');
+              div = $('
+                <div class="progress">
+                <div></div>
+                <div>0%</div>
+                <div>...</div>
+                <div>&nbsp;</div>
+                </div><hr>');
               $('#progress').append(div);
 
               // create a progress bar
@@ -219,9 +224,8 @@
         </form>
     </div>
 
-    <br> <br>
-    To clear your data, click "Delete all my Activities"
-     <br>
+     <br><br>
+
     
     <div id="delete_acts">
       <form action="delete_acts" method="POST" onsubmit="return confirm('Comfirm Deletion? - This cannot be undone!');">
