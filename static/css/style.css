@@ -24,12 +24,14 @@ text-align:center
 html, body, #container {
   height: 100%;
   width: 100%;
+  overflow:visible !important;
 }
 body {
   padding-top: 50px;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  overflow:visible !important;
+}
+.scrollable {
+  height: 100%;
+  overflow: auto;
 }
 input[type="radio"], input[type="checkbox"] {
   margin: 0;
