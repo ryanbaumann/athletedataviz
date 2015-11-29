@@ -24,17 +24,18 @@ text-align:center
 html, body, #container {
   height: 100%;
   width: 100%;
-  overflow: auto;
 }
 body {
   padding-top: 50px;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 input[type="radio"], input[type="checkbox"] {
   margin: 0;
 }
 #sidebar {
   position: relative;
-  width: 250px;
+  width: 200px;
   height: 100%;
   max-width: 100%;
   float: left;
