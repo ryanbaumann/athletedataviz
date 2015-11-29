@@ -1,21 +1,24 @@
 {% extends "base.html" %}
 
 {% block import_script %}
+
 <!-- Mapbox GL -->
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.css' rel='stylesheet' />
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.js'></script>
+
 <!-- Mapbox JS -->
-<script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
 <link href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
+<script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
+
 <!-- Leaflet Heat !-->
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js'></script>
 <!-- Mapbox JS extended to Mapbox GL JS !-->
 <script src="/static/js/leaflet-mapbox-gl.js"></script>
-<!-- Leaflet img -->
-<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js'></script>
+
 <!-- Bootstrap Slider -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css">
 <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
+
 {% endblock %}
 
 {% block content %}
