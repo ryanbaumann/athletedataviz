@@ -29,6 +29,7 @@ body {
   padding-top: 50px;
   overflow-y: scroll;
   overflow-x: hidden;
+  overflow:visible !important;
 }
 input[type="radio"], input[type="checkbox"] {
   margin: 0;
