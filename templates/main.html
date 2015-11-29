@@ -11,24 +11,15 @@
         </div>
         {% endfor %}
           <div id="greeting">
-          <h2>Hello {{ athlete.firstname }} </h2>
-          1)  Enter the # of rides you want to vizualize below (1 - 500), then click "Update"<br>
-          2)  Click "Get your last X Activities from Strava!" to begin the download!<br>
-          3)  Wait for the progress bar to reach 100% <br>
-          3)  View your viz by clicking "View Map!"<br>
-          4)  To order your map, click "Order Viz!" <br>
-          5)  Email AthleteDataViz@gmail.com with any bugs. <br> <br>
+          <h2>Hello {{ athlete.firstname }} - Let's get Started! </h2>
+          <p>
+          <b> 1)</b>  Get you Activities! <br>
+          <b> 2)</b>  Style your Viz!
           </p>
-        </div>
 
-        <div class="span12 centered-text"> 
-          <h4>Current Data Available for Viz</h4>
         </div>
-            <div class="table">
-             {{act_list_html.to_html(classes=["table table-striped", "table table-condensed"]) | safe}}
-          </div>
-
-      <div id="act_limit">
+        
+              <div id="act_limit">
         <form action="act_limit" method="POST">
           <p><strong> Get more Activities! (1-500) </strong> 
             <br> Choose a number greater than ({{act_count| safe }}) to get more data!</p>
@@ -36,7 +27,7 @@
           <input type="submit" class="btn btn-primary" value="Update!">
         </form>
       </div>
-
+      <br>
       <div id="Start Job">
         <button id="start-bg-job" class="btn btn-primary">  Get your last {{ act_limit }} Activities from Strava! </button>
       </div>
@@ -48,15 +39,18 @@
           <input type="submit" name="submit" class="btn btn-success" value="View Map">
         </form>
     </div>
-     <br>
-     <!--
-    <div id="delete_acts">
-      <form action="delete_acts" method="POST" onsubmit="return confirm('Comfirm Deletion? - This cannot be undone!');">
-      <input type="submit" name="submit" class="btn btn-danger" value="Delete all my Activities">
-      </form>
-    </div>
-    -->
+
+        <div class="span12 centered-text"> 
+          <h4>Current Data Available for Viz</h4>
+        </div>
+            <div class="table">
+             {{act_list_html.to_html(classes=["table table-striped", "table table-condensed"]) | safe}}
+          </div>
+
+
+
 <!-- Button trigger modal -->
+<br>
 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"> Delete my Data </button>
 
 <!-- Modal -->
