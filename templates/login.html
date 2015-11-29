@@ -1,66 +1,25 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Athlete Data Viz</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <style>
-        .container {
-          max-width: 800px;
-        }
-        body {
-        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-        color: #000000;
-        font-size: 13px;
-        background-color: #D8D8D8;
-        line-height: 1.5em;
-        margin: 30px auto;
-        padding: 0 50px;
-        }
-        div.header {
-        font-size: 20px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
+{% extends "base.html" %}
+{% block content %}
+    <div class="container-fluid">
       <div class="row">
-        <div class="col-md col-sm-offset-1">
-      {% block body %}
-      <div id="header" class="header">
-        <h1>Athlete Data Viz</h1>
-      </div>
-
+        <div class= "col-sm-12">
       <div class="page">
-        <br>
+        <h2> Get Started! <h2>
         <a href="{{auth_url}}"> 
           <img src="/static/img/ConnectWithStrava.png" alt="Connect with Strava"
           title="Connect with Strava">
         </a>
         <br>
         <p> 
-          <br>
-        This application requires read access to your Strava profile.
-        <br> <br>
+        <h5>
+        <br>
         No password information is received by the app; just an authentication token.
         That token is stored on your computer, encrypted, in a cookie.  
         <br> <br>
         Then we can vizualize your data as art!
         </p>
       </div>
-      {% endblock %}
-
-      {% for error in errors %}
-        <h4>{{ error }}</h4>
-      {% endfor %}
     </div>
-    </div>
-    </div>
-  </body>
-  <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-</html>
+  </div>
+</div>
+{% endblock %}

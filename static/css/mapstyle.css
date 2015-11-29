@@ -1,0 +1,180 @@
+<style>
+#map { 
+   position:absolute; 
+   top:0; 
+   bottom:0; 
+   width:100%; 
+  }
+#render_map {
+  display: block;
+  position: absolute;
+  top: 5px;
+  margin-right: auto;
+  margin-left: auto;
+  width: 125px;
+  height: 30px;
+  padding: 5px auto;
+  border-radius: 5px;
+  font-size: 18px;
+  text-align: center;
+  color: #fff;
+  background: #ee8a65;
+  }
+#snapshot {
+  position:absolute;
+  top:500px;
+  right:10px;
+  width:25%;
+  }
+#loader {
+  position:absolute; top:0; bottom:0; width:100%;
+  background:rgba(255, 255, 255, 1);
+  transition:background 1s ease-out;
+  -webkit-transition:background 1s ease-out;
+  }
+#loader.done {
+    background:rgba(255, 255, 255, 0);
+  }
+#loader.hide {
+    display:none;
+  }
+#loader .message {
+    position:absolute;
+    left:50%;
+    top:50%;
+  }
+/*  ---------  Now the UI buttons  ---------  */
+.ui-button1 {
+  position:absolute;
+  top: 5px;
+  right:10px;
+  z-index:1000;
+  background: white;
+  }
+div.ui-button2Label {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  z-index:1000;
+  background: #00CC33;
+  } 
+.ui-button2 {
+  position:absolute;
+  top: 80px;
+  right:10px;
+  z-index:1000;
+  background: white;
+  }
+ div.ui-button3Label {
+  position: absolute;
+  top: 120px;
+  right: 10px;
+  z-index:1000;
+  background: #00CCFF;
+  } 
+.ui-button3 {
+  position:absolute;
+  top: 150px;
+  right:10px;
+  z-index:1000;
+  background: white;
+  }
+div.ui-button4Label {
+  position: absolute;
+  top: 180px;
+  right: 10px;
+  z-index:1000;
+  background: #00CCFF;
+  } 
+.ui-button4 {
+  position:absolute;
+  top: 210px;
+  right:10px;
+  z-index:1000;
+  background: white;
+  }
+div.ui-button5Label {
+  position: absolute;
+  top: 240px;
+  right: 10px;
+  z-index:1000;
+  background: #00CCFF;
+  } 
+.ui-button5 {
+  position:absolute;
+  top: 270px;
+  right:10px;
+  z-index:1000;
+  background: white;
+  }
+div.heattypeLabel {
+    position: absolute;
+    top: 330px;
+    right: 10px;
+    z-index:1000;
+    background: #FF9933;
+    } 
+#heattype {
+    position: absolute;
+    top: 360px;
+    right: 10px;
+    z-index:1000;
+    background: white;
+    }
+div.blurLabel {
+    position: absolute;
+    top: 390px;
+    right: 10px;
+    z-index:1000;
+    background: #FF9933;
+    } 
+#blur {
+    position: absolute;
+    top: 420px;
+    right: 10px;
+    z-index:1000;
+    background: white;
+    }
+div.radiusLabel {
+    position: absolute;
+    top: 450px;
+    right: 10px;
+    z-index:1000;
+    background: #FF9933;
+    }  
+#radius {
+    position: absolute;
+    top: 480px;
+    right: 10px;
+    z-index:1000;
+    background: white;
+    }
+div.minOpacityLabel {
+    position: absolute;
+    top: 510px;
+    right: 10px;
+    z-index:1000;
+    background: #FF9933;
+    }  
+#minOpacity {
+    position: absolute;
+    top: 540px;
+    right: 10px;
+    z-index:1000;
+    background: white;
+    }
+#Refresh {
+    position: absolute;
+    top: 570px;
+    right: 10px;
+    z-index:1000;
+    background: white;
+    }
+#snapshot {
+    position: absolute;
+    top: 600px;
+    right: 10px;
+    z-index:1000;
+    background: white;
+    }
+</style>

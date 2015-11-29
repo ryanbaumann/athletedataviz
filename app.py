@@ -3,10 +3,8 @@ from datetime import datetime
 from flask import Flask, request, flash, url_for, redirect, \
      render_template, abort, session, send_from_directory, Response, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
-#import json
 import stravalib
 import stravaParse_v2 as sp
-#import psycopg2
 from sqlalchemy import create_engine, func
 import json
 import logging
@@ -121,6 +119,16 @@ def logout():
     """ End a users session and return them to the homepage """
     session.pop('access_token')
     return redirect(url_for('homepage'))
+
+@app.route('/contact')
+def contact():
+    """ Sends user to contact page """
+    return render_template('contact.html')
+
+@app.route('/about')
+def about():
+    """ Sends user to contact page """
+    return render_template('about.html')
 
 @app.route('/update')
 def update():

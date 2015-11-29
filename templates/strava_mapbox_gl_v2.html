@@ -1,292 +1,88 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='utf-8' />
-    <title>AthleteDataViz</title>
-    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    
-    <!-- Leaflet -->
-    <!-- 
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> -->
-    <link rel="stylesheet" type="text/css" href="static/css/style.css">
-    <!-- Mapbox GL -->
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.css' rel='stylesheet' />
-    <!-- Mapbox JS -->
-    <script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
-    <link href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
-    <!-- Leaflet Heat !-->
-    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js'></script>
-    <!-- Mapbox JS extended to Mapbox GL JS !-->
-    <script src="/static/js/leaflet-mapbox-gl.js"></script>
-    <!-- Leaflet img -->
-    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js'></script>
+{% extends "base.html" %}
 
-    <style>
+{% block import_script %}
+<!-- Mapbox GL -->
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.css' rel='stylesheet' />
+<!-- Mapbox JS -->
+<script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
+<!-- Leaflet Heat !-->
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js'></script>
+<!-- Mapbox JS extended to Mapbox GL JS !-->
+<script src="/static/js/leaflet-mapbox-gl.js"></script>
+<!-- Leaflet img -->
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js'></script>
+<!-- Bootstrap Slider -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css">
+<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
+{% endblock %}
 
-    </style>
-</head>
-<br>
-<style>
-body {
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-  color: #618DFC;
-  font-size: 18px;
-  background-color: #A9A9A9;
-  line-height: 1.5em;
-  margin: 30px auto;
-  padding: 0 50px;
-}
-#map { 
-   position:absolute; 
-   top:0; 
-   bottom:0; 
-   right:0;
-   width:100%; 
-  }
-#render_map {
-  display: block;
-  position: absolute;
-  top: 5px;
-  margin-right: auto;
-  margin-left: auto;
-  width: 125px;
-  height: 30px;
-  padding: 5px auto;
-  border-radius: 5px;
-  font-size: 18px;
-  text-align: center;
-  color: #fff;
-  background: #ee8a65;
-  }
-#snapshot {
-  position:absolute;
-  top:500px;
-  right:10px;
-  width:25%;
-  }
-#loader {
-  position:absolute; top:0; bottom:0; width:100%;
-  background:rgba(255, 255, 255, 1);
-  transition:background 1s ease-out;
-  -webkit-transition:background 1s ease-out;
-  }
-#loader.done {
-    background:rgba(255, 255, 255, 0);
-  }
-#loader.hide {
-    display:none;
-  }
-#loader .message {
-    position:absolute;
-    left:50%;
-    top:50%;
-  }
-/*  ---------  Now the UI buttons  ---------  */
-.ui-button1 {
-  position:absolute;
-  top: 5px;
-  right:10px;
-  z-index:1000;
-  background: white;
-  }
-div.ui-button2Label {
-  position: absolute;
-  top: 50px;
-  right: 10px;
-  z-index:1000;
-  background: #00CC33;
-  } 
-.ui-button2 {
-  position:absolute;
-  top: 80px;
-  right:10px;
-  z-index:1000;
-  background: white;
-  }
- div.ui-button3Label {
-  position: absolute;
-  top: 120px;
-  right: 10px;
-  z-index:1000;
-  background: #00CCFF;
-  } 
-.ui-button3 {
-  position:absolute;
-  top: 150px;
-  right:10px;
-  z-index:1000;
-  background: white;
-  }
-div.ui-button4Label {
-  position: absolute;
-  top: 180px;
-  right: 10px;
-  z-index:1000;
-  background: #00CCFF;
-  } 
-.ui-button4 {
-  position:absolute;
-  top: 210px;
-  right:10px;
-  z-index:1000;
-  background: white;
-  }
-div.ui-button5Label {
-  position: absolute;
-  top: 240px;
-  right: 10px;
-  z-index:1000;
-  background: #00CCFF;
-  } 
-.ui-button5 {
-  position:absolute;
-  top: 270px;
-  right:10px;
-  z-index:1000;
-  background: white;
-  }
-div.heattypeLabel {
-    position: absolute;
-    top: 330px;
-    right: 10px;
-    z-index:1000;
-    background: #FF9933;
-    } 
-#heattype {
-    position: absolute;
-    top: 360px;
-    right: 10px;
-    z-index:1000;
-    background: white;
-    }
-div.blurLabel {
-    position: absolute;
-    top: 390px;
-    right: 10px;
-    z-index:1000;
-    background: #FF9933;
-    } 
-#blur {
-    position: absolute;
-    top: 420px;
-    right: 10px;
-    z-index:1000;
-    background: white;
-    }
-div.radiusLabel {
-    position: absolute;
-    top: 450px;
-    right: 10px;
-    z-index:1000;
-    background: #FF9933;
-    }  
-#radius {
-    position: absolute;
-    top: 480px;
-    right: 10px;
-    z-index:1000;
-    background: white;
-    }
-div.minOpacityLabel {
-    position: absolute;
-    top: 510px;
-    right: 10px;
-    z-index:1000;
-    background: #FF9933;
-    }  
-#minOpacity {
-    position: absolute;
-    top: 540px;
-    right: 10px;
-    z-index:1000;
-    background: white;
-    }
-#Refresh {
-    position: absolute;
-    top: 570px;
-    right: 10px;
-    z-index:1000;
-    background: white;
-    }
-#snapshot {
-    position: absolute;
-    top: 600px;
-    right: 10px;
-    z-index:1000;
-    background: white;
-    }
-
-</style>
-<body>
-
-<form action="{{ url_for('homepage') }}" class='ui-button1'>
-<input type="submit" value="Homepage" style="font-size: 20px;">
-</form>
-<form>
-
-<div class="ui-button3Label">
-<label for="line_color" style="font-size: 18px; color:black">&nbsp;Line Color&nbsp;</label> </div>
-<select id='line_color' name="line_color" onclick="render()" class="ui-button3" style="font-size: 16px;">
-  <option value="#FFFF00">Dark Yellow</option>
-  <option value="#FF0000">Dark Red</option>
-  <option value="#0000FF">Dark Blue</option>
-  <option value="#9900FF">Dark Purple</option>
-  <option value="#FF0099">Light Pink</option>
-  <option value="#00CCFF">Light Blue</option>
-  <option value="#33FF00">Light Green</option>
-  <option value="#FF9900">Light Orange</option>
-</select> 
-
-<div class="ui-button4Label">
-<label for="line_width" style="font-size: 18px; color:black">&nbsp;Line Width&nbsp;</label> </div>
-<input type="range" id="line_width" min="0.2" value="2" max="10" step="0.1" onclick="render()" class="ui-button4" style="font-size: 16px;">
-
-<div class="ui-button5Label">
-<label for="line_opacity" style="font-size: 18px; color:black">&nbsp;Line Opacity&nbsp;</label> </div>
-<input type="range" id="line_opacity" min="0.1" value="0.5" max="1" step="0.05" onclick="render()" class="ui-button5" style="font-size: 16px;">
-
-<div class="ui-button2Label">
-<label for="VizType" style="font-size: 18px; color:black">&nbsp;Viz Type&nbsp;</label> </div>
-<select id='VizType' name="VizType" onclick="render()" class="ui-button2" style="font-size: 20px;">
-  <option value="heat-point">heat-point</option>
-  <option value="heat-line">heat-line</option>
-</select>
-
-<div class="heattypeLabel">
-<label for="heattype" style="font-size: 18px; color:black">&nbsp;Heat Type&nbsp;</label> </div>
-<select id='heattype' name="line_color" onclick="render()" class="ui-button3" style="font-size: 16px;">
-  <option value="d">Frequency</option>
-  <option value="s">Speed</option>
-  <option value="g">Grade</option>
-</select>
-
-<div class="blurLabel">
-<label for="blur" style="font-size: 18px; color:black" >&nbsp;Heat Blur&nbsp;</label> </div>
-<input type="range" id="blur" min="1" value="5" max="20" step="1" onclick="render()" class="blur" style="font-size: 26px;">
-
-<div class="radiusLabel">
-<label for="radius" style="font-size: 18px; color:black" >&nbsp;Heat Radius&nbsp;</label> </div>
-<input type="range" id="radius" min="1.5" value="5" max="20" step="0.5" onclick="render()" class="radius" style="font-size: 16px;">
-
-<div class="minOpacityLabel">
-<label for="minOpacity" style="font-size: 18px; color:black" >&nbsp;Heat Opacity&nbsp;</label> </div>
-<input type="range" name="minOpacityRange" id="minOpacity" min="0.05" value="0.5" max="1" step="0.05" class="minOpacity" onclick="render()" style="font-size: 16px;">
-</form>
-
-<form onclick="render();return false;" class="Refresh" id="Refresh">
-    <input type="submit" value="Refresh" style="font-size: 20px;">
-</form>
-
-<nav id='menu-ui' class='menu-ui'></nav>
-<button id='snap' class='snapshot' id="snapshot">&nbsp;Take a snapshot&nbsp;</button>
-<div id='snapshot'></div>
-<div id='map'></div>
-<div id='loader'><span class='message'>loading</span></div>
-<button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Order Viz!</button>
-</div>
-</div>
+{% block content %}
+<!-- Sidebar -->
+<div id="container">
+  <div id="sidebar">
+    <div class="sidebar-wrapper">
+      <div class="panel panel-default" id="features">
+        <div class="panel-heading">
+          <h3 class="panel-title">Map Designer
+          <button type="button" class="btn btn-xs btn-default pull-right" id="sidebar-hide-btn"><i class="fa fa-chevron-left"></i></button></h3>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-xs-8 col-md-8">
+                <form onclick="render();return false;" class="Refresh" id="Refresh">
+                  <button class="btn btn-primary">Refresh Map
+                  </button>
+                </form>
+              <br>
+              <b>Viz Type &nbsp; &nbsp;</b>
+              <select id='VizType' name="VizType" onclick="render()" style="font-size: 20px;">
+                <option value="heat-point">heat-point</option>
+                <option value="heat-line">heat-line</option>
+              </select>
+            <br><br>
+            <b>Heat Type &nbsp; &nbsp;</b>
+              <select id='heattype' name="line_color" onclick="render()" style="font-size: 18px;">
+                <option value="d">Density</option>
+                <option value="s">Speed</option>
+                <option value="g">Grade</option>
+              </select>
+            <br><br>
+            <b>Heat Blur &nbsp; &nbsp;</b>
+            <input type="text" id="blur" data-slider-min="1" data-slider-value="5" data-slider-max="20" data-slider-step="0.5">
+            <br><br>
+                <b>Heat Radius &nbsp; &nbsp;</b>
+                <input type="text" id="radius" data-slider-min="3" data-slider-value="5" data-slider-max="20" data-slider-step="0.25">
+            <br><br>
+                <b>Heat Opacity &nbsp; &nbsp;</b> <br>
+                <input type="text" id="minOpacity" data-slider-min="0.05" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.05">
+            <br> <br>
+              <b>Line Color &nbsp; &nbsp;</b>
+              <select id='line_color' name="line_color" onclick="render()" style="font-size: 18px;">
+                <option value="#FFFF00">Dark Yellow</option>
+                <option value="#FF0000">Dark Red</option>
+                <option value="#0000FF">Dark Blue</option>
+                <option value="#9900FF">Dark Purple</option>
+                <option value="#FF0099">Light Pink</option>
+                <option value="#00CCFF">Light Blue</option>
+                <option value="#33FF00">Light Green</option>
+                <option value="#FF9900">Light Orange</option>
+              </select> 
+            <br><br>
+                <b> Line Width &nbsp; &nbsp; </b><br>
+                <input id="line_width" data-slider-id='line_width_slider' type="text" data-slider-min="0.2" data-slider-value="2" data-slider-max="15" data-slider-step="0.05" onclick="render()">
+            <br><br>
+                <b>Line Opacity &nbsp; &nbsp;</b>
+                <input type="text" id="line_opacity" data-slider-min="0.1" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.025" onclick="render()">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id='map'></div>
+  <button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Order Viz!</button>
 
 <!-- Create the map -->
 <script>
@@ -294,17 +90,14 @@ div.minOpacityLabel {
 L.mapbox.accessToken = '{{ mapbox_accessToken|safe }}';
 mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
 
-// user-selected variables 
-var loader = document.getElementById('loader');
-startLoading();
-
 // data passed from flask back-end 
 var center_point = [{{ avg_lat|safe }}, {{ avg_long|safe }}]
 var stravaLineGeoJson = {{ geojson_data|safe }} ;
 var heatPointsRaw =  {{ heatpoints|safe }} ; 
 
-// Mapbox JS Api - import heatmap layer 
+// Mapbox JS Api - import heatmap layer
 var map = L.map('map').setView(center_point, 10);
+
 heatPoints = heatPointsRaw.map(function (p) { return [p['lt'], p['lg'], 
                            p[document.getElementById('heattype').value]]; });
 var heatColors = {
@@ -312,13 +105,14 @@ var heatColors = {
                   0.6: 'cyan',
                   0.7: 'lime',
                   0.8: 'yellow',
-                  1.0: 'red'
-                 };
-var heatConfig = {minOpacity: parseFloat(document.getElementById('minOpacity').value),
-                  radius: parseFloat(document.getElementById('radius').value),
-                  blur: parseFloat(document.getElementById('blur').value),
+                  1.0: 'red'};
+
+var heatConfig = {minOpacity: parseFloat(0.5),
+                  radius: parseFloat(5),
+                  blur: parseFloat(5),
                   max: 1,
                   gradient: heatColors};
+
 var heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
 
 var gl = L.mapboxGL({
@@ -337,6 +131,7 @@ var linestring_src = new mapboxgl.GeoJSONSource({
     buffer : 5,
     tolerance : 10
 });
+
 var lineHeatStyle = {
         "id": "linestring",
         "type": "line",
@@ -351,27 +146,45 @@ var lineHeatStyle = {
             "line-color": document.getElementById("line_color").value}
         };
 
-finishedLoading();
+$('#line_width').slider({
+  formatter: function(value) {
+    return 'Current value: ' + value;
+  } });
+$('#line_width').slider().on('slide', function (ev) {
+            $('#line_width').slider('setValue', ev.value);
+            render(); });
 
-document.getElementById('snap').addEventListener('click', function() {
-    leafletImage(map, doImage);
-});
+$('#line_opacity').slider({
+  formatter: function(value) {
+    return 'Current value: ' + value;
+  } });
+$('#line_opacity').slider().on('slide', function (ev) {
+            $('#line_opacity').slider('setValue', ev.value);
+            render(); });
 
-function startLoading() {
-    loader.className = '';
-}
+$('#blur').slider({
+  formatter: function(value) {
+    return 'Current value: ' + value;
+  } });
+$('#blur').slider().on('slide', function (ev) {
+            $('#blur').slider('setValue', ev.value);
+            render(); });
 
-function finishedLoading() {
-    // first, toggle the class 'done', which makes the loading screen
-    // fade out
-    loader.className = 'done';
-    setTimeout(function() {
-        // then, after a half-second, add the class 'hide', which hides
-        // it completely and ensures that the user can interact with the
-        // map again.
-        loader.className = 'hide';
-    }, 500);
-}
+$('#radius').slider({
+  formatter: function(value) {
+    return 'Current value: ' + value;
+  } });
+$('#radius').slider().on('slide', function (ev) {
+            $('#radius').slider('setValue', ev.value);
+            render(); });
+
+$('#minOpacity').slider({
+  formatter: function(value) {
+    return 'Current value: ' + value;
+  } });
+$('#minOpacity').slider().on('slide', function (ev) {
+            $('#minOpacity').slider('setValue', ev.value);
+            render(); });
 
 function paintLayer(color, width, opacity, layer) {
     gl._glMap.setPaintProperty(layer, 'line-color', color);
@@ -380,9 +193,9 @@ function paintLayer(color, width, opacity, layer) {
 }
 
 function updateHeat() {
-  heatConfig = {minOpacity: parseFloat(document.getElementById('minOpacity').value),
-                    radius: parseFloat(document.getElementById('radius').value),
-                    blur: parseFloat(document.getElementById('blur').value),
+  heatConfig = {minOpacity: parseFloat($('#minOpacity').slider('getValue')),
+                    radius: parseFloat($('#radius').slider('getValue')),
+                    blur: parseFloat($('#blur').slider('getValue')),
                     max: 1,
                     gradient: heatColors};
   heatPoints = heatPointsRaw.map(function (p) { return [p['lt'], p['lg'], 
@@ -398,9 +211,12 @@ function render() {
       try { heat.addTo(map)}
        catch(err) {console.log(err);}
     //update the heatmap
+    try {
       updateHeat();
       heat.setLatLngs(heatPoints);
       heat.setOptions(heatConfig);
+    }
+      catch(err) {console.log(err);}
     }
   //Check if the viz type is a heat line, otherwise remove the existing layer
   else if (document.getElementById("VizType").value == "heat-line") {
@@ -411,11 +227,13 @@ function render() {
         gl._glMap.addLayer(lineHeatStyle);}
       catch(err) {console.log(err);}
       //Update the linestring layer
+      try {
       paintLayer(document.getElementById("line_color").value, 
-                 parseFloat(document.getElementById("line_width").value),
-                 parseFloat(document.getElementById("line_opacity").value),
+                 parseFloat($('#line_width').slider('getValue')),
+                 parseFloat($('#line_opacity').slider('getValue')),
                  'linestring');
-
+      }
+      catch(err) {console.log(err);}
   }
 }
 function log(msg) {
@@ -434,7 +252,6 @@ function doImage(err, canvas) {
     snapshot.appendChild(img);
 }
 </script>
+{% endblock %}
 
-</body>
-</html>
 

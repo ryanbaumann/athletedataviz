@@ -1,68 +1,17 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Athlete Data Viz</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" media="screen">
+{% extends "base.html" %}
 
-    <style>
-        .container {
-          max-width: 800px;
-        }
-        body {
-        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-        color: #000000;
-        font-size: 13px;
-        background-color: #D8D8D8;
-        line-height: 1.5em;
-        margin: 30px auto;
-        padding: 0 50px;
-        }
-        div.table{
-        border: 1px solid black; 
-        max-height: 150px; 
-        overflow: auto;
-        }
-        .centered-text {
-        text-align:center
-        }   
-    </style>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script type="text/javascript">
-
-    function confirmDelete() {
-      var x;
-      if (confirm("Are you sure you want to delete all activities?") == true) {
-        x = "Are you sure";
-      } else {
-        x = "You pressed Cancel!";
-      }
-      document.getElementById("delete_acts").innerHTML = x;
-    }
-
-    </script>
-  </head>
-  <body>
-    {% block body %}
-
-    <div class="container">
+{% block content %}
+    <div class="container-fluid">
       <div class="row">
-        <div class="col-md col-sm-offset-1">
-          
-        <div id="header">
-          <h1>Athlete Data Viz</h1>
+        <div class="col-md-12">
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-success" ng-show="get_flashed_messages() != null">
+        <a class="close" data-dismiss="alert" aria-label="close"></a>
+            <p style="color: red;">{{ message }}</p>
         </div>
-
-        <div id= "col-xs col-sm-offset-1">
-          <a href="{{ url_for('logout') }}" class="close button">Log out</a>
-        </div>
-
-        <div class="col-md col-sm-offset-1">
+        {% endfor %}
           <div id="greeting">
           <h2>Hello {{ athlete.firstname }} </h2>
-          <p>
-          This is Athlete Data Viz beta. Making your data into art.<br><br>
           1)  Enter the # of rides you want to vizualize below (1 - 500), then click "Update"<br>
           2)  Click "Get your last X Activities from Strava!" to begin the download!<br>
           3)  Wait for the progress bar to reach 100% <br>
@@ -71,14 +20,12 @@
           5)  Email AthleteDataViz@gmail.com with any bugs. <br> <br>
           </p>
         </div>
-        {% block content %}
+
         <div class="span12 centered-text"> 
           <h4>Current Data Available for Viz</h4>
         </div>
             <div class="table">
-             {{act_list_html.to_html(classes=["table table-striped",
-                                              "table table-condensed"]) | safe}}
-        {% endblock %}
+             {{act_list_html.to_html(classes=["table table-striped", "table table-condensed"]) | safe}}
           </div>
 
       <div id="act_limit">
@@ -89,107 +36,109 @@
           <input type="submit" class="btn btn-primary" value="Update!">
         </form>
       </div>
-      {% for message in get_flashed_messages() %}
-      <div class="container">
-      <div  class="col-xs">
-      <div class="alert alert-success" ng-show="get_flashed_messages() != null">
-      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-      <strong>
-          <p style="color: red;">{{ message }}</p>
-          </strong>
-     </div>
-     </div>
-     </div>
-     {% endfor %}
 
-      <br>
       <div id="Start Job">
         <button id="start-bg-job" class="btn btn-primary">  Get your last {{ act_limit }} Activities from Strava! </button>
       </div>
       <div class="container-fluid">
         <div id="progress">&nbsp; </div>
       </div>
-      
-      <script>
-      function start_long_task() {
-              // add task status elements
-              div = $('<div class="progress"><div></div><div>0%</div><div>...</div><div>&nbsp;</div></div><hr>');
-              $('#progress').append(div);
-
-              // create a progress bar
-              var nanobar = new Nanobar({
-                  bg: '#44f',
-                  target: div[0].childNodes[0]
-              });
-
-              // send ajax POST request to start background job
-              $.ajax({
-                  type: 'POST',
-                  url: '/longtask',
-                  success: function(data, status, request) {
-                      status_url = request.getResponseHeader('Location');
-                      update_progress(status_url, nanobar, div[0]);
-                  },
-                  error: function() {
-                      alert('Unexpected error');
-                  }
-              });
-          }
-          function update_progress(status_url, nanobar, status_div) {
-              // send GET request to status URL
-              $.getJSON(status_url, function(data) {
-                  // update UI
-                  percent = parseInt(data['current'] * 100 / data['total']);
-                  nanobar.go(percent);
-                  $(status_div.childNodes[1]).text(percent + '%');
-                  $(status_div.childNodes[2]).text(data['status']);
-                  if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
-                      if ('result' in data) {
-                          // show result
-                          $(status_div.childNodes[3]).text('Result: ' + data['result']);
-                      }
-                      else {
-                          // something unexpected happened
-                          $(status_div.childNodes[3]).text('Result: ' + data['state']);
-                      }
-                  }
-                  else {
-                      // rerun in 2 seconds
-                      setTimeout(function() {
-                          update_progress(status_url, nanobar, status_div);
-                      }, 1500);
-                  }
-              });
-          }
-          $(function() {
-              $('#start-bg-job').click(start_long_task);
-          });
-      </script>
-
-          
-
     <div id="view_map">
         <form action="strava_mapbox" method="GET">
           <input type="submit" name="submit" class="btn btn-success" value="View Map">
         </form>
     </div>
-
-     <br><br>
-
-    
+     <br>
+     <!--
     <div id="delete_acts">
       <form action="delete_acts" method="POST" onsubmit="return confirm('Comfirm Deletion? - This cannot be undone!');">
       <input type="submit" name="submit" class="btn btn-danger" value="Delete all my Activities">
       </form>
     </div>
-    </a>
-  </p>
-</div>
+    -->
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"> Delete my Data </button>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Delete My Data - Confirmation</h4>
+      </div>
+      <div class="modal-body">
+        <p> Are you sure you want to delete all data? </p>
+        This will not effect your Strava account.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <form action="delete_acts" method="POST">
+          <button type="submit" class="btn btn-danger">Confirm Deletion</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
+<script>
+  function start_long_task() {
+          // add task status elements
+          div = $('<div class="progress"><div></div><div>0%</div><div>ha!</div><div>ha2!&nbsp;</div>ha3!</div>');
+          $('#progress').append(div);
 
-<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+          // create a progress bar
+          var nanobar = new Nanobar({
+              bg: '#44f',
+              target: div[0].childNodes[0]
+          });
+
+          // send ajax POST request to start background job
+          $.ajax({
+              type: 'POST',
+              url: '/longtask',
+              success: function(data, status, request) {
+                  status_url = request.getResponseHeader('Location');
+                  update_progress(status_url, nanobar, div[0]);
+              },
+              error: function() {
+                  alert('Unexpected error');
+              }
+          });
+      }
+      function update_progress(status_url, nanobar, status_div) {
+          // send GET request to status URL
+          
+          $.getJSON(status_url, function(data) {
+              // update UI
+              percent = parseInt(data['current'] * 100 / data['total']);
+              nanobar.go(percent);
+              console.log(data['status'])
+              $(status_div.childNodes[1]).text(percent + '%');
+              $(status_div.childNodes[2]).text(data['status']);
+              if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+                  if ('result' in data) {
+                      // show result
+                      $(status_div.childNodes[3]).text('Result: ' + data['result']);
+                  }
+                  else {
+                      // something unexpected happened
+                      $(status_div.childNodes[3]).text('Result: ' + data['state']);
+                  }
+              }
+              else {
+                  // rerun in 1 seconds
+                  setTimeout(function() {
+                      update_progress(status_url, nanobar, status_div);
+                  }, 1000);
+              }
+          });
+      }
+      $(function() {
+          $('#start-bg-job').click(start_long_task);
+      });
+      
+</script>
 {% endblock %}
-</html>
+
 

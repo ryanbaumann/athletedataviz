@@ -396,8 +396,7 @@ def get_acts_html(engine, ath_id):
     args = """ 
             SELECT "act_startDate" as "Date",
                     act_type as "Type",
-                    act_name as "Activity Name", 
-                    act_description as "Description"
+                    act_name as "Activity Name"
             FROM "Activity"
             WHERE ath_id = %s
             Order By act_id desc""" %(str(ath_id))

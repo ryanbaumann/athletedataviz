@@ -1,26 +1,3 @@
-<style>
-.color-p-0 { color: #2A2DD9 }    /* Dark Blue */
-.color-p-1 { color: #D9C46A }    /* Dark Tan */
-.color-p-2 { color: #61618C }    /* Light Blue */
-.color-p-3 { color: #FFFDF3 }    /* Light Tan */
-.color-p-4 { color: #DC7614}     /* Super Dark Tan */
-.container-fluid {
-    max-width: 1000px;
-}
-.container {
-  max-width: 1000px;
-}
-.bg-grey {
-    background-color: #FFFDF3;
-}
-div.table{
-  border: 1px solid black; 
-  max-height: 200px; 
-  overflow: auto;
-}
-.centered-text {
-text-align:center
-}   
 html, body, #container {
   height: 100%;
   width: 100%;
@@ -33,7 +10,6 @@ input[type="radio"], input[type="checkbox"] {
   margin: 0;
 }
 #sidebar {
-  position: relative;
   width: 250px;
   height: 100%;
   max-width: 100%;
@@ -44,8 +20,8 @@ input[type="radio"], input[type="checkbox"] {
 }
 #map {
   position: relative;
-  width: auto;
-  height: 100%;
+  width: 100%;
+  height: calc(100vh - 50px);
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 #loading {
@@ -195,27 +171,3 @@ input[type="radio"], input[type="checkbox"] {
     display: none !important;
   }
 }
-
-/*  ---------  Now the UI buttons  ---------  */
-#render_map {
-  display: block;
-  position: absolute;
-  top: 5px;
-  margin-right: auto;
-  margin-left: auto;
-  width: 125px;
-  height: 30px;
-  padding: 5px auto;
-  border-radius: 5px;
-  font-size: 18px;
-  text-align: center;
-  color: #fff;
-  background: #ee8a65;
-  }
-#snapshot {
-  position:absolute;
-  top:500px;
-  right:10px;
-  width:25%;
-  }
-</style>
