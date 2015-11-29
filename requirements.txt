@@ -20,4 +20,4 @@ psycopg2
 flask-debugtoolbar
 celery
 redis
-pip install healthgraph-api
+healthgraph-api
