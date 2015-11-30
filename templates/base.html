@@ -49,7 +49,6 @@ change the UA-XXXXX-X to be your site's ID -->
         <li class="active"><a href="/">Home</a></li>
         <li><a href="/about">About</a></li>
         <li><a href="/contact">Contact</a></li> 
-        <li><a data-toggle="collapse" data-target=".navbar-collapse.in">Toggle Designer</a></li> 
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li> {% if not session.access_token %}
@@ -57,6 +56,7 @@ change the UA-XXXXX-X to be your site's ID -->
           {% else %}
             <a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
           {% endif %}
+      <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;Designer</a></li>
       </ul>
     </div>
   </div>
