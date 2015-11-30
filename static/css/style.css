@@ -24,14 +24,16 @@ text-align:center
 html, body, #container {
   height: 100%;
   width: 100%;
-  overflow:visible !important;
+}
+html {
+  overflow: scroll !important;
 }
 body {
   padding-top: 50px;
 }
 .scrollable {
   height: 100%;
-  overflow: auto;
+  overflow: auto !important;
 }
 input[type="radio"], input[type="checkbox"] {
   margin: 0;
@@ -41,10 +43,11 @@ input[type="radio"], input[type="checkbox"] {
   width: 200px;
   height: 100%;
   max-width: 100%;
-  float: left;
-  -webkit-transition: all 0.25s ease-out;
-    -moz-transition: all 0.25s ease-out;
-    transition: all 0.25s ease-out;
+  float: right;
+  overflow: scroll !important;
+  -webkit-transition: all 0.5s ease-out;
+    -moz-transition: all 0.5s ease-out;
+    transition: all 0.5s ease-out;
 }
 #map {
   position: relative;
@@ -70,6 +73,11 @@ input[type="radio"], input[type="checkbox"] {
 }
 #sidebar-hide-btn {
   margin-top: -2px;
+}
+#sidebar-toggle-btn {
+  position: absolute;
+  top: 55px;
+  right: 50%;
 }
 #aboutTabsContent {
   padding-top: 10px;
@@ -202,7 +210,6 @@ input[type="radio"], input[type="checkbox"] {
 
 /*  ---------  Now the UI buttons  ---------  */
 #render_map {
-  display: block;
   position: absolute;
   top: 5px;
   margin-right: auto;
@@ -221,5 +228,8 @@ input[type="radio"], input[type="checkbox"] {
   top:500px;
   right:10px;
   width:25%;
+  }
+div.slider.slider-horizontal {
+  width: 130px;
   }
 </style>

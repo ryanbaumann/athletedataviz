@@ -29,7 +29,7 @@
       <div class="panel panel-default" id="features">
         <div class="panel-heading">
           <h3 class="panel-title">Map Designer
-          <button type="button" class="btn btn-xs btn-default pull-right" id="sidebar-hide-btn" data-toggle="collapse" data-target=".navbar-collapse.in"><i class="fa fa-chevron-left"></i></button></h3>
+          <button type="button" class="btn btn-xs btn-default pull-right" id="sidebar-hide-btn" data-toggle="collapse" data-target=".navbar-collapse.in"><i class="fa fa-chevron-right"></i></button></h3>
         </div>
         <div class="panel-body">
           <div class="row">
@@ -45,22 +45,25 @@
                 <option value="heat-line">heat-line</option>
               </select>
             <br><br>
+            <div id="VizType_hide_heat-point" class="collapse in">
             <b>Heat Type &nbsp; &nbsp;</b>
-              <select id='heattype' name="line_color" onclick="render()" style="font-size: 18px;">
-                <option value="d">Density</option>
-                <option value="s">Speed</option>
-                <option value="g">Grade</option>
-              </select>
-            <br><br>
-            <b>Heat Blur &nbsp; &nbsp;</b>
-            <input type="text" id="blur" data-slider-min="1" data-slider-value="5" data-slider-max="20" data-slider-step="0.5">
-            <br><br>
-                <b>Heat Radius &nbsp; &nbsp;</b>
-                <input type="text" id="radius" data-slider-min="3" data-slider-value="5" data-slider-max="20" data-slider-step="0.25">
-            <br><br>
-                <b>Heat Opacity &nbsp; &nbsp;</b> <br>
-                <input type="text" id="minOpacity" data-slider-min="0.05" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.05">
-            <br> <br>
+                <select id='heattype' name="line_color" onclick="render()" style="font-size: 18px;">
+                  <option value="d">Density</option>
+                  <option value="s">Speed</option>
+                  <option value="g">Grade</option>
+                </select>
+              <br><br>
+              <b>Heat Blur &nbsp; &nbsp;</b>
+              <input type="text" id="blur" class="slider" data-slider-min="1" data-slider-value="5" data-slider-max="20" data-slider-step="1">
+              <br><br>
+                  <b>Heat Radius &nbsp; &nbsp;</b>
+                  <input type="text" id="radius" class="slider" data-slider-min="3" data-slider-value="5" data-slider-max="20" data-slider-step="0.5">
+              <br>
+                  <b>Heat Opacity &nbsp; &nbsp;</b> <br>
+                  <input type="text" id="minOpacity" class="slider" data-slider-min="0.05" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.05">
+              <br> 
+            </div>
+            <div id="VizType_hide_heat-line" class="collapse">
               <b>Line Color &nbsp; &nbsp;</b>
               <select id='line_color' name="line_color" onclick="render()" style="font-size: 18px;">
                 <option value="#FFFF00">Dark Yellow</option>
@@ -72,12 +75,13 @@
                 <option value="#33FF00">Light Green</option>
                 <option value="#FF9900">Light Orange</option>
               </select> 
-            <br><br>
+              <br><br>
                 <b> Line Width &nbsp; &nbsp; </b><br>
-                <input id="line_width" data-slider-id='line_width_slider' type="text" data-slider-min="0.2" data-slider-value="2" data-slider-max="15" data-slider-step="0.05" onclick="render()">
-            <br><br>
+                <input id="line_width" class="slider" data-slider-id='line_width_slider' type="text" data-slider-min="0.2" data-slider-value="2" data-slider-max="15" data-slider-step="0.1" onclick="render()">
+              <br>
                 <b>Line Opacity &nbsp; &nbsp;</b>
-                <input type="text" id="line_opacity" data-slider-min="0.1" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.025" onclick="render()">
+                <input type="text" class="slider" id="line_opacity" data-slider-min="0.1" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.05" onclick="render()">
+              </div>
             </div>
           </div>
         </div>
@@ -85,10 +89,25 @@
     </div>
   </div>
   <div id='map'></div>
+
+  <button data-toggle="collapse" data-target=".navbar-collapse.in" id="sidebar-toggle-btn" class="btn "><i class="fa fa-list white"></i>&nbsp;&nbsp;Map Designer</button>
+
   <button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Order Viz!</button>
 
 <!-- Create the map -->
 <script>
+
+//on change of VizType, hide all divs linked to select and show only linked to selected option
+$('#VizType').change(function(){
+    var selector = '#VizType_hide_' + $(this).val();
+    console.log(selector)
+    //hide all elements
+    $('#VizType_hide_heat-line').collapse('hide');
+    $('#VizType_hide_heat-point').collapse('hide');
+    //show only element connected to selected option
+    $(selector).collapse('show');
+});
+
 // API tokens 
 L.mapbox.accessToken = '{{ mapbox_accessToken|safe }}';
 mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
@@ -151,7 +170,7 @@ var lineHeatStyle = {
 
 $('#line_width').slider({
   formatter: function(value) {
-    return 'Current value: ' + value;
+    return 'Value: ' + value;
   } });
 $('#line_width').slider().on('slide', function (ev) {
             $('#line_width').slider('setValue', ev.value);
@@ -159,7 +178,7 @@ $('#line_width').slider().on('slide', function (ev) {
 
 $('#line_opacity').slider({
   formatter: function(value) {
-    return 'Current value: ' + value;
+    return 'Value: ' + value;
   } });
 $('#line_opacity').slider().on('slide', function (ev) {
             $('#line_opacity').slider('setValue', ev.value);
@@ -167,7 +186,7 @@ $('#line_opacity').slider().on('slide', function (ev) {
 
 $('#blur').slider({
   formatter: function(value) {
-    return 'Current value: ' + value;
+    return 'Value: ' + value;
   } });
 $('#blur').slider().on('slide', function (ev) {
             $('#blur').slider('setValue', ev.value);
@@ -175,7 +194,7 @@ $('#blur').slider().on('slide', function (ev) {
 
 $('#radius').slider({
   formatter: function(value) {
-    return 'Current value: ' + value;
+    return 'Value: ' + value;
   } });
 $('#radius').slider().on('slide', function (ev) {
             $('#radius').slider('setValue', ev.value);
@@ -183,7 +202,7 @@ $('#radius').slider().on('slide', function (ev) {
 
 $('#minOpacity').slider({
   formatter: function(value) {
-    return 'Current value: ' + value;
+    return 'Value: ' + value;
   } });
 $('#minOpacity').slider().on('slide', function (ev) {
             $('#minOpacity').slider('setValue', ev.value);
