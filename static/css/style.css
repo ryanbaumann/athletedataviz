@@ -77,7 +77,7 @@ input[type="radio"], input[type="checkbox"] {
 #sidebar-toggle-btn {
   position: absolute;
   top: 55px;
-  right: 50%;
+  right: 250px;
 }
 #aboutTabsContent {
   padding-top: 10px;
