@@ -24,6 +24,7 @@ text-align:center
 html, body, #container {
   height: 100%;
   width: 100%;
+  overflow:auto;
 }
 html {
   overflow: scroll !important;
@@ -75,10 +76,12 @@ input[type="radio"], input[type="checkbox"] {
   margin-top: -2px;
 }
 #sidebar-toggle-btn {
-  position: absolute;
+  position: fixed;
   top: 55px;
-  right: 250px;
-  -webkit-transform: translateZ(0)
+  right: 50%;
+  z-index:1000;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 #aboutTabsContent {
   padding-top: 10px;
