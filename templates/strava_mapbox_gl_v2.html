@@ -28,8 +28,7 @@
     <div class="sidebar-wrapper">
       <div class="panel panel-default" id="features">
         <div class="panel-heading">
-          <h3 class="panel-title">Map Designer
-          <button type="button" class="btn btn-xs btn-default pull-right" id="sidebar-hide-btn" data-toggle="collapse" data-target=".navbar-collapse.in"><i class="fa fa-chevron-right"></i></button></h3>
+          <h3 class="panel-title">Map Designer</h3>
         </div>
         <div class="panel-body">
           <div class="row">
@@ -39,32 +38,32 @@
                   </button>
                 </form>
               <br>
-              <b>Viz Type &nbsp; &nbsp;</b>
+              <b>Viz Type</b>
               <select id='VizType' name="VizType" onclick="render()" style="font-size: 20px;">
                 <option value="heat-point">heat-point</option>
                 <option value="heat-line">heat-line</option>
               </select>
             <br><br>
             <div id="VizType_hide_heat-point" class="collapse in">
-            <b>Heat Type &nbsp; &nbsp;</b>
+            <b>Heat Type</b>
                 <select id='heattype' name="line_color" onclick="render()" style="font-size: 18px;">
                   <option value="d">Density</option>
                   <option value="s">Speed</option>
                   <option value="g">Grade</option>
                 </select>
               <br><br>
-              <b>Heat Blur &nbsp; &nbsp;</b>
+              <b>Heat Blur</b>
               <input type="text" id="blur" class="slider" data-slider-min="1" data-slider-value="5" data-slider-max="20" data-slider-step="1">
               <br><br>
-                  <b>Heat Radius &nbsp; &nbsp;</b>
+                  <b>Heat Radius</b>
                   <input type="text" id="radius" class="slider" data-slider-min="3" data-slider-value="5" data-slider-max="20" data-slider-step="0.5">
-              <br>
-                  <b>Heat Opacity &nbsp; &nbsp;</b> <br>
+              <br><br>
+                  <b>Heat Opacity</b>
                   <input type="text" id="minOpacity" class="slider" data-slider-min="0.05" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.05">
-              <br> 
+              <br> <br>
             </div>
             <div id="VizType_hide_heat-line" class="collapse">
-              <b>Line Color &nbsp; &nbsp;</b>
+              <b>Line Color</b>
               <select id='line_color' name="line_color" onclick="render()" style="font-size: 18px;">
                 <option value="#FFFF00">Dark Yellow</option>
                 <option value="#FF0000">Dark Red</option>
@@ -76,10 +75,10 @@
                 <option value="#FF9900">Light Orange</option>
               </select> 
               <br><br>
-                <b> Line Width &nbsp; &nbsp; </b><br>
+                <b> Line Width </b>
                 <input id="line_width" class="slider" data-slider-id='line_width_slider' type="text" data-slider-min="0.2" data-slider-value="2" data-slider-max="15" data-slider-step="0.1" onclick="render()">
-              <br>
-                <b>Line Opacity &nbsp; &nbsp;</b>
+              <br><br>
+                <b>Line Opacity</b>
                 <input type="text" class="slider" id="line_opacity" data-slider-min="0.1" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.05" onclick="render()">
               </div>
             </div>

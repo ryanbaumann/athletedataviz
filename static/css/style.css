@@ -211,7 +211,7 @@ input[type="radio"], input[type="checkbox"] {
 /*  ---------  Now the UI buttons  ---------  */
 #render_map {
   position: absolute;
-  top: 5px;
+  top: 10px;
   margin-right: auto;
   margin-left: auto;
   width: 125px;
@@ -230,6 +230,6 @@ input[type="radio"], input[type="checkbox"] {
   width:25%;
   }
 div.slider.slider-horizontal {
-  width: 130px;
+  width: 150px;
   }
 </style>
