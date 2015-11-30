@@ -78,6 +78,7 @@ input[type="radio"], input[type="checkbox"] {
   position: absolute;
   top: 55px;
   right: 250px;
+  -webkit-transform: translateZ(0)
 }
 #aboutTabsContent {
   padding-top: 10px;
