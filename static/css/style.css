@@ -76,12 +76,14 @@ input[type="radio"], input[type="checkbox"] {
   margin-top: -2px;
 }
 #sidebar-toggle-btn {
+  margin-top: -2px;
+  /*
   position: fixed;
   top: 55px;
   right: 50%;
   z-index:1000;
   transform: translateZ(0);
-  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);*/
 }
 #aboutTabsContent {
   padding-top: 10px;

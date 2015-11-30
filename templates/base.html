@@ -40,6 +40,7 @@ change the UA-XXXXX-X to be your site's ID -->
     <div class="navbar-header">
       <div class="navbar-icon-container">
         <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a>
+        <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-search fa-lg white"> Designer </i></a>
       </div>
       <a class="navbar-brand" action="login">Athlete Data Viz </a>
     </div>
@@ -48,6 +49,7 @@ change the UA-XXXXX-X to be your site's ID -->
         <li class="active"><a href="/">Home</a></li>
         <li><a href="/about">About</a></li>
         <li><a href="/contact">Contact</a></li> 
+        <li><a data-toggle="collapse" data-target=".navbar-collapse.in">Toggle Designer</a></li> 
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li> {% if not session.access_token %}
