@@ -28,7 +28,7 @@ class Config(object):
     RUNKEEPER_CLIENT_SECRET = os.environ['RUNKEEPER_CLIENT_SECRET']
     UPLOAD_FOLDER = 'uploads'
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-
+    """
     CELERY_DEFAULT_QUEUE = 'default'
     CELERY_QUEUES = (
         Queue('default',    routing_key='task.#'),
@@ -37,7 +37,7 @@ class Config(object):
     CELERY_DEFAULT_EXCHANGE = 'tasks'
     CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
     CELERY_DEFAULT_ROUTING_KEY = 'task.default'
-
+    """
     COMPRESS_MIMETYPES = [
         'text/html', 'text/css', 'text/xml', 'application/json', 'application/javascript']
     COMPRESS_LEVEL = 6
