@@ -15,13 +15,6 @@ def GetActivities(client, limit):
     # Returns a list of Strava activity objects, up to the number specified by
     # limit
     activities = client.get_activities(limit=limit)
-    activities.limit = limit
-    """try:
-        print trying
-        assert len(list(activities)) == limit
-    except:
-        print "not enough Strava acts for user!"
-          """
     return activities
 
 
