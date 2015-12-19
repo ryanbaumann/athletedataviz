@@ -11,10 +11,10 @@ from stravalib import unithelper
 import json
 
 
-def GetActivities(client, limit, before=None, after=None):
+def GetActivities(client, limit):
     # Returns a list of Strava activity objects, up to the number specified by
     # limit
-    activities = client.get_activities(before, after)
+    activities = client.get_activities()
     activities.limit = limit
     """try:
         print trying

@@ -374,7 +374,6 @@ def longtask():
                             'grade_smooth', 'watts', 'temp', 'heartrate', 'cadence', 'moving'],
                            session['access_token'],
                            'medium')
-    flash("finished getting activities!")
     return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
 
