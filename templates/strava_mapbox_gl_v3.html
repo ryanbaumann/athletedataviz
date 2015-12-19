@@ -178,8 +178,8 @@
     };
 
     // Mapbox JS Api - import heatmap layer
-
-    var map = L.mapbox.map('map').setView(center_point, 10),
+    var map;
+    map = L.mapbox.map('map').setView(center_point, 10),
         heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
 
     //document.getElementById('snap').addEventListener('click', function() {
@@ -195,6 +195,9 @@
         minZoom: 4,
         maxZoom: 20,
     }).addTo(map);
+
+    // disable map rotation using right click + drag
+    gl._glMap.dragRotate.disable();
 
     var linestring_src = new mapboxgl.GeoJSONSource({
         data: stravaLineGeoJson,
@@ -217,8 +220,11 @@
             "line-color": document.getElementById("line_color").value
         }
     };
+    
+
     gl._glMap.on('style.load', function() {
         gl._glMap.addSource('linestring', linestring_src);
+        gl._glMap.addLayer(lineHeatStyle);
     });
 
     $('#line_width').slider({
@@ -273,7 +279,7 @@
     $('#heat_color').click(render);
     $('#Refresh').click(render);
     $('#VizType').click(render);
-    $('#mapStyle').click(render);
+    $('#mapStyle').click(switchMapStyle);
     $('#heattype').click(render);
     $('#heat_color').click(render);
 
@@ -283,26 +289,26 @@
     function switchLayer() {
         layer = document.getElementById("mapStyle").value
         gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
-        try {
-            gl._glMap.on('style.load', function() {
-                gl._glMap.addLayer(lineHeatStyle);
-                paintLayer(document.getElementById("line_color").value,
-                    parseFloat($('#line_width').slider('getValue')),
-                    parseFloat($('#line_opacity').slider('getValue')),
-                    'linestring');
-            });
-        } catch (err) {
-            console.log(err);
+        if (document.getElementById("VizType").value == "heat-line") {
+            try {
+                 gl._glMap.on('style.load', function() {
+                     paintLayer(document.getElementById("line_color").value,
+                        parseFloat($('#line_width').slider('getValue')),
+                        parseFloat($('#line_opacity').slider('getValue')),
+                        'linestring');
+                });
+            } catch (err) {
+                console.log(err);
+            }
         }
     }
 
     function set_visibility(id, onoff) {
         var visibility = gl._glMap.getLayoutProperty(id, 'visibility');
-        console.log(visibility);
-        if (visibility == 'visible' && onoff == 'off') {
+        if (onoff == 'off') {
             gl._glMap.setLayoutProperty(id, 'visibility', 'none');
             console.log('changed layer to INvisible ' + id);
-        } else if (visibility == 'none' && onoff == 'on') {
+        } else if (onoff == 'on') {
             gl._glMap.setLayoutProperty(id, 'visibility', 'visible');
             console.log('changed layer to visible ' + id)
         }
@@ -337,18 +343,20 @@
         });
     }
 
-    function render() {
+    function switchMapStyle() {
         //Check if the mapStyle changed - if so, change it here
         if (document.getElementById("mapStyle").value != map_style) {
             switchLayer();
-            map_style = document.getElementById("mapStyle").value
+            map_style = document.getElementById("mapStyle").value;
         }
+    }
 
+    function render() {
         //Check if the viz type changed - if so, change it here  
         if (document.getElementById("VizType").value != VizType) {
             if (document.getElementById("VizType").value == "heat-point") {
                 try {
-                    gl._glMap.removeLayer('linestring');
+                    set_visibility('linestring', 'off')
                 } catch (err) {
                     console.log(err);
                 }
@@ -366,24 +374,14 @@
                 }
 
                 try {
-                    gl._glMap.addLayer(lineHeatStyle);
+                    set_visibility('linestring', 'on');
                     paintLayer(document.getElementById("line_color").value,
                         parseFloat($('#line_width').slider('getValue')),
                         parseFloat($('#line_opacity').slider('getValue')),
                         'linestring');
                 } catch (err) {
                     console.log(err);
-                    gl._glMap.on('style.load', function() {
-                        gl._glMap.addLayer(lineHeatStyle);
-                        paintLayer(document.getElementById("line_color").value,
-                            parseFloat($('#line_width').slider('getValue')),
-                            parseFloat($('#line_opacity').slider('getValue')),
-                            'linestring');
-                    });
                 }
-
-
-
                 VizType = 'heat-line'
             }
         //Check if the viz type did not change - if so, update values and render here
