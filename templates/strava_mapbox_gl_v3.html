@@ -277,6 +277,7 @@
         render();
     });
     $('#heat_color').click(render);
+    $('#Refresh').click(switchLayer);
     $('#Refresh').click(render);
     $('#VizType').click(render);
     $('#mapStyle').click(switchMapStyle);
@@ -291,8 +292,8 @@
         gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
         if (document.getElementById("VizType").value == "heat-line") {
             try {
-                 gl._glMap.on('style.load', function() {
-                     paintLayer(document.getElementById("line_color").value,
+                gl._glMap.on('style.load', function() {
+                    paintLayer(document.getElementById("line_color").value,
                         parseFloat($('#line_width').slider('getValue')),
                         parseFloat($('#line_opacity').slider('getValue')),
                         'linestring');
