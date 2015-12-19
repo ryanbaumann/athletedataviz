@@ -21,3 +21,7 @@ flask-debugtoolbar
 celery
 redis
 healthgraph-api
+flask-restful
+markdown
+flask-compress
+flask-cache

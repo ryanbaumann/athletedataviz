@@ -1,112 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <title>Athlete Data Viz Login</title>
-  <!--[if IE]><![endif]-->
-  <meta charset="utf-8">
-  <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="AthleteDataViz">
-  <meta name="author" content="RyanBaumann">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css"> 
-  <link rel="stylesheet" href="static/css/style.css" type="text/css">
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
-  {% block import_script %}
-  {% endblock %}
+    <title>Athlete Data Viz Login</title>
+    <!--[if IE]><![endif]-->
+    <meta charset="utf-8">
+    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="AthleteDataViz">
+    <meta name="author" content="RyanBaumann">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <link rel="stylesheet" href="static/css/style.css" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
+    {% block import_script %} {% endblock %}
 </head>
-
 <!-- asynchronous google analytics
 change the UA-XXXXX-X to be your site's ID -->
 <script>
- var _gaq = [['_setAccount', 'UA-58623894-3'], ['_trackPageview']];
- (function(d, t) {
-  var g = d.createElement(t),
-      s = d.getElementsByTagName(t)[0];
-  g.async = true;
-  g.src = '//www.google-analytics.com/ga.js';
-  s.parentNode.insertBefore(g, s);
- })(document, 'script');
+var _gaq = [
+    ['_setAccount', 'UA-58623894-3'],
+    ['_trackPageview']
+];
+(function(d, t) {
+    var g = d.createElement(t),
+        s = d.getElementsByTagName(t)[0];
+    g.async = true;
+    g.src = '//www.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g, s);
+})(document, 'script');
 </script>
 
 <body>
-<!--- BEGINNING OF NAVBAR -->
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <div class="navbar-icon-container">
-        <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a>
-        <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-search fa-lg white"> Designer </i></a>
-      </div>
-      <a class="navbar-brand" action="login">Athlete Data Viz </a>
-    </div>
-    <div class="navbar-collapse collapse" id="myNavbar">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="/">Home</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/contact">Contact</a></li> 
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li> {% if not session.access_token %}
-           <a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-          {% else %}
-            <a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
-          {% endif %}
-      <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;Designer</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
-{% block content %}
-{% endblock %}
+    <!--- BEGINNING OF NAVBAR -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <div class="navbar-icon-container">
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a>
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-search fa-lg white"> Designer </i></a>
+                </div>
+                <a class="navbar-brand" action="login">Athlete Data Viz </a>
+            </div>
+            <div class="navbar-collapse collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/">Home</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li> {% if not session.access_token %}
+                        <a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                    {% else %}
+                    <a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
+                    {% endif %}
+                    <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;Designer</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% block content %} {% endblock %}
 </body>
-
 <script>
 $("#about-btn").click(function() {
-  $("#aboutModal").modal("show");
-  $(".navbar-collapse.in").collapse("hide");
-  return false;
-});
-
-$("#full-extent-btn").click(function() {
-  map.fitBounds(boroughs.getBounds());
-  $(".navbar-collapse.in").collapse("hide");
-  return false;
-});
-
-$("#legend-btn").click(function() {
-  $("#legendModal").modal("show");
-  $(".navbar-collapse.in").collapse("hide");
-  return false;
+    $("#aboutModal").modal("show");
+    $(".navbar-collapse.in").collapse("hide");
+    return false;
 });
 
 $("#login-btn").click(function() {
-  $("#loginModal").modal("show");
-  $(".navbar-collapse.in").collapse("hide");
-  return false;
-});
-
-$("#list-btn").click(function() {
-  $('#sidebar').toggle();
-  map.invalidateSize();
-  return false;
+    $("#loginModal").modal("show");
+    $(".navbar-collapse.in").collapse("hide");
+    return false;
 });
 
 $("#nav-btn").click(function() {
-  $(".navbar-collapse").collapse("toggle");
-  return false;
+    $(".navbar-collapse").collapse("toggle");
+    return false;
 });
 
-$("#sidebar-toggle-btn").click(function() {
-  $("#sidebar").toggle();
-  map.invalidateSize();
-  return false;
-});
 </script>
 
 </html>
-

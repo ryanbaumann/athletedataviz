@@ -1,138 +1,128 @@
-{% extends "base.html" %}
-
-{% block content %}
-    <div class="container-fluid">
-      <div class="row">
+{% extends "base.html" %} {% block content %}
+<div class="container-fluid">
+    <div class="row">
         <div class="col-md-12">
-        {% for message in get_flashed_messages() %}
-        <div class="alert alert-success" ng-show="get_flashed_messages() != null">
-        <a class="close" data-dismiss="alert" aria-label="close"></a>
-            <p style="color: red;">{{ message }}</p>
-        </div>
-        {% endfor %}
-          <div id="greeting">
-          <h2>Welcome {{ athlete.firstname }}! </h2>
-          <p>
-          <b> 1)</b>  Get you Activities! <br>
-          <b> 2)</b>  Style your Viz!
-          </p>
-
-        </div>
-        
-              <div id="act_limit">
-        <form action="act_limit" method="POST">
-          <p><strong> Get more Activities! (1-500) </strong> 
-            <br> Choose a number greater than ({{act_count| safe }}) to get more data!</p>
-          <input type="number" name="act_limit" min="1" max="500" value="{{ act_limit }}">
-          <input type="submit" class="btn btn-primary" value="Update!">
-        </form>
-      </div>
-      <br>
-      <div id="Start Job">
-        <button id="start-bg-job" class="btn btn-primary">  Get your last {{ act_limit }} Activities from Strava! </button>
-      </div>
-      <div class="container-fluid">
-        <div id="progress">&nbsp; </div>
-      </div>
-    <div id="view_map">
-        <form action="strava_mapbox" method="GET">
-          <input type="submit" name="submit" class="btn btn-success" value="View Map">
-        </form>
-    </div>
-
-        <div class="span12 centered-text"> 
-          <h4>Current Data Available for Viz</h4>
-        </div>
+            {% for message in get_flashed_messages() %}
+            <div class="alert alert-success" ng-show="get_flashed_messages() != null">
+                <a class="close" data-dismiss="alert" aria-label="close"></a>
+                <p style="color: red;">{{ message }}</p>
+            </div>
+            {% endfor %}
+            <div id="greeting">
+                <h2>Welcome {{ athlete.firstname }}! </h2>
+                <p>
+                    <b> 1)</b> Get you Activities!
+                    <br>
+                    <b> 2)</b> Style your Viz!
+                </p>
+            </div>
+            <div id="act_limit">
+                <form action="act_limit" method="POST">
+                    <p><strong> Get more Activities! (1-500) </strong>
+                        <br> Choose a number greater than ({{act_count| safe }}) to get more data!</p>
+                    <input type="number" name="act_limit" min="1" max="500" value="{{ act_limit }}">
+                    <input type="submit" class="btn btn-primary" value="Update!">
+                </form>
+            </div>
+            <br>
+            <div id="Start Job">
+                <button id="start-bg-job" class="btn btn-primary"> Get your last {{ act_limit }} Activities from Strava! </button>
+            </div>
+            <div class="container-fluid">
+                <div id="progress">&nbsp; </div>
+            </div>
+            <div id="view_map">
+                <form action="strava_mapbox" method="GET">
+                    <input type="submit" name="submit" class="btn btn-success" value="View Map">
+                </form>
+            </div>
+            <div class="span12 centered-text">
+                <h4>Current Data Available for Viz</h4>
+            </div>
             <div class="table">
-             {{act_list_html.to_html(classes=["table table-striped", "table table-condensed"]) | safe}}
-          </div>
-
-<!-- Button trigger modal -->
-<br>
-<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"> Delete my Data </button>
-</div>
-</div>
+                {{act_list_html.to_html(classes=["table table-striped", "table table-condensed"]) | safe}}
+            </div>
+            <!-- Button trigger modal -->
+            <br>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"> Delete my Data </button>
+        </div>
+    </div>
 </div>
 <!-- Modal -->
 <div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Delete My Data - Confirmation</h4>
-      </div>
-      <div class="modal-body">
-        <p> Are you sure you want to delete all data? </p>
-        This will not effect your Strava account.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <form action="delete_acts" method="POST">
-          <button type="submit" class="btn btn-danger">Confirm Deletion</button>
-        </form>
-      </div>
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Delete My Data - Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <p> Are you sure you want to delete all data? </p>
+                This will not effect your Strava account.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <form action="delete_acts" method="POST">
+                    <button type="submit" class="btn btn-danger">Confirm Deletion</button>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
-
 <script>
-  function start_long_task() {
-          // add task status elements
-          div = $('<div class="progress"><div></div><div>0%</div><div>ha!</div><div>ha2!&nbsp;</div>ha3!</div>');
-          $('#progress').append(div);
+function start_long_task() {
+    // add task status elements
+    div = $('<div class="progress"><div></div><div>0%</div><div>ha!</div><div>ha2!&nbsp;</div>ha3!</div>');
+    $('#progress').append(div);
 
-          // create a progress bar
-          var nanobar = new Nanobar({
-              bg: '#44f',
-              target: div[0].childNodes[0]
-          });
+    // create a progress bar
+    var nanobar = new Nanobar({
+        bg: '#44f',
+        target: div[0].childNodes[0]
+    });
 
-          // send ajax POST request to start background job
-          $.ajax({
-              type: 'POST',
-              url: '/longtask',
-              success: function(data, status, request) {
-                  status_url = request.getResponseHeader('Location');
-                  update_progress(status_url, nanobar, div[0]);
-              },
-              error: function() {
-                  alert('Unexpected error');
-              }
-          });
-      }
-      function update_progress(status_url, nanobar, status_div) {
-          // send GET request to status URL
-          
-          $.getJSON(status_url, function(data) {
-              // update UI
-              percent = parseInt(data['current'] * 100 / data['total']);
-              nanobar.go(percent);
-              console.log(data['status'])
-              $(status_div.childNodes[1]).text(percent + '%');
-              $(status_div.childNodes[2]).text(data['status']);
-              if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
-                  if ('result' in data) {
-                      // show result
-                      $(status_div.childNodes[3]).text('Result: ' + data['result']);
-                  }
-                  else {
-                      // something unexpected happened
-                      $(status_div.childNodes[3]).text('Result: ' + data['state']);
-                  }
-              }
-              else {
-                  // rerun in 1 seconds
-                  setTimeout(function() {
-                      update_progress(status_url, nanobar, status_div);
-                  }, 1000);
-              }
-          });
-      }
-      $(function() {
-          $('#start-bg-job').click(start_long_task);
-      });
-      
+    // send ajax POST request to start background job
+    $.ajax({
+        type: 'POST',
+        url: '/longtask',
+        success: function(data, status, request) {
+            status_url = request.getResponseHeader('Location');
+            update_progress(status_url, nanobar, div[0]);
+        },
+        error: function() {
+            alert('Unexpected error');
+        }
+    });
+}
+
+function update_progress(status_url, nanobar, status_div) {
+    // send GET request to status URL
+
+    $.getJSON(status_url, function(data) {
+        // update UI
+        percent = parseInt(data['current'] * 100 / data['total']);
+        nanobar.go(percent);
+        console.log(data['status'])
+        $(status_div.childNodes[1]).text(percent + '%');
+        $(status_div.childNodes[2]).text(data['status']);
+        if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+            if ('result' in data) {
+                // show result
+                $(status_div.childNodes[3]).text('Result: ' + data['result']);
+            } else {
+                // something unexpected happened
+                $(status_div.childNodes[3]).text('Result: ' + data['state']);
+            }
+        } else {
+            // rerun in 1 seconds
+            setTimeout(function() {
+                update_progress(status_url, nanobar, status_div);
+            }, 1000);
+        }
+    });
+}
+$(function() {
+    $('#start-bg-job').click(start_long_task);
+});
 </script>
 {% endblock %}
-
-
