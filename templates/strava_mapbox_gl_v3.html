@@ -206,7 +206,7 @@
     function getData() {
         var r = $.Deferred();
 
-        $.getJSON('http://localhost:33507/heat_points/' + '{{ath_id|safe}}', function(data) {
+        $.getJSON('https://athletedataviz-pro.herokuapp.com/heat_points/' + '{{ath_id|safe}}', function(data) {
             heatPointsRaw = JSON.parse(data);
             heatPoints = heatPointsRaw.map(function(p) {
                 return [p['lt'], p['lg'],
@@ -215,7 +215,7 @@
             });    
         });
 
-        $.getJSON('http://localhost:33507/heat_lines/' + '{{ath_id|safe}}', function(data) {
+        $.getJSON('https://athletedataviz-pro.herokuapp.com/heat_lines/' + '{{ath_id|safe}}', function(data) {
             stravaLineGeoJson = JSON.parse(data);
             r.resolve();
         });
