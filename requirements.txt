@@ -25,3 +25,4 @@ flask-restful
 markdown
 flask-compress
 flask-cache
+flask-sslify

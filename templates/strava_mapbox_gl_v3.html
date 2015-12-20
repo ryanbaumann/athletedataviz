@@ -203,30 +203,35 @@
     }).addTo(map);
     gl._glMap.dragRotate.disable();
 
-    function getData() {
+    function getDataHeat() {
         var r = $.Deferred();
-
-        $.getJSON('https://athletedataviz-pro.herokuapp.com/heat_points/' + '{{ath_id|safe}}', function(data) {
+        $.getJSON( '{{ heatpoint_url|safe}}' , function(data) {
             heatPointsRaw = JSON.parse(data);
             heatPoints = heatPointsRaw.map(function(p) {
                 return [p['lt'], p['lg'],
                     p[document.getElementById('heattype').value]
                 ];
-            });    
+            });   
+            r.resolve(); 
         });
-
-        $.getJSON('https://athletedataviz-pro.herokuapp.com/heat_lines/' + '{{ath_id|safe}}', function(data) {
-            stravaLineGeoJson = JSON.parse(data);
-            r.resolve();
-        });
-
-        // return the deferred object
         return r;
     };
 
-    function addLayers() {
+    function getDataLinestring() {
+        var r = $.Deferred();
+        $.getJSON( '{{heatline_url|safe}}' , function(data) {
+            stravaLineGeoJson = JSON.parse(data); 
+            r.resolve();
+        });
+        return r;
+    };
+
+    function addLayerHeat() {
         // Mapbox JS Api - import heatmap layer
         heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
+    };
+
+    function addLayerLinestring() {
         //Create source for linestrings
         linestring_src = new mapboxgl.GeoJSONSource({
             data: stravaLineGeoJson,
@@ -241,7 +246,8 @@
     };
 
     //Load the data asrchnoutsly from api, then add layers to map
-    getData().done(addLayers);
+    getDataHeat().done(addLayerHeat);
+    getDataLinestring().done(addLayerLinestring);
 
     //Stop the loading bar when ajax requests complete
     $(document).one("ajaxStop", function () {
@@ -319,22 +325,7 @@
         layer = document.getElementById("mapStyle").value
         console.log('previous style: ' + map_style)
         console.log('new style: ' + document.getElementById("mapStyle").value)
-        gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8'),
-        //if (document.getElementById("VizType").value == "heat-line") {
-        //try {
-           gl._glMap.on('style.load', function() {
-                //gl._glMap.addSource('linestring', linestring_src);
-                gl._glMap.addLayer(lineHeatStyle);
-                //set_visibility('linestring', 'off');
-                //paintLayer(document.getElementById("line_color").value,
-                //    parseFloat($('#line_width').slider('getValue')),
-                //    parseFloat($('#line_opacity').slider('getValue')),
-                //    'linestring');
-            });
-        //} catch (err) {
-        //   console.log(err);
-         //   }
-        //}
+        gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
     };
 
     function set_visibility(id, onoff) {
