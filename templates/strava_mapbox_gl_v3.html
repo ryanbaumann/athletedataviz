@@ -326,6 +326,19 @@
         console.log('previous style: ' + map_style)
         console.log('new style: ' + document.getElementById("mapStyle").value)
         gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
+        gl._glMap.on('style.load', function () {
+            try {addLayerLinestring();}
+            catch (err) {console.log(err);}
+            try {set_visibility('linestring', 'on')}
+            catch (err) {console.log(err);}
+            try { paintLayer(document.getElementById("line_color").value,
+                        parseFloat($('#line_width').slider('getValue')),
+                        parseFloat($('#line_opacity').slider('getValue')),
+                        'linestring');} 
+            catch (err) {console.log(err);}
+
+            //render();
+        });
     };
 
     function set_visibility(id, onoff) {

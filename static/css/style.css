@@ -24,13 +24,15 @@ text-align:center
 html, body, #container {
   height: 100%;
   width: 100%;
-  overflow:auto;
+  overflow-y:;
 }
 html {
-  overflow: scroll !important;
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
 }
 body {
   padding-top: 50px;
+
 }
 .scrollable {
   height: 100%;
@@ -45,7 +47,7 @@ input[type="radio"], input[type="checkbox"] {
   height: 100%;
   max-width: 100%;
   float: right;
-  overflow: scroll !important;
+  overflow-y: scroll !important;
   -webkit-transition: all 0.5s ease-out;
     -moz-transition: all 0.5s ease-out;
     transition: all 0.5s ease-out;
