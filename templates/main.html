@@ -87,6 +87,7 @@ function start_long_task() {
         url: '/longtask',
         success: function(data, status, request) {
             status_url = request.getResponseHeader('Location');
+            console.log(status_url);
             update_progress(status_url, nanobar, div[0]);
         },
         error: function() {

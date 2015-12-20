@@ -15,7 +15,7 @@ class Config(object):
 
     IP = os.environ.get('OPENSHIFT_PYTHON_IP', '127.0.0.1')
     PORT = str(os.environ.get('PORT', 33507))
-
+    PREFERRED_URL_SCHEME = 'https'
     HOST_NAME = os.environ.get('OPENSHIFT_APP_DNS', 'localhost:33507')
     APP_NAME = os.environ.get('OPENSHIFT_APP_NAME', 'webdev5')
     REDIS_URL = os.environ['REDIS_URL']
