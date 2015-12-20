@@ -231,8 +231,8 @@ input[type="radio"], input[type="checkbox"] {
   }
   #snapshot {
   position:relative;
-  width: 0px;
-  height: 0px;
+  width: 150px;
+  height: 150px;
   }
 div.slider.slider-horizontal {
   width: 150px;

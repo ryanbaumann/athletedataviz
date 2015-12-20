@@ -26,11 +26,11 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-xs-8 col-md-8">
-                            <!-- <button id='snap' class="btn btn-primary">Save Design</button> -->
+                            <button id='snap' class="btn btn-primary">Save Design</button>
                             <br>
                             <div id='snapshot'></div>
                             <br>
-                            <form onclick="render();return false;" class="Refresh" id="Refresh">
+                            <form class="Refresh" onclick="render();return false;" id="Refresh">
                                 <button class="btn btn-primary">Refresh Map
                                 </button>
                             </form>
@@ -86,7 +86,7 @@
                             </div>
                             <div id="VizType_hide_heat-line" class="collapse">
                                 <b>Line Color</b>
-                                <select id='line_color' name="line_color" onclick="render()" style="font-size: 18px;">
+                                <select id='line_color' name="line_color" style="font-size: 18px;">
                                     <option value="#FF0000">Dark Red</option>
                                     <option value="#FFFF00">Dark Yellow</option>
                                     <option value="#0000FF">Dark Blue</option>
@@ -112,6 +112,13 @@
         </div>
     </div>
     <div id='map'></div>
+    <div id="loading">
+      <div class="loading-indicator">
+        <div class="progress progress-striped active">
+          <div class="progress-bar progress-bar-info progress-bar-full"></div>
+        </div>
+      </div>
+    </div>
     <!-- <button data-toggle="collapse" data-target=".navbar-collapse.in" id="sidebar-toggle-btn" class="btn "><i class="fa fa-list white"></i>&nbsp;&nbsp;Map Designer</button> -->
     <button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Order Viz!</button>
     <!-- Create the map -->
@@ -126,31 +133,18 @@
         $(selector).collapse('show');
     });
 
+
     // API tokens 
     L.mapbox.accessToken = '{{ mapbox_accessToken|safe }}';
     mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
 
-    // data passed from flask back-end 
-    var center_point = [{{avg_lat | safe}}, {{avg_long | safe}}]
-    var stravaLineGeoJson = {{geojson_data | safe}};
-    var heatPointsRaw = {{heatpoints | safe}};
-
-    //snapshot element 
-    //var snapshot = document.getElementById('snapshot');
-
-    //heat point rendering
-    heatPoints = heatPointsRaw.map(function(p) {
-        return [p['lt'], p['lg'],
-            p[document.getElementById('heattype').value]
-        ];
-    });
-
+    //Global variables
     var heatColors1 = {
-        0.4: 'blue',
-        0.6: 'cyan',
-        0.7: 'lime',
-        0.8: 'yellow',
-        1.0: 'red'
+            0.4: 'blue',
+            0.6: 'cyan',
+            0.7: 'lime',
+            0.8: 'yellow',
+            1.0: 'red'
     };
 
     var heatColors2 = {
@@ -177,56 +171,89 @@
         gradient: heatColors1
     };
 
-    // Mapbox JS Api - import heatmap layer
-    var map;
-    map = L.mapbox.map('map').setView(center_point, 10),
-        heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
+    var lineHeatStyle = {
+            "id": "linestring",
+            "type": "line",
+            "source": "linestring",
+            "layout": {
+                "line-cap": "round",
+                "line-join": "round"
+            },
+            "paint": {
+                "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+                "line-width": parseFloat(document.getElementById("line_width").value),
+                "line-color": document.getElementById("line_color").value
+            }
+    };
 
-    //document.getElementById('snap').addEventListener('click', function() {
-    //    leafletImage(map, doImage);
-    //});
-
+    var center_point = [{{avg_lat | safe}}, {{avg_long | safe}}];
+    var heatPoints;
+    var stravaLineGeoJson;
+    var linestring_src;
+    var heat;
+    var map = L.mapbox.map('map').setView(center_point, 10)
     var gl = L.mapboxGL({
-        accessToken: mapboxgl.accessToken,
-        container: 'map',
-        style: 'mapbox://styles/mapbox/dark-v8',
-        center: center_point,
-        zoom: 10,
-        minZoom: 4,
-        maxZoom: 20,
+            accessToken: mapboxgl.accessToken,
+            container: 'map',
+            style: 'mapbox://styles/mapbox/dark-v8',
+            center: center_point,
+            zoom: 10,
+            minZoom: 4,
+            maxZoom: 20,
     }).addTo(map);
-
-    // disable map rotation using right click + drag
     gl._glMap.dragRotate.disable();
 
-    var linestring_src = new mapboxgl.GeoJSONSource({
-        data: stravaLineGeoJson,
-        maxzoom: 17,
-        buffer: 5,
-        tolerance: 10
-    });
+    function getData() {
+        var r = $.Deferred();
 
-    var lineHeatStyle = {
-        "id": "linestring",
-        "type": "line",
-        "source": "linestring",
-        "layout": {
-            "line-cap": "round",
-            "line-join": "round"
-        },
-        "paint": {
-            "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-            "line-width": parseFloat(document.getElementById("line_width").value),
-            "line-color": document.getElementById("line_color").value
-        }
+        $.getJSON('http://localhost:33507/heat_points/' + '{{ath_id|safe}}', function(data) {
+            heatPointsRaw = JSON.parse(data);
+            heatPoints = heatPointsRaw.map(function(p) {
+                return [p['lt'], p['lg'],
+                    p[document.getElementById('heattype').value]
+                ];
+            });    
+        });
+
+        $.getJSON('http://localhost:33507/heat_lines/' + '{{ath_id|safe}}', function(data) {
+            stravaLineGeoJson = JSON.parse(data);
+            r.resolve();
+        });
+
+        // return the deferred object
+        return r;
     };
-    
 
-    gl._glMap.on('style.load', function() {
+    function addLayers() {
+        // Mapbox JS Api - import heatmap layer
+        heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
+        //Create source for linestrings
+        linestring_src = new mapboxgl.GeoJSONSource({
+            data: stravaLineGeoJson,
+            maxzoom: 17,
+            buffer: 10,
+            tolerance: 0.5
+        });
+        //Add linestrings to map and set the visibility to "hidden"
         gl._glMap.addSource('linestring', linestring_src);
         gl._glMap.addLayer(lineHeatStyle);
+        set_visibility('linestring', 'off');
+    };
+
+    //Load the data asrchnoutsly from api, then add layers to map
+    getData().done(addLayers);
+
+    //Stop the loading bar when ajax requests complete
+    $(document).one("ajaxStop", function () {
+        $("#loading").hide();
     });
 
+    //snapshot functions 
+    document.getElementById('snap').addEventListener('click', function() {
+        leafletImage(gl._glMap, doImage);
+    });
+
+    //////////////// SLIDERS AND BUTTON ACTIONS ////////////
     $('#line_width').slider({
         formatter: function(value) {
             return 'Value: ' + value;
@@ -276,33 +303,39 @@
         $('#minOpacity').slider('setValue', ev.value);
         render();
     });
-    $('#heat_color').click(render);
-    $('#Refresh').click(switchLayer);
-    $('#Refresh').click(render);
-    $('#VizType').click(render);
-    $('#mapStyle').click(switchMapStyle);
-    $('#heattype').click(render);
-    $('#heat_color').click(render);
+    $('#heat_color').on('click touchstart', render);
+    $('#Refresh').on('click touchstart', switchMapStyle);
+    $('#Refresh').on('click touchstart', render);
+    $('#VizType').on('click touchstart', render);
+    $('#mapStyle').on('click touchstart', switchMapStyle);
+    $('#heattype').on('click touchstart', render);
+    $('#heat_color').on('click touchstart', render);
+    $('#line_color').on('click touchstart', render);
 
     var VizType = 'heat-point'
     var map_style = 'dark'
 
     function switchLayer() {
         layer = document.getElementById("mapStyle").value
-        gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
-        if (document.getElementById("VizType").value == "heat-line") {
-            try {
-                gl._glMap.on('style.load', function() {
-                    paintLayer(document.getElementById("line_color").value,
-                        parseFloat($('#line_width').slider('getValue')),
-                        parseFloat($('#line_opacity').slider('getValue')),
-                        'linestring');
-                });
-            } catch (err) {
-                console.log(err);
-            }
-        }
-    }
+        console.log('previous style: ' + map_style)
+        console.log('new style: ' + document.getElementById("mapStyle").value)
+        gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8'),
+        //if (document.getElementById("VizType").value == "heat-line") {
+        //try {
+           gl._glMap.on('style.load', function() {
+                //gl._glMap.addSource('linestring', linestring_src);
+                gl._glMap.addLayer(lineHeatStyle);
+                //set_visibility('linestring', 'off');
+                //paintLayer(document.getElementById("line_color").value,
+                //    parseFloat($('#line_width').slider('getValue')),
+                //    parseFloat($('#line_opacity').slider('getValue')),
+                //    'linestring');
+            });
+        //} catch (err) {
+        //   console.log(err);
+         //   }
+        //}
+    };
 
     function set_visibility(id, onoff) {
         var visibility = gl._glMap.getLayoutProperty(id, 'visibility');
@@ -418,11 +451,12 @@
         function doImage(err, canvas) {
             console.log('pushed the snapshot!')
             var img = document.createElement('img');
-            var dimensions = '50px';
-            console.log(dimensions)
+            var dimensions = L.point(gl._glMap.getSouth(), gl._glMap.getWest());
+            console.log(gl._glMap.getSouth())
+            console.log(gl._glMap.getWest())
             img.width = 150;
             img.height = 150;
-            img.src = canvas.toDataURL();
+            img.src = gl._glMap.getCanvas.toDataURL();
             snapshot.innerHTML = '';
             snapshot.appendChild(img);
         }

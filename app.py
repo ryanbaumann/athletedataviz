@@ -54,6 +54,7 @@ class Heat_Lines(Resource):
             engine, '"V_Stream_LineString"', int(session['ath_id']))
         return geojsonlines
         # We can have PUT,DELETE,POST here if needed
+        # 
 api.add_resource(Heat_Points, '/heat_points/<int:ath_id>')
 api.add_resource(Heat_Lines, '/heat_lines/<int:ath_id>')
 
@@ -229,7 +230,7 @@ def strava_mapbox():
         print "error retrieving map extents!"
 
     # Get points with a density for the heatmap
-    try:
+    """try:
         heatpoints = json.loads(
             sp.get_heatmap_points(engine, int(session['ath_id'])))['points']
         heatpoints = json.dumps(heatpoints)
@@ -241,17 +242,18 @@ def strava_mapbox():
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(session['ath_id']))
     except:
-        print "error getting geojson lines data from the db!"
+        print "error getting geojson lines data from the db!"""
 
     return render_template('strava_mapbox_gl_v3.html',
-                           geojson_data=geojsonlines,
-                           heatpoints=heatpoints,
+                           #geojson_data=geojsonlines,
+                           #heatpoints=heatpoints,
                            avg_lat=avg_lat,
                            avg_long=avg_long,
                            mapbox_gl_accessToken=app.config[
                                'MAPBOX_GL_ACCESS_TOKEN'],
                            mapbox_accessToken=app.config[
-                               'MAPBOX_ACCESS_TOKEN'])
+                               'MAPBOX_ACCESS_TOKEN'],
+                           ath_id=int(session['ath_id']))
 
 
 @app.route('/delete_acts', methods=['POST'])
