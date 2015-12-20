@@ -368,7 +368,7 @@ def get_acts_centroid(engine, ath_id):
             SELECT ST_Centroid(ST_Union(Point)) AS r 
             FROM "V_Stream_Activity"
             WHERE
-            ath_id = %s) as foo """ % (str(ath_id))
+            ath_id = %s and random() < 0.01) as foo """ % (str(ath_id))
 
     # Second get a list of points to draw for the heatmap as geojson
     try:

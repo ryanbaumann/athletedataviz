@@ -309,14 +309,14 @@
         $('#minOpacity').slider('setValue', ev.value);
         render();
     });
-    $('#heat_color').on('click touchstart', render);
-    $('#Refresh').on('click touchstart', switchMapStyle);
-    $('#Refresh').on('click touchstart', render);
-    $('#VizType').on('click touchstart', render);
-    $('#mapStyle').on('click touchstart', switchMapStyle);
-    $('#heattype').on('click touchstart', render);
-    $('#heat_color').on('click touchstart', render);
-    $('#line_color').on('click touchstart', render);
+    $('#heat_color').on('click touch', render);
+    $('#Refresh').on('click touch', switchMapStyle);
+    $('#Refresh').on('click touch', render);
+    $('#VizType').on('click touch', render);
+    $('#mapStyle').on('click touch', switchMapStyle);
+    $('#heattype').on('click touch', render);
+    $('#heat_color').on('click touch', render);
+    $('#line_color').on('click touch', render);
 
     var VizType = 'heat-point'
     var map_style = 'dark'
