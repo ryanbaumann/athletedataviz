@@ -52,9 +52,29 @@
                                 <option value="light">Light</option>
                                 <option value="satellite">Satellite</option>
                             </select>
-                            <br>
-                            <br>
-                            <div id="VizType_hide_heat-point" class="collapse in">
+                            <br><br>
+                            <div id="VizType_hide_heat-line" class="collapse in">
+                                <b>Line Color</b>
+                                <select id='line_color' name="line_color" style="font-size: 18px;">
+                                    <option value="#FF0000">Dark Red</option>
+                                    <option value="#FFFF00">Dark Yellow</option>
+                                    <option value="#0000FF">Dark Blue</option>
+                                    <option value="#9900FF">Dark Purple</option>
+                                    <option value="#FF0099">Light Pink</option>
+                                    <option value="#00CCFF">Light Blue</option>
+                                    <option value="#33FF00">Light Green</option>
+                                    <option value="#FF9900">Light Orange</option>
+                                </select>
+                                <br>
+                                <br>
+                                <b> Line Width </b>
+                                <input id="line_width" class="slider" data-slider-id='line_width_slider' type="text" data-slider-min="0.2" data-slider-value="2" data-slider-max="15" data-slider-step="0.1" onclick="render()">
+                                <br>
+                                <br>
+                                <b>Line Opacity</b>
+                                <input type="text" class="slider" id="line_opacity" data-slider-min="0.1" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.05" onclick="render()">
+                            </div>
+                            <div id="VizType_hide_heat-point" class="collapse">
                                 <b>Heat Type</b>
                                 <select id='heattype' name="line_color" style="font-size: 18px;">
                                     <option value="d">Density</option>
@@ -83,27 +103,6 @@
                                 <input type="text" id="minOpacity" class="slider" data-slider-min="0.05" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.05">
                                 <br>
                                 <br>
-                            </div>
-                            <div id="VizType_hide_heat-line" class="collapse">
-                                <b>Line Color</b>
-                                <select id='line_color' name="line_color" style="font-size: 18px;">
-                                    <option value="#FF0000">Dark Red</option>
-                                    <option value="#FFFF00">Dark Yellow</option>
-                                    <option value="#0000FF">Dark Blue</option>
-                                    <option value="#9900FF">Dark Purple</option>
-                                    <option value="#FF0099">Light Pink</option>
-                                    <option value="#00CCFF">Light Blue</option>
-                                    <option value="#33FF00">Light Green</option>
-                                    <option value="#FF9900">Light Orange</option>
-                                </select>
-                                <br>
-                                <br>
-                                <b> Line Width </b>
-                                <input id="line_width" class="slider" data-slider-id='line_width_slider' type="text" data-slider-min="0.2" data-slider-value="2" data-slider-max="15" data-slider-step="0.1" onclick="render()">
-                                <br>
-                                <br>
-                                <b>Line Opacity</b>
-                                <input type="text" class="slider" id="line_opacity" data-slider-min="0.1" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.05" onclick="render()">
                             </div>
                         </div>
                     </div>
