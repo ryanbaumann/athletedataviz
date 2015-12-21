@@ -39,7 +39,6 @@ BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 #  API   #
 ##########
 
-
 class Heat_Points(Resource):
 
     def get(self, ath_id):

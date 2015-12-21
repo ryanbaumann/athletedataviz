@@ -27,10 +27,8 @@
                     <div class="row">
                         <div class="col-xs-8 col-md-8">
                             <button id='snap' class="btn btn-primary">Save Design</button>
-                            <br><br>
-                            <div id="snapshot-collapse" class="collapse in">
-                                <div id='snapshot'></div>
-                            </div>
+                            <br>
+                            <div id='snapshot'></div>
                             <br>
                             <form class="Refresh" onclick="render();return false;" id="Refresh">
                                 <button class="btn btn-primary">Refresh Map
@@ -39,8 +37,8 @@
                             <br>
                             <b>Viz Type</b>
                             <select id='VizType' name="VizType" style="font-size: 20px;">
-                                <option value="heat-line">heat-line</option>
                                 <option value="heat-point">heat-point</option>
+                                <option value="heat-line">heat-line</option>
                             </select>
                             <br>
                             <br>
@@ -134,9 +132,12 @@
         //show only element connected to selected option
         $(selector).collapse('show');
     });
+
+
     // API tokens 
     L.mapbox.accessToken = '{{ mapbox_accessToken|safe }}';
     mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
+
     //Global variables
     var heatColors1 = {
         0.1: 'blue',
@@ -145,6 +146,7 @@
         0.8: 'yellow',
         1.0: 'red'
     };
+
     var heatColors2 = {
         0.1: 'purple',
         0.6: 'pink',
@@ -152,12 +154,21 @@
         0.8: 'yellow',
         1.0: 'orange'
     };
+
     var heatColors3 = {
         0.1: 'green',
         0.6: 'aquamarine',
         0.7: 'blanchedalmond',
         0.8: 'coral',
         1.0: 'red'
+    };
+
+    var heatConfig = {
+        minOpacity: parseFloat(0.5),
+        radius: parseFloat(5),
+        blur: parseFloat(5),
+        max: 1,
+        gradient: heatColors1
     };
 
     var lineHeatStyle = {
@@ -174,12 +185,14 @@
                 "line-color": document.getElementById("line_color").value
             }
     };
+
     var center_point = [{{avg_lat | safe}}, {{avg_long | safe}}];
+    var heatPointsRaw;
     var heatPoints;
+    var HeatPointStyle;
     var stravaLineGeoJson;
     var linestring_src;
     var heat;
-    var maxScale;
     var map = L.mapbox.map('map').setView(center_point, 10)
     var gl = L.mapboxGL({
             accessToken: mapboxgl.accessToken,
@@ -187,18 +200,16 @@
             style: 'mapbox://styles/mapbox/dark-v8',
             center: center_point,
             zoom: 10,
-            minZoom: 1,
+            minZoom: 4,
             maxZoom: 20,
-            preserveDrawingBuffer: true
-
     }).addTo(map);
     gl._glMap.dragRotate.disable();
+
     function getDataHeat() {
         var r = $.Deferred();
         $.getJSON( '{{ heatpoint_url|safe}}' , function(data) {
             heatPointsRaw = JSON.parse(data);
             heatPoints = heatPointsRaw.map(function(p) {
-                maxScale = Math.max(p[document.getElementById('heattype').value])
                 return [p['lt'], p['lg'],
                     p[document.getElementById('heattype').value]
                 ];
@@ -207,6 +218,7 @@
         });
         return r;
     };
+
     function getDataLinestring() {
         var r = $.Deferred();
         $.getJSON( '{{heatline_url|safe}}' , function(data) {
@@ -215,18 +227,64 @@
         });
         return r;
     };
+
     function addLayerHeat() {
         // Mapbox JS Api - import heatmap layer
-        var heatConfig = {
-            minOpacity: parseFloat(0.5),
-            radius: parseFloat(5),
-            blur: parseFloat(5),
-            max: parseFloat(maxScale),
-            gradient: heatColors1
-        };
         heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
-        map.removeLayer(heat);
+        var breaks = [{0 : 'blue'}, {4 : 'cyan'}, {16 : 'yellow'}, {64 : 'orange'}, {256 :'red'}]
+
+        heatpoint_src = new mapboxgl.GeoJSONSource({
+            data: heatPointsRaw,
+            maxzoom: 17,
+            buffer: 10,
+            tolerance: 0.5
+        });
+
+        var HeatPointStyle = {
+            "id": "points",
+            "type": "symbol",
+            "source": "heatpoint_src",
+            "layout": {
+                "icon-image": "{marker-symbol}-15",
+            },
+            "paint": {
+                "icon-color" : "blue" 
+            },
+            layers: [{
+                id: 'background',
+                type: 'background',
+                paint: { 'background-color': '#000' }
+            }]
     };
+        for (var p = 0; p < breaks.length; p++) {
+          var filters
+          if (p < breaks.length - 1) {
+            filters = [ 'all',
+              [ '>=', 'd', breaks[p] ],
+              [ '<', 'd', breaks[p + 1] ]
+            ]
+          } else {
+            filters = [ 'all',
+              [ '>=', 'd', breaks[p] ]
+            ]
+          }
+          
+          HeatPointStyle.layers.push({
+            id: 'points-pop-' + p,
+            type: 'symbol',
+            source: 'points',
+            'source-layer': 'heatPoints',
+            paint: {
+               "line-color": (p + 1) / breaks.length
+            },
+            filter: filters
+          })
+        }
+
+        gl._glMap.addSource('heatpoints', heatpoint_src);
+        gl._glMap.addLayer(HeatPointStyle);
+    };
+
     function addLayerLinestring() {
         //Create source for linestrings
         linestring_src = new mapboxgl.GeoJSONSource({
@@ -235,23 +293,27 @@
             buffer: 10,
             tolerance: 0.5
         });
+
         //Add linestrings to map and set the visibility to "hidden"
         gl._glMap.addSource('linestring', linestring_src);
         gl._glMap.addLayer(lineHeatStyle);
-        set_visibility('linestring', 'on');
-        render();
+        set_visibility('linestring', 'off');
     };
+
     //Load the data asrchnoutsly from api, then add layers to map
     getDataHeat().done(addLayerHeat);
     getDataLinestring().done(addLayerLinestring);
+
     //Stop the loading bar when ajax requests complete
     $(document).one("ajaxStop", function () {
         $("#loading").hide();
     });
+
     //snapshot functions 
     document.getElementById('snap').addEventListener('click', function() {
-        doImage();
+        leafletImage(gl._glMap, doImage);
     });
+
     //////////////// SLIDERS AND BUTTON ACTIONS ////////////
     $('#line_width').slider({
         formatter: function(value) {
@@ -262,6 +324,7 @@
         $('#line_width').slider('setValue', ev.value);
         render();
     });
+
     $('#line_opacity').slider({
         formatter: function(value) {
             return 'Value: ' + value;
@@ -271,6 +334,7 @@
         $('#line_opacity').slider('setValue', ev.value);
         render();
     });
+
     $('#blur').slider({
         formatter: function(value) {
             return 'Value: ' + value;
@@ -280,6 +344,7 @@
         $('#blur').slider('setValue', ev.value);
         render();
     });
+
     $('#radius').slider({
         formatter: function(value) {
             return 'Value: ' + value;
@@ -289,6 +354,7 @@
         $('#radius').slider('setValue', ev.value);
         render();
     });
+
     $('#minOpacity').slider({
         formatter: function(value) {
             return 'Value: ' + value;
@@ -306,8 +372,10 @@
     $('#heattype').on('click touch', render);
     $('#heat_color').on('click touch', render);
     $('#line_color').on('click touch', render);
-    var VizType = 'heat-line'
+
+    var VizType = 'heat-point'
     var map_style = 'dark'
+
     function switchLayer() {
         layer = document.getElementById("mapStyle").value
         console.log('previous style: ' + map_style)
@@ -316,29 +384,35 @@
         gl._glMap.on('style.load', function () {
             try {addLayerLinestring();}
             catch (err) {console.log(err);}
-            try {if (document.getElementById("VizType").value == "heat-line") { 
-                     set_visibility('linestring', 'on')}}
+            try {set_visibility('linestring', 'on')}
             catch (err) {console.log(err);}
             try { paintLayer(document.getElementById("line_color").value,
                         parseFloat($('#line_width').slider('getValue')),
                         parseFloat($('#line_opacity').slider('getValue')),
                         'linestring');} 
             catch (err) {console.log(err);}
+
+            //render();
         });
     };
+
     function set_visibility(id, onoff) {
         var visibility = gl._glMap.getLayoutProperty(id, 'visibility');
         if (onoff == 'off') {
             gl._glMap.setLayoutProperty(id, 'visibility', 'none');
+            console.log('changed layer to INvisible ' + id);
         } else if (onoff == 'on') {
             gl._glMap.setLayoutProperty(id, 'visibility', 'visible');
+            console.log('changed layer to visible ' + id)
         }
     };
+
     function paintLayer(color, width, opacity, layer) {
             gl._glMap.setPaintProperty(layer, 'line-color', color);
             gl._glMap.setPaintProperty(layer, 'line-width', width);
             gl._glMap.setPaintProperty(layer, 'line-opacity', opacity);
     }
+
     function updateHeat() {
         if (document.getElementById("heat_color").value == "heatColors2") {
             heatColors = heatColors2
@@ -348,21 +422,20 @@
             heatColors = heatColors1
         }
 
-        heatPoints = heatPointsRaw.map(function(p) {
-            maxScale = Math.max(p[document.getElementById('heattype').value])
-            return [p['lt'], p['lg'],
-                p[document.getElementById('heattype').value]
-            ];
-        });
-
         heatConfig = {
             minOpacity: parseFloat($('#minOpacity').slider('getValue')),
             radius: parseFloat($('#radius').slider('getValue')),
             blur: parseFloat($('#blur').slider('getValue')),
-            max: parseFloat(maxScale),
+            max: 1,
             gradient: heatColors
         };
+        heatPoints = heatPointsRaw.map(function(p) {
+            return [p['lt'], p['lg'],
+                p[document.getElementById('heattype').value]
+            ];
+        });
     }
+
     function switchMapStyle() {
         //Check if the mapStyle changed - if so, change it here
         if (document.getElementById("mapStyle").value != map_style) {
@@ -370,6 +443,7 @@
             map_style = document.getElementById("mapStyle").value;
         }
     }
+
     function render() {
         //Check if the viz type changed - if so, change it here  
         if (document.getElementById("VizType").value != VizType) {
@@ -391,6 +465,7 @@
                 } catch (err) {
                     console.log(err);
                 }
+
                 try {
                     set_visibility('linestring', 'on');
                     paintLayer(document.getElementById("line_color").value,
@@ -425,22 +500,22 @@
             }
         }
     }
+
         function log(msg) {
             setTimeout(function() {
                 throw new Error(msg);
             }, 0);
         }
-        function doImage() {
+
+        function doImage(err, canvas) {
             console.log('pushed the snapshot!')
             var img = document.createElement('img');
-            bounds = gl._glMap.getBounds
-            console.log(bounds);
-            var dimensions = [bounds.getSouth, 
-                              bounds.getWest];
-            console.log(dimensions);
+            var dimensions = L.point(gl._glMap.getSouth(), gl._glMap.getWest());
+            console.log(gl._glMap.getSouth())
+            console.log(gl._glMap.getWest())
             img.width = 150;
             img.height = 150;
-            img.src = gl._glMap.getCanvas().toDataURL();
+            img.src = gl._glMap.getCanvas.toDataURL();
             snapshot.innerHTML = '';
             snapshot.appendChild(img);
         }

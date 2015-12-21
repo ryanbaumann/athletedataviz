@@ -382,33 +382,24 @@ def get_acts_centroid(engine, ath_id):
 
 
 def get_heatmap_points(engine, ath_id):
-
-    args2 = """
-        Select row_to_json(fc)::json
-        FROM(
+    args3 = """
+            Select row_to_json(fc)::json
+            FROM(
             SELECT array_to_json(array_agg(f))::json as points
             FROM(
-                WITH points as (SELECT 
-                                *
-                                FROM "V_Point_Heatmap"
-                                WHERE ath_id = %s)
                 SELECT 
                 round(st_y(point)::numeric,6) as lt, 
                 round(st_x(point)::numeric,6) as lg, 
-                round((density/max_d)::numeric,2) as d,
-                round((speed/max_s)::numeric,2) as s,
-                round((grade/max_g)::numeric,2) as g
+                round((density)::numeric,1) as d,
+                round((speed)::numeric,1) as s,
+                round((grade)::numeric,1) as g
                 FROM 
-                points, (SELECT
-                    max(density) as max_d,
-                    max(speed) as max_s,
-                    max(grade) as max_g
-                    FROM points) as max
+                "V_Point_Heatmap"
+                WHERE ath_id = %s
                 ) as f) as fc;""" % (str(ath_id))
 
-    # try:
     print "calculating heatmap points from db..."
-    result = engine.execute(args2)
+    result = engine.execute(args3)
     for row in result:
         data = row.values()
     heatpoints = str(json.dumps(data)[1:-1])
