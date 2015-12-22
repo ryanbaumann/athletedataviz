@@ -367,8 +367,8 @@ def longtask():
                             'grade_smooth', 'watts', 'temp', 'heartrate', 'cadence', 'moving'],
                            session['access_token'],
                            'medium')
-    return jsonify({}), 202, {'Location': url_for('taskstatus', #_scheme='https',
-                                                  #_external=True,
+    return jsonify({}), 202, {'Location': url_for('taskstatus', scheme='https',
+                                                  _external=True,
                                                    task_id=task.id)}
 
 
