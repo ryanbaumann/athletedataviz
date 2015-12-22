@@ -16,7 +16,8 @@ class Config(object):
     IP = os.environ.get('OPENSHIFT_PYTHON_IP', '127.0.0.1')
     PORT = str(os.environ.get('PORT', 33507))
     PREFERRED_URL_SCHEME = 'https'
-    HOST_NAME = os.environ.get('OPENSHIFT_APP_DNS', 'localhost:33507')
+    HOST_NAME = os.environ.get('OPENSHIFT_APP_DNS', 'localhost') #:33507
+    HOST_NAME_PORT = 'localhost:33507'
     APP_NAME = os.environ.get('OPENSHIFT_APP_NAME', 'webdev5')
     REDIS_URL = os.environ['REDIS_URL']
     HEADER = r'http://'
@@ -28,6 +29,25 @@ class Config(object):
     RUNKEEPER_CLIENT_SECRET = os.environ['RUNKEEPER_CLIENT_SECRET']
     UPLOAD_FOLDER = 'uploads'
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+
+    #CELERY
+    # Enables error emails.
+    """CELERY_SEND_TASK_ERROR_EMAILS = True
+    # Name and email addresses of recipients
+    ADMINS = (
+        ('RB', 'x@gmail.com')
+    )
+    # Email address used as sender (From field).
+    SERVER_EMAIL = 'no-reply@athletedataviz.com'
+    # Mailserver configuration
+    EMAIL_HOST='smtp.gmail.com'
+    EMAIL_HOST_USER=''
+    EMAIL_HOST_PASSWORD=''
+    EMAIL_PORT=587
+    EMAIL_USE_TLS = True"""
+    CELERYD_TASK_SOFT_TIME_LIMIT = 300
+    CELERYD_TASK_TIME_LIMIT = 600
+
     """
     CELERY_DEFAULT_QUEUE = 'default'
     CELERY_QUEUES = (
@@ -50,7 +70,8 @@ class ProductionConfig(Config):
     HOST_NAME = r'athletedataviz-pro.herokuapp.com'
     APP_NAME = r'athletedataviz-pro'
     HEADER = r'https://'
-    PORT = ''
+    PORT = r''
+    HOST_NAME_PORT = HOST_NAME
 
 
 class StagingConfig(Config):

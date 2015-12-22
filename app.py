@@ -12,6 +12,7 @@ from celery import Celery
 from flask.ext.compress import Compress
 from flask.ext.cache import Cache
 from flask_sslify import SSLify
+from celery.exceptions import SoftTimeLimitExceeded
 #################
 # configuration #
 #################
@@ -33,7 +34,7 @@ cache.init_app(app)
 if 'DYNO' in os.environ:
     sslify = SSLify(app)
 from models import *
-BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
+BASEPATH = app.config['HEADER'] + app.config['HOST_NAME_PORT'] + r'/'
 
 ##########
 #  API   #
@@ -289,70 +290,73 @@ def long_task(self, act_limit, ath_id, types, access_token, resolution):
     """
     A celery task to update the Strava rides into the AthleteDataViz database
     """
-    self.update_state(state='PROGRESS',
-                      meta={'current': 0.01, 'total': 1,
-                            'status': 'Starting Job - Getting Activities from Strava!'})
-    client = stravalib.client.Client(access_token=access_token)
+    try:
+        self.update_state(state='PROGRESS',
+                          meta={'current': 0.01, 'total': 1,
+                                'status': 'Starting Job - Getting Activities from Strava!'})
+        client = stravalib.client.Client(access_token=access_token)
 
-    # Get a list of activities, compare to what's in the DB, return only
-    # activities not in DB items
-    acts_list = sp.GetActivities(client, act_limit)
-    # Return a list of already cached activities in the database
-    acts_dl_list = []
-    for act in Activity.query.filter_by\
-            (ath_id=ath_id).with_entities(Activity.act_id).all():
-        acts_dl_list += act
+        # Get a list of activities, compare to what's in the DB, return only
+        # activities not in DB items
+        acts_list = sp.GetActivities(client, act_limit)
+        # Return a list of already cached activities in the database
+        acts_dl_list = []
+        for act in Activity.query.filter_by\
+                (ath_id=ath_id).with_entities(Activity.act_id).all():
+            acts_dl_list += act
 
-    # Now loop through each activity if it's not in the list and download the
-    # stream
-    count = 0
-    total = len([act for act in acts_list if act.id not in acts_dl_list])
-    print "total number of acts to dl : " + str(total)
-    for act in acts_list:
-        if act.id not in acts_dl_list:
-            count += 1
-            print "downloading act id: " + str(act.id) + " : " + str(count) + " of " + str(total)
+        # Now loop through each activity if it's not in the list and download the
+        # stream
+        count = 0
+        total = len([act for act in acts_list if act.id not in acts_dl_list])
+        print "total number of acts to dl : " + str(total)
+        for act in acts_list:
+            if act.id not in acts_dl_list:
+                count += 1
+                print "downloading act id: " + str(act.id) + " : " + str(count) + " of " + str(total)
 
-            self.update_state(state='PROGRESS',
-                              meta={'current': count, 'total': total,
-                                    'status': 'Analyzing activity ' + str(act.id)})
-            try:
-                # Add results to dictionary
-                df = sp.ParseActivity(client, act, types, resolution)
-                if not df.empty:
-                    df = sp.cleandf(df)
-                else:
-                    print "no new data to clean"
+                self.update_state(state='PROGRESS',
+                                  meta={'current': count, 'total': total,
+                                        'status': 'Analyzing activity ' + str(act.id)})
+                try:
+                    # Add results to dictionary
+                    df = sp.ParseActivity(client, act, types, resolution)
+                    if not df.empty:
+                        df = sp.cleandf(df)
+                    else:
+                        print "no new data to clean"
 
-                print "okay, now inserting into the database!"
+                    print "okay, now inserting into the database!"
 
-                new_act = Activity(ath_id=ath_id,
-                                   act_id=act.id,
-                                   act_type=act.type,
-                                   act_name=act.name,
-                                   act_description=act.description,
-                                   act_startDate=act.start_date_local,
-                                   act_dist=act.distance,
-                                   act_totalElevGain=act.total_elevation_gain,
-                                   act_avgSpd=act.average_speed,
-                                   act_calories=act.calories
-                                   )
+                    new_act = Activity(ath_id=ath_id,
+                                       act_id=act.id,
+                                       act_type=act.type,
+                                       act_name=act.name,
+                                       act_description=act.description,
+                                       act_startDate=act.start_date_local,
+                                       act_dist=act.distance,
+                                       act_totalElevGain=act.total_elevation_gain,
+                                       act_avgSpd=act.average_speed,
+                                       act_calories=act.calories
+                                       )
 
-                db.session.add(new_act)
-                db.session.commit()
-                print "successfully added activity to db!"
+                    db.session.add(new_act)
+                    db.session.commit()
+                    print "successfully added activity to db!"
 
-                # Write stream dataframe to db
-                df.to_sql('Stream', engine,
-                          if_exists='append',
-                          index=False)
-                print "Successfully added stream to db!"
+                    # Write stream dataframe to db
+                    df.to_sql('Stream', engine,
+                              if_exists='append',
+                              index=False)
+                    print "Successfully added stream to db!"
 
-            except:
-                print "error entering activity or stream data into db!"
-    db.session.close()
-    return {'current': 100, 'total': 100, 'status': 'Task completed!',
-            'result': 'View your Map!'}
+                except:
+                    print "error entering activity or stream data into db!"
+        db.session.close()
+        return {'current': 100, 'total': 100, 'status': 'Task completed!',
+                'result': 'View your Map!'}
+    except SoftTimeLimitExceeded:
+        cleanup_in_a_hurry()
 
 
 @app.route('/longtask', methods=['POST'])
@@ -363,8 +367,9 @@ def longtask():
                             'grade_smooth', 'watts', 'temp', 'heartrate', 'cadence', 'moving'],
                            session['access_token'],
                            'medium')
-    return jsonify({}), 202, {'Location': url_for('taskstatus', _scheme='https',
-                                                  _external=True, task_id=task.id)}
+    return jsonify({}), 202, {'Location': url_for('taskstatus', #_scheme='https',
+                                                  #_external=True,
+                                                   task_id=task.id)}
 
 
 @app.route('/status/<task_id>')

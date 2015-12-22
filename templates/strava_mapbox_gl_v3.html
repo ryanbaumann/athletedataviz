@@ -163,13 +163,19 @@
             "source": "linestring",
             "layout": {
                 "line-cap": "round",
-                "line-join": "round"
+                "line-join": "round",
+                "line-blur" : 100,
             },
             "paint": {
                 "line-opacity": parseFloat(document.getElementById("line_opacity").value),
                 "line-width": parseFloat(document.getElementById("line_width").value),
                 "line-color": document.getElementById("line_color").value
+            },
+            "transition": {
+              "duration": 300,
+              "delay": 0
             }
+
     };
     var center_point = [{{avg_lat | safe}}, {{avg_long | safe}}];
     var heatPoints;
@@ -294,14 +300,14 @@
         $('#minOpacity').slider('setValue', ev.value);
         render();
     });
-    $('#heat_color').on('click touch', render);
-    $('#Refresh').on('click touch', switchMapStyle);
-    $('#Refresh').on('click touch', render);
-    $('#VizType').on('click touch', render);
-    $('#mapStyle').on('click touch', switchMapStyle);
-    $('#heattype').on('click touch', render);
-    $('#heat_color').on('click touch', render);
-    $('#line_color').on('click touch', render);
+    $('#heat_color').on('click touch tap', render);
+    $('#Refresh').on('click touch tap', switchMapStyle);
+    $('#Refresh').on('click touch tap', render);
+    $('#VizType').on('click touch tap', render);
+    $('#mapStyle').on('click touch tap', switchMapStyle);
+    $('#heattype').on('click touch tap', render);
+    $('#heat_color').on('click touch tap', render);
+    $('#line_color').on('click touch tap', render);
     var VizType = 'heat-line'
     var map_style = 'dark'
     function switchLayer() {
@@ -430,10 +436,8 @@
             console.log('pushed the snapshot!')
             var img = document.createElement('img');
             bounds = gl._glMap.getBounds
-            console.log(bounds);
             var dimensions = [bounds.getSouth, 
                               bounds.getWest];
-            console.log(dimensions);
             img.width = 150;
             img.height = 150;
             img.src = gl._glMap.getCanvas().toDataURL();
