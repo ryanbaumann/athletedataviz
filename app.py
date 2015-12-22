@@ -34,7 +34,7 @@ cache.init_app(app)
 if 'DYNO' in os.environ:
     sslify = SSLify(app)
 from models import *
-BASEPATH = app.config['HEADER'] + app.config['HOST_NAME_PORT'] + r'/'
+BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 
 ##########
 #  API   #
@@ -367,8 +367,8 @@ def longtask():
                             'grade_smooth', 'watts', 'temp', 'heartrate', 'cadence', 'moving'],
                            session['access_token'],
                            'medium')
-    return jsonify({}), 202, {'Location': url_for('taskstatus', scheme='https', _external=True,
-                                                   task_id=task.id)}
+    return jsonify({}), 202, {'Location': url_for('taskstatus', _scheme='https',
+                                                  _external=True, task_id=task.id)}
 
 
 @app.route('/status/<task_id>')
