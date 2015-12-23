@@ -312,11 +312,9 @@
     $('#heat_color').on('click touch tap', render);
     $('#line_color').on('click touch tap', render);
     var VizType = 'heat-line'
-    var map_style = 'dark'
+    var map_style = 'dark-nolabel'
     function switchLayer() {
         layer = document.getElementById("mapStyle").value
-        console.log('previous style: ' + map_style)
-        console.log('new style: ' + document.getElementById("mapStyle").value)
         if (layer != 'dark-nolabel') {
             gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
         }
