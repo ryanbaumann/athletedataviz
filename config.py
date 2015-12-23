@@ -31,7 +31,7 @@ class Config(object):
 
     #CELERY
     # Enables error emails.
-    CELERY_SEND_TASK_ERROR_EMAILS = True
+    #CELERY_SEND_TASK_ERROR_EMAILS = True
     BROKER_POOL_LIMIT=0 #Prevent each new celery connection from opening a new conn
     #CELERY_IGNORE_RESULT = True
     #CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
