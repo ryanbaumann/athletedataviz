@@ -32,6 +32,10 @@ class Config(object):
     #CELERY
     # Enables error emails.
     CELERY_SEND_TASK_ERROR_EMAILS = True
+    BROKER_POOL_LIMIT=0 #Prevent each new celery connection from opening a new conn
+    CELERY_IGNORE_RESULT = True
+    CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
+    CELERY_REDIS_MAX_CONNECTIONS = 8
     # Name and email addresses of recipients
     ADMINS = (
         ('Ryan Baumann', 'athletedataviz@gmail.com')
@@ -41,7 +45,7 @@ class Config(object):
     # Mailserver configuration
     EMAIL_HOST='smtp.gmail.com'
     EMAIL_HOST_USER='athletedataviz@gmail.com'
-    EMAIL_HOST_PASSWORD='WolfmanLivestrongMining@1987'
+    EMAIL_HOST_PASSWORD=os.environ['ATHLETEDATAVIZ_EMAIL_PW']
     EMAIL_PORT=587
     EMAIL_USE_TLS = True
     CELERYD_TASK_SOFT_TIME_LIMIT = 300
