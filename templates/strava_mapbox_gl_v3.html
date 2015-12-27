@@ -127,9 +127,9 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="SaveDesignLabel">Your Athlete Data Viz creation</h4>
-            </div>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="SaveDesignLabel">Your Athlete Data Viz creation</h4>
+        </div>
         <div class="modal-body">
             <div id='snapshot'></div>
         </div>
@@ -588,7 +588,14 @@
                 if (format == 'jpg') {  
 
                     var canvas = renderMap.getCanvas();
-                    var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, 640, 480);
+                    var w = window.innerWidth;
+                    var h = window.innerHeight;
+                    if (w>640) 
+                        {w = 640; h=480;}
+                    else 
+                        {w = w*0.8; h=h*0.8;}
+
+                    var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, window.innerWidth*.8, window.innerHeight*.8);
                     img.width = targetDims['width'];
                     img.height = targetDims['height'];
                     img.href = img.src;
@@ -597,8 +604,8 @@
                     //put the new image in the div
                     snapshot.innerHTML = '';
                     snapshot.appendChild(img);
-                    $("#snapshot_img").wrap($("<a>").attr("href", img.src).attr("target", "_blank"));
-                    $('#dl_design').attr('action', img.src).attr("target", "_blank");
+                    $("#snapshot_img").wrap($("<a>").attr("href", img.src).attr("target", "_blank").attr("class", "img-responsive"));
+                    $('#dl_design').attr('action', img.src);
                     //window.location.href=image; // it will save locally
 
                 } else {
