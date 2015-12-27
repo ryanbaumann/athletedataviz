@@ -167,17 +167,12 @@ def process_activities(client, limit, types, engine, table_name):
     # Applies a number of functions to get and convert and clean
     print "getting activity list..."
     activities = GetActivities(client, limit)
-    print "checking if data already exists in db..."
     already_dl_act_id_list = get_acts_in_db(engine, table_name)
-    print "looping through activities..."
     df_total = loop_activities(
         client, activities, already_dl_act_id_list, types)
-    print "combining data into one dataframe..."
     df_total = concatdf(df_total)
     if not df_total.empty:
-        print "cleaning data..."
         df_total = cleandf(df_total)
-        print "activities parsed!  Returning dataframe"
     else:
         print "no new data to clean"
 

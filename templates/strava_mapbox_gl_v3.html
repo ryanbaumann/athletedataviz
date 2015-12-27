@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block import_script %}
 <!-- Mapbox GL -->
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.0/mapbox-gl.js'></script>
-<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.0/mapbox-gl.css' rel='stylesheet'>
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.css' rel='stylesheet'>
 <!-- Mapbox JS -->
 <script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
 <link href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
@@ -26,9 +26,16 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-xs-8 col-md-8">
-                            <button id='snap' class="btn btn-primary">Save Design</button>
+                            <button type="submit" id='snap' class="btn btn-primary">Save Design!</button>
+                            <div id="spinner"></div>
+                                <div class="fb-share-button" 
+                                    data-href="http://www.your-domain.com/your-page.html" 
+                                    data-layout="button_count">
+                                </div>
                             <br><br>
-                                <div id='snapshot'></div>
+                                <div id='snapshot'>
+                                </div>
+
                             <br>
                             <form class="Refresh" onclick="render();return false;" id="Refresh">
                                 <button class="btn btn-primary">Refresh Map
@@ -121,19 +128,9 @@
         </div>
       </div>
     </div>
-    <!-- <button data-toggle="collapse" data-target=".navbar-collapse.in" id="sidebar-toggle-btn" class="btn "><i class="fa fa-list white"></i>&nbsp;&nbsp;Map Designer</button> -->
-    <button onclick="window.location='http://athletedataviz.com/products';" method='GET' id='render_map'>Order Viz!</button>
-    <!-- Create the map -->
+
+    <!-- Map Designer Time! -->
     <script>
-    //on change of VizType, hide all divs linked to select and show only linked to selected option
-    $('#VizType').change(function() {
-        var selector = '#VizType_hide_' + $(this).val();
-        //hide all elements
-        $('#VizType_hide_heat-line').collapse('hide');
-        $('#VizType_hide_heat-point').collapse('hide');
-        //show only element connected to selected option
-        $(selector).collapse('show');
-    });
     // API tokens 
     L.mapbox.accessToken = '{{ mapbox_accessToken|safe }}';
     mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
@@ -166,8 +163,7 @@
             "source": "linestring",
             "layout": {
                 "line-cap": "round",
-                "line-join": "round",
-                "line-blur" : 100,
+                "line-join": "round"
             },
             "paint": {
                 "line-opacity": parseFloat(document.getElementById("line_opacity").value),
@@ -188,19 +184,26 @@
     var maxScale;
     var map = L.mapbox.map('map').setView(center_point, 10)
     var dark_style = 'mapbox://styles/mapbox/dark-v8'
-    var gl = L.mapboxGL({
-            accessToken: mapboxgl.accessToken,
-            container: 'map',
-            style: dark_style,
-            style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
-            center: center_point,
-            zoom: 9,
-            minZoom: 1,
-            maxZoom: 20,
-            preserveDrawingBuffer: true
+    try {
+        var gl = L.mapboxGL({
+                accessToken: mapboxgl.accessToken,
+                container: 'map',
+                style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
+                center: center_point,
+                zoom: 9,
+                minZoom: 1,
+                maxZoom: 20,
+        }).addTo(map);
+    } catch (e) {
+        var mapContainer = document.getElementById('map');
+        mapContainer.parentNode.removeChild(mapContainer);
+        document.getElementById('config-fields').setAttribute('disabled', 'yes');
+        openErrorModal('This site requires WebGL, but your browser doesn\'t seem' +
+            ' to support it. Sorry.');
+    }
 
-    }).addTo(map);
     gl._glMap.dragRotate.disable();
+
     function getDataHeat() {
         var r = $.Deferred();
         $.getJSON( '{{ heatpoint_url|safe}}' , function(data) {
@@ -248,18 +251,28 @@
         gl._glMap.addLayer(lineHeatStyle);
         render();
     };
+
     //Load the data asrchnoutsly from api, then add layers to map
     getDataHeat().done(addLayerHeat);
     getDataLinestring().done(addLayerLinestring);
+
     //Stop the loading bar when ajax requests complete
     $(document).one("ajaxStop", function () {
         $("#loading").hide();
     });
-    //snapshot functions 
-    document.getElementById('snap').addEventListener('click', function() {
-        doImage();
-    });
+
     //////////////// SLIDERS AND BUTTON ACTIONS ////////////
+    
+    //on change of VizType, show only menu options linked to selected viztype
+    $('#VizType').change(function() {
+        var selector = '#VizType_hide_' + $(this).val();
+        //hide all elements
+        $('#VizType_hide_heat-line').collapse('hide');
+        $('#VizType_hide_heat-point').collapse('hide');
+        //show only element connected to selected option
+        $(selector).collapse('show');
+    });
+
     $('#line_width').slider({
         formatter: function(value) {
             return 'Value: ' + value;
@@ -313,6 +326,8 @@
     $('#heattype').on('click touch tap', render);
     $('#heat_color').on('click touch tap', render);
     $('#line_color').on('click touch tap', render);
+    $('#snap').on('click touch tap', generateMap);
+
     var VizType = 'heat-line'
     var map_style = 'dark-nolabel'
     function switchLayer() {
@@ -327,27 +342,28 @@
             try {addLayerLinestring();}
             catch (err) {console.log(err);}
             try {if (document.getElementById("VizType").value == "heat-line") { 
-                     set_visibility('linestring', 'on')}}
+                     set_visibility(gl._glMap, 'linestring', 'on')}}
             catch (err) {console.log(err);}
-            try { paintLayer(document.getElementById("line_color").value,
+            try { paintLayer(gl._glMap,
+                        document.getElementById("line_color").value,
                         parseFloat($('#line_width').slider('getValue')),
                         parseFloat($('#line_opacity').slider('getValue')),
                         'linestring');} 
             catch (err) {console.log(err);}
         });
     };
-    function set_visibility(id, onoff) {
-        var visibility = gl._glMap.getLayoutProperty(id, 'visibility');
+    function set_visibility(mapid, id, onoff) {
+        var visibility = mapid.getLayoutProperty(id, 'visibility');
         if (onoff == 'off') {
-            gl._glMap.setLayoutProperty(id, 'visibility', 'none');
+            mapid.setLayoutProperty(id, 'visibility', 'none');
         } else if (onoff == 'on') {
-            gl._glMap.setLayoutProperty(id, 'visibility', 'visible');
+            mapid.setLayoutProperty(id, 'visibility', 'visible');
         }
     };
-    function paintLayer(color, width, opacity, layer) {
-            gl._glMap.setPaintProperty(layer, 'line-color', color);
-            gl._glMap.setPaintProperty(layer, 'line-width', width);
-            gl._glMap.setPaintProperty(layer, 'line-opacity', opacity);
+    function paintLayer(mapid, color, width, opacity, layer) {
+            mapid.setPaintProperty(layer, 'line-color', color);
+            mapid.setPaintProperty(layer, 'line-width', width);
+            mapid.setPaintProperty(layer, 'line-opacity', opacity);
     }
     function updateHeat() {
         if (document.getElementById("heat_color").value == "heatColors2") {
@@ -385,7 +401,7 @@
         if (document.getElementById("VizType").value != VizType) {
             if (document.getElementById("VizType").value == "heat-point") {
                 try {
-                    set_visibility('linestring', 'off')
+                    set_visibility(gl._glMap, 'linestring', 'off')
                 } catch (err) {
                     console.log(err);
                 }
@@ -402,8 +418,9 @@
                     console.log(err);
                 }
                 try {
-                    set_visibility('linestring', 'on');
-                    paintLayer(document.getElementById("line_color").value,
+                    set_visibility(gl._glMap, 'linestring', 'on');
+                    paintLayer(gl._glMap,
+                        document.getElementById("line_color").value,
                         parseFloat($('#line_width').slider('getValue')),
                         parseFloat($('#line_opacity').slider('getValue')),
                         'linestring');
@@ -425,7 +442,8 @@
             } else if (VizType == 'heat-line') {
                 //Update the linestring layer
                 try {
-                    paintLayer(document.getElementById("line_color").value,
+                    paintLayer(gl._glMap,
+                        document.getElementById("line_color").value,
                         parseFloat($('#line_width').slider('getValue')),
                         parseFloat($('#line_opacity').slider('getValue')),
                         'linestring');
@@ -440,17 +458,185 @@
                 throw new Error(msg);
             }, 0);
         }
-        function doImage() {
-            console.log('pushed the snapshot!')
-            var img = document.createElement('img');
-            bounds = gl._glMap.getBounds
-            var dimensions = [bounds.getSouth, 
-                              bounds.getWest];
-            img.width = 150;
-            img.height = 150;
-            img.src = gl._glMap.getCanvas().toDataURL();
-            snapshot.innerHTML = '';
-            snapshot.appendChild(img);
+
+         /**
+          * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
+          * images to fit into a certain area.
+          *
+          * @param {Number} srcWidth Source area width
+          * @param {Number} srcHeight Source area height
+          * @param {Number} maxWidth Fittable area maximum available width
+          * @param {Number} maxHeight Fittable area maximum available height
+          * @return {Object} { width, heigth }
+          */
+        function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+
+            var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+            return { width: srcWidth*ratio, height: srcHeight*ratio };
+         }
+
+        // Helper functions
+        function toPixels(length) {
+            'use strict';
+            var unit = 'in';
+            var conversionFactor = 96;
+            if (unit == 'mm') {
+                conversionFactor /= 25.4;
+            }
+            return conversionFactor * length + 'px';
+        }
+
+        // High-res map rendering
+        function generateMap() {
+            'use strict';
+
+            document.getElementById('spinner').style.display = 'inline-block';
+            document.getElementById('snap').classList.add('disabled');
+            //Get the current map style
+            var style;
+            var layer = document.getElementById("mapStyle").value
+            if (layer != 'dark-nolabel') {
+                style = 'mapbox://styles/mapbox/' + layer + '-v8';
+            }
+            else { 
+                style = 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn';
+            }
+            var width = 12;
+            var height = 9;
+            var dpi = 300;
+            var format = 'jpg';
+            var unit = 'in';
+            var zoom = gl._glMap.getZoom();
+            var center = gl._glMap.getCenter();
+            var bearing = gl._glMap.getBearing();
+
+            createPrintMap(width, height, dpi, format, unit, zoom, center,
+                bearing, style);
+        }
+
+        function createPrintMap(width, height, dpi, format, unit, zoom, center,
+            bearing, style, source) {
+            'use strict';
+
+            // Calculate pixel ratio
+            var actualPixelRatio = window.devicePixelRatio;
+            Object.defineProperty(window, 'devicePixelRatio', {
+                get: function() {return dpi / 96}
+            });
+
+            // Create map container
+            var hidden = document.createElement('div');
+            hidden.className = 'hidden-map';
+            document.body.appendChild(hidden);
+            var container = document.createElement('div');
+            container.style.width = toPixels(width);
+            container.style.height = toPixels(height);
+            hidden.appendChild(container);
+
+            // Render map
+            var renderMap = new mapboxgl.Map({
+                container: container,
+                center: center,
+                zoom: zoom,
+                style: style,
+                bearing: bearing,
+                interactive: false,
+                attributionControl: false
+            });
+
+            renderMap.on('style.load', function() {
+                console.log('adding source linestring layer!');
+                linestring_src = new mapboxgl.GeoJSONSource({
+                    data: stravaLineGeoJson,
+                    maxzoom: 17,
+                    buffer: 10,
+                    tolerance: 0.5
+                });
+                renderMap.addSource('linestring', linestring_src);
+                renderMap.addLayer(lineHeatStyle);
+                try {if (document.getElementById("VizType").value == "heat-line") { 
+                    set_visibility(renderMap, 'linestring', 'on')}}
+                catch (err) {console.log(err);}
+                paintLayer(renderMap,
+                        document.getElementById("line_color").value,
+                        parseFloat($('#line_width').slider('getValue')),
+                        parseFloat($('#line_opacity').slider('getValue')),
+                        'linestring');
+            });
+
+            renderMap.once('load', function() {
+                if (format == 'jpg') {  
+                    var img = document.createElement('img');
+                    var canvas = renderMap.getCanvas();
+                    var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, 150, 113)
+                    img.width = targetDims['width'];
+                    img.height = targetDims['height'];
+                    img.href = img.src;
+                    img.id = 'snapshot_img';
+                    img.src = canvas.toDataURL("image/jpeg", 0.95);
+                    //remove any existing image elements
+                    snapshot.innerHTML = '';
+                    //put the new image in the div
+                    snapshot.appendChild(img);
+                    $("#snapshot_img").wrap($("<a>").attr("href", img.src).attr("target", "_blank"));
+                    //window.location.href=image; // it will save locally
+
+                } else {
+                    var pdf = new jsPDF({
+                        orientation: width > height ? 'l' : 'p',
+                        unit: unit,
+                        format: [width, height],
+                        compress: true
+                    });
+
+                    pdf.addImage(renderMap.canvas.canvas.toDataURL('image/jpeg', 0.95),
+                        'jpeg', 0, 0, width, height);
+                    pdf.save('map.pdf');
+                }
+                renderMap.remove();
+                hidden.parentNode.removeChild(hidden);
+                Object.defineProperty(window, 'devicePixelRatio', {
+                    get: function() {return actualPixelRatio}
+                });
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('snap').classList.remove('disabled');
+            });
+        }
+
+        ///////////////////  Error Modal  //////////
+        var origBodyPaddingRight;
+
+        function openErrorModal(msg) {
+            'use strict';
+            var modal = document.getElementById('errorModal');
+            document.getElementById('modal-error-text').innerHTML = msg;
+            modal.style.display = 'block';
+            document.body.classList.add('modal-open');
+            document.getElementById('modal-backdrop').style.height =
+                modal.scrollHeight + 'px';
+
+            if (document.body.scrollHeight > document.documentElement.clientHeight) {
+                origBodyPaddingRight = document.body.style.paddingRight;
+                var padding = parseInt((document.body.style.paddingRight || 0), 10);
+                document.body.style.paddingRight = padding + measureScrollbar() + 'px';
+            }
+        }
+
+        function closeErrorModal() {
+            'use strict';
+            document.getElementById('errorModal').style.display = 'none';
+            document.body.classList.remove('modal-open');
+            document.body.style.paddingRight = origBodyPaddingRight;
+        }
+
+        function measureScrollbar() {
+            'use strict';
+            var scrollDiv = document.createElement('div');
+            scrollDiv.className = 'modal-scrollbar-measure';
+            document.body.appendChild(scrollDiv);
+            var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+            document.body.removeChild(scrollDiv);
+            return scrollbarWidth;
         }
     </script>
     {% endblock %}

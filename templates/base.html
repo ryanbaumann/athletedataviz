@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Athlete Data Viz Login</title>
+    <title>Athlete Data Viz</title>
     <!--[if IE]><![endif]-->
     <meta charset="utf-8">
     <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame -->
@@ -62,7 +62,18 @@ var _gaq = [
             </div>
         </div>
     </nav>
-    {% block content %} {% endblock %}
+
+    <!-- Load Facebook SDK for JavaScript -->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
+      {% block content %} {% endblock %}
 </body>
 <script>
 $("#full-extent-btn").click(function() {
