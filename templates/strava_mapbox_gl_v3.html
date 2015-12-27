@@ -25,17 +25,10 @@
                 </div>
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-xs-8 col-md-8">
-                            <button type="submit" id='snap' class="btn btn-primary">Save Design!</button>
+                        <div class="col-xs-8 col-md-8"> 
+                            <button type="submit" id='snap' class="btn btn-primary" data-toggle="modal" data-target="#SaveDesign">Save Design!</button>
+                            <br>
                             <div id="spinner"></div>
-                                <div class="fb-share-button" 
-                                    data-href="http://www.your-domain.com/your-page.html" 
-                                    data-layout="button_count">
-                                </div>
-                            <br><br>
-                                <div id='snapshot'>
-                                </div>
-
                             <br>
                             <form class="Refresh" onclick="render();return false;" id="Refresh">
                                 <button class="btn btn-primary">Refresh Map
@@ -120,6 +113,7 @@
             </div>
         </div>
     </div>
+
     <div id='map'></div>
     <div id="loading">
       <div class="loading-indicator">
@@ -128,6 +122,30 @@
         </div>
       </div>
     </div>
+
+  <div class="modal fade" id="SaveDesign" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="SaveDesignLabel">Your Athlete Data Viz creation</h4>
+            </div>
+        <div class="modal-body">
+            <div id='snapshot'></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <form action="">
+                <button type="submit" id="dl_design" class="btn btn-default">Download</button> 
+            </form>
+            <form action="">
+                <button type="submit" id= "share_design" class="btn btn-default">Share</button>
+            </form>
+            
+        </div>
+      </div>
+    </div>
+</div>
 
     <!-- Map Designer Time! -->
     <script>
@@ -462,12 +480,6 @@
          /**
           * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
           * images to fit into a certain area.
-          *
-          * @param {Number} srcWidth Source area width
-          * @param {Number} srcHeight Source area height
-          * @param {Number} maxWidth Fittable area maximum available width
-          * @param {Number} maxHeight Fittable area maximum available height
-          * @return {Object} { width, heigth }
           */
         function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
 
@@ -532,7 +544,15 @@
             container.style.width = toPixels(width);
             container.style.height = toPixels(height);
             hidden.appendChild(container);
-
+            //remove any existing image elements
+            snapshot.innerHTML = '';
+            var img = document.createElement('img');
+            //Show loading image
+            img.width = 200;
+            img.height = 200;
+            img.src = "static/img/loading.gif";
+            snapshot.appendChild(img);
+            
             // Render map
             var renderMap = new mapboxgl.Map({
                 container: container,
@@ -566,19 +586,19 @@
 
             renderMap.once('load', function() {
                 if (format == 'jpg') {  
-                    var img = document.createElement('img');
+
                     var canvas = renderMap.getCanvas();
-                    var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, 150, 113)
+                    var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, 640, 480);
                     img.width = targetDims['width'];
                     img.height = targetDims['height'];
                     img.href = img.src;
                     img.id = 'snapshot_img';
                     img.src = canvas.toDataURL("image/jpeg", 0.95);
-                    //remove any existing image elements
-                    snapshot.innerHTML = '';
                     //put the new image in the div
+                    snapshot.innerHTML = '';
                     snapshot.appendChild(img);
                     $("#snapshot_img").wrap($("<a>").attr("href", img.src).attr("target", "_blank"));
+                    $('#dl_design').attr('action', img.src).attr("target", "_blank");
                     //window.location.href=image; // it will save locally
 
                 } else {
@@ -589,7 +609,7 @@
                         compress: true
                     });
 
-                    pdf.addImage(renderMap.canvas.canvas.toDataURL('image/jpeg', 0.95),
+                    pdf.addImage(renderMap.canvas.canvas.toDataURL('image/jpeg', 1),
                         'jpeg', 0, 0, width, height);
                     pdf.save('map.pdf');
                 }
