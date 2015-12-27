@@ -232,7 +232,7 @@ input[type="radio"], input[type="checkbox"] {
   #snapshot {
   position:relative;
   width: 150px;
-  height: 150px;
+  height: 120px;
   }
 div.slider.slider-horizontal {
   width: 150px;
