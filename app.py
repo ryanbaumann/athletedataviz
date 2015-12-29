@@ -242,6 +242,9 @@ def strava_mapbox():
     except:
         print "error retrieving map extents!"
 
+    client = stravalib.client.Client(access_token=session['access_token'])
+    athlete = client.get_athlete()
+
     return render_template('strava_mapbox_gl_v3.html',
                            avg_lat=avg_lat,
                            avg_long=avg_long,
