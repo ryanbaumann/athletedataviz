@@ -508,9 +508,9 @@
             else { 
                 style = 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn';
             }
-            var width = 9;
+            var width = 8;
             var height = 6;
-            var dpi = 300;
+            var dpi = 250;
             var format = 'jpg';
             var unit = 'in';
             var zoom = gl._glMap.getZoom();
@@ -589,24 +589,28 @@
 
             renderMap.once('load', function() {
                 if (format == 'jpg') {  
-
-                    var canvas = renderMap.getCanvas();
-                    var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
-                    img.width = targetDims['width'];
-                    img.height = targetDims['height'];
-                    img.href = img.src;
-                    img.id = 'snapshot_img';
-                    img.src = canvas.toDataURL("image/jpeg", 1);
-                    img.class = "img-responsive center-block";
-                    //put the new image in the div
-                    snapshot.innerHTML = '';
-                    snapshot.appendChild(img);
-                    $("#snapshot_img").addClass("img-responsive center-block");
-                    $("#snapshot_img").wrap($("<a>").attr("href", img.src).
-                                                     attr("target", "_blank"));
-                    $('#dl_design').attr('action', img.src);
-                    $('#facebook_share').attr('data-href', img.src)
-                    //window.location.href=image; // it will save locally
+                    try {
+                        var canvas = renderMap.getCanvas();
+                        var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
+                        img.width = targetDims['width'];
+                        img.height = targetDims['height'];
+                        img.href = img.src;
+                        img.id = 'snapshot_img';
+                        img.src = canvas.toDataURL("image/jpeg", 1);
+                        img.class = "img-responsive center-block";
+                        //put the new image in the div
+                        snapshot.innerHTML = '';
+                        snapshot.appendChild(img);
+                        $("#snapshot_img").addClass("img-responsive center-block");
+                        $("#snapshot_img").wrap($("<a>").attr("href", img.src).
+                                                         attr("target", "_blank"));
+                        $('#dl_design').attr('action', img.src);
+                        $('#facebook_share').attr('data-href', img.src)
+                        //window.location.href=image; // it will save locally
+                    }
+                    catch (err) {
+                        console.log(err);
+                    }
 
                 } else {
                     var pdf = new jsPDF({
