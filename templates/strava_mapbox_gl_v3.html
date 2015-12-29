@@ -540,8 +540,8 @@
             }
             var width = 8;
             var height = 6;
-            var dpi = 450;
-            var format = 'png';
+            var dpi = 400;
+            var format = 'jpg';
             var unit = 'in';
             var zoom = gl._glMap.getZoom();
             var center = gl._glMap.getCenter();
@@ -616,7 +616,7 @@
             });
 
             renderMap.once('load', function() {
-                if (format == 'png') {  
+                if (format == 'jpg') {  
                     try {
                         var canvas = renderMap.getCanvas();
                         var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
@@ -624,14 +624,14 @@
                         img.height = targetDims['height'];
                         img.href = img.src;
                         img.id = 'snapshot_img';
-                        img.src = canvas.toDataURL(); //("image/jpeg", 1);
+                        img.src = canvas.toDataURL("image/jpeg", 1);
                         img.class = "img-responsive center-block";
                         //put the new image in the div
                         snapshot.innerHTML = '';
                         snapshot.appendChild(img);
                         $("#snapshot_img").addClass("img-responsive center-block");
                         $('#download_viz').attr('href', img.src).
-                                           attr('download', "ADV_{{ath_name}}.png");
+                                           attr('download', "ADV_{{ath_name}}.jpg");
                         $('#facebook_share').attr('data-href', img.src)
                     }
                     catch (err) {
