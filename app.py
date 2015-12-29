@@ -230,7 +230,6 @@ def download_strava():
 
 
 @app.route('/strava_mapbox')
-@cache.cached(timeout=3600)
 def strava_mapbox():
     """
     A function to get the data for vizualization from the database,
@@ -253,7 +252,8 @@ def strava_mapbox():
                            heatpoint_url=BASEPATH +
                            'heat_points/' + str(session['ath_id']),
                            heatline_url=BASEPATH +
-                           'heat_lines/' + str(session['ath_id']))
+                           'heat_lines/' + str(session['ath_id']),
+                           ath_name=athlete.firstname + "_" + athlete.lastname)
 
 
 @app.route('/delete_acts', methods=['POST'])

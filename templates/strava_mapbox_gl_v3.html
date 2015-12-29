@@ -26,7 +26,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-xs-8 col-md-8"> 
-                            <button type="submit" id='snap' class="btn btn-primary" data-toggle="modal" data-target="#SaveDesign">Save Design!</button>
+                            <button type="submit" id='snap' class="btn btn-primary" data-toggle="modal" data-target="#SaveDesign">Save Design</button>
                             <br>
                             <div id="spinner"></div>
                             <br>
@@ -123,20 +123,34 @@
       </div>
     </div>
 
-  <div class="modal fade" id="SaveDesign" role="dialog" tabindex="-1" aria-labelledby="SaveDesign">
+  <div class="modal fade" id="SaveDesign" role="dialog" tabindex="-1" aria-labelledby="SaveDesign" >
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="SaveDesignLabel">Your Athlete Data Viz creation</h4>
+            <h3 class="modal-title text-center">Your Athlete Data Viz creation</h3>
         </div>
         <div class="modal-body">
             <div id='snapshot'></div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-            <button type="button" class="fb-share-button" id="facebook_share" data-href="" data-layout="button"></div>
+            <div class="row">
+                <div class="text-center">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Try a new Design</button>
+                    <a type="button" id="download_viz" class="btn btn-default" href="#" download="ADV_viz.jpg">Download Viz</a>
+                </div>
+            </div>
+            <br>
+            <div class="row text-center">
+                <div class="text-center">
+                    <!-- Shares -->
+                    <a class="btnz share facebook" href="#"><i class="fa fa-facebook text-center"></i> Share</a>
+                    <a class="btnz share gplus" href="#"><i class="fa fa-google-plus text-center"></i> Share</a>
+                    <a class="btnz share twitter" href="#"><i class="fa fa-twitter text-center"></i> Tweet</a>
+                    <a class="btnz share pinterest" href="#"><i class="fa fa-pinterest text-center"></i> Pin it</a>
+                    <a class="btnz share linkedin" href="#"><i class="fa fa-linkedin text-center"></i> LinkedIn</a>
+                </div>
+            </div>
         </div>
       </div>
     </div>
@@ -144,6 +158,16 @@
 
     <!-- Map Designer Time! -->
     <script>
+    jQuery(document).ready(function($) {
+   $('.share').click(function() {
+         var NWin = window.open($(this).prop('href'), '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');
+         if (window.focus)
+         {
+           NWin.focus();
+         }
+         return false;
+        });
+    });
     // API tokens 
     L.mapbox.accessToken = '{{ mapbox_accessToken|safe }}';
     mapboxgl.accessToken = '{{ mapbox_gl_accessToken|safe }}';
@@ -331,7 +355,7 @@
         $('#minOpacity').slider('setValue', ev.value);
         render();
     });
-    $('#heat_color').on('click touch tap', render);
+    $('#heat_color').on(' touch tap', render);
     $('#Refresh').on('click touch tap', switchMapStyle);
     $('#Refresh').on('click touch tap', render);
     $('#VizType').on('click touch tap', render);
@@ -493,6 +517,12 @@
             return conversionFactor * length + 'px';
         }
 
+        //Download link
+        function download_img(link, img_src, filename) {
+            link.href = img_src;
+            link.download = filename;
+        }
+
         // High-res map rendering
         function generateMap() {
             'use strict';
@@ -602,11 +632,9 @@
                         snapshot.innerHTML = '';
                         snapshot.appendChild(img);
                         $("#snapshot_img").addClass("img-responsive center-block");
-                        $("#snapshot_img").wrap($("<a>").attr("href", img.src).
-                                                         attr("target", "_blank"));
-                        $('#dl_design').attr('action', img.src);
+                        $('#download_viz').attr('href', img.src).
+                                           attr('download', "ADV_{{ath_name}}.jpg");
                         $('#facebook_share').attr('data-href', img.src)
-                        //window.location.href=image; // it will save locally
                     }
                     catch (err) {
                         console.log(err);

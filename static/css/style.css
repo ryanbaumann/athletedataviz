@@ -150,8 +150,42 @@ input[type="radio"], input[type="checkbox"] {
     color: #517fa4;
 }
 
+.btnz {
+   display: inline-block;
+   text-align:center;
+   padding: 10px 10px;
+   border:none;
+   background-color: #ececec;
+   text-decoration: none;
+   font-size: 16px;
+   color: #FFF;
+}
+ 
+.btnz:hover {
+   color: #efefef;
+}
+
 .social .fa-pinterest:hover {
     color: #e64522;
+}
+.facebook {
+   background-color: #3b5998;
+}
+ 
+.gplus {
+   background-color: #dd4b39;
+}
+ 
+.twitter {
+   background-color: #55acee;
+}
+ 
+.pinterest {
+   background-color: #cc2127;
+}
+ 
+.linkedin {
+   background-color: #0077b5;
 }
 
 .navbar .navbar-brand {
