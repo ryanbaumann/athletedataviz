@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block content %}
 <style>
 div.header {
-    background: url(static/img/title_adv_image_151124.jpg);
+    background: url("static/img/title_adv_image_151124.jpg");
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -9,41 +9,40 @@ div.header {
 }
 </style>
 <div class="cover">
-    <div class="cover-image"></div>
     <div class="container-fluid">
+        <div class="jumbotron text-center">
+            <h1> Athlete Data Viz</h1>
+            <p class="lead text-muted" id="subheader-title">Transform your Data Into Art</p>
+        </div>
         <div class="row text-center">
-            <div class="col-sm-8 text-center" id="Header">
-                <h2 class="text-center" id="Header-Title">Athlete Data Viz</h2>
-                <p class="lead text-muted" id="subheader-title">Transform your Data Into Art</p>
-            </div>
-        </div>
-        <div class="col-sm-8 text-center">
-            <h4> Get Started Now! Click Below to Login with Strava. </h4>
-            <br>
-            <a href="{{auth_url}}">
-                <img src="/static/img/ConnectWithStrava.png" alt="Connect with Strava" title="Connect with Strava">
-            </a>
-            <br>
-            <br> By clicking the link above, you grant read-only access to Athlete Data Viz to your Strava account.
-            <br>
-            <br>
-        </div>
-        <div class="col-sm-8 text-center">
-            <p><strong>Available printing types:</strong></p>
-            <p><em>Glass - Metal - Foam - more comming soon</em></p>
-            <p><strong>
-                    Supported data types:</strong></p>
-            <p><em>GPS -&nbsp;Power -&nbsp;Heart Rate -&nbsp;Speed -&nbsp;Cadence</em></p>
-            <p><strong>Supported Data Viz Types:</strong></p>
-            <p><em>Heatmaps - more comming soon</em></p>
-            <br>
-        </div>
-        <div class="col-sm-8">
-            <div class="g-item">
-                <img class="img-responsive" src="static/img/title_adv_image_151124.jpg" alt="" <a data-rel="lightbox" class="overlay" href="">
+            <div class="col-sm-12 text-center">
+                <h4> Get Started Now! Login with Strava. </h4>
+                <a href="{{auth_url}}">
+                    <img class="img-responsive center-block" src="/static/img/ConnectWithStrava.png" alt="Connect with Strava" title="Connect with Strava">
                 </a>
+                <p> By clicking the link above, you grant read-only access to Athlete Data Viz to your Strava account. </p>
+                <br><!--
+                <h4> Don't have a Strava account? </h4>
+                <a href="{{auth_url}}">
+                    <img class="img-responsive center-block" alt="Try a Demo without Strava" title="Connect with Strava">
+                </a>-->
+                <br>
+            </div>
+            <div class="col-sm-12 text-center">
+                <p><strong>Available printing types:</strong></p>
+                <p><em>Glass - Metal - Foam - more comming soon</em></p>
+                <p><strong>
+                        Supported data types:</strong></p>
+                <p><em>GPS -&nbsp;Power -&nbsp;Heart Rate -&nbsp;Speed -&nbsp;Cadence</em></p>
+                <p><strong>Supported Data Viz Types:</strong></p>
+                <p><em>Heatmaps - more comming soon</em></p>
+                <br>
+            </div>
+            <div class="col-sm-12">
+                <div class="g-item">
+                    <img class="img-responsive center-block" src="static/img/title_adv_image_151124.jpg" alt="" </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}

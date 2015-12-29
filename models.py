@@ -6,7 +6,7 @@ from geoalchemy2.functions import GenericFunction
 
 class Athlete(db.Model):
     __tablename__ = 'Athlete'
-
+    
     id = db.Column(db.Integer, primary_key=True)
     data_source = db.Column(db.String(), index=True)
     ath_id = db.Column(db.Integer, index=True, unique=True)

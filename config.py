@@ -33,6 +33,7 @@ class Config(object):
     # Enables error emails.
     #CELERY_SEND_TASK_ERROR_EMAILS = True
     BROKER_POOL_LIMIT=0 #Prevent each new celery connection from opening a new conn
+    CELERY_ACCEPT_CONTENT = ['json', 'pickle']
     #CELERY_IGNORE_RESULT = True
     #CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
     CELERY_REDIS_MAX_CONNECTIONS = 39
@@ -65,7 +66,8 @@ class Config(object):
         'text/html', 'text/css', 'text/xml', 'application/json', 'application/javascript']
     COMPRESS_LEVEL = 8
     COMPRESS_MIN_SIZE = 250
-    CACHE_TYPE = 'simple'
+    CACHE_TYPE = 'redis'
+    CACHE_REDIS_URL = os.environ['REDIS_URL']
 
 
 class ProductionConfig(Config):

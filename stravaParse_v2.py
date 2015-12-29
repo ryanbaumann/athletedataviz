@@ -11,10 +11,15 @@ from stravalib import unithelper
 import json
 
 
-def GetActivities(client, limit):
+def GetActivities(client, startDate, endDate, limit):
     # Returns a list of Strava activity objects, up to the number specified by
     # limit
-    activities = client.get_activities(limit=limit)
+    startDate = datetime.strptime(startDate, '%Y-%m-%d')
+    endDate = datetime.strptime(endDate, '%Y-%m-%d')
+    print "limit is: " + str(limit)
+    activities = client.get_activities(before = endDate,
+                                       after = startDate,
+                                       limit= limit)
     return activities
 
 
@@ -29,7 +34,6 @@ def GetStreams(client, activity, types, resolution):
 
 def DataFrame(dict, types):
     # Converts a Stream into a dataframe, and returns the dataframe
-    print dict, types
     df = pd.DataFrame()
     for item in types:
         if item in dict.keys():
@@ -62,9 +66,7 @@ def get_acts_in_db(engine, table_name):
     try:
         args = 'SELECT Distinct act_id from "%s"' % (table_name)
         df = pd.read_sql(args, engine)
-        print df.head(2)
         already_dl_act_id_list = df['act_id'].tolist()
-        print "existing acts are: " + str(already_dl_act_id_list)
     except:
         print "no activities in database!  downloading all activities in range..."
 
@@ -76,7 +78,6 @@ def check_if_new_act(act_list, already_dl_act_id_list):
     for act in list(act_list):
         if act.id in already_dl_act_id_list:
             act_list.remove(act)
-            print "act already in database - moving on! " + str(act.name)
 
     return act_list
 
@@ -84,10 +85,8 @@ def check_if_new_act(act_list, already_dl_act_id_list):
 def loop_activities(client, activities, already_dl_act_id_list, types):
     # Loops through a list of activities, creating a dict of dataframes, one
     # entry for each activity
-    print "looping through activities..."
     df_lst = {}
     for act in activities:
-        flash('processing activity... ' + act.name)
         if act.id not in already_dl_act_id_list:
             df_lst[act.start_date] = ParseActivity(client, act, types)
     return df_lst
@@ -139,33 +138,24 @@ def concatdf(df_lst):
 def cleandf(df_total):
     # Applies a number of functions to clean out a dataframe for final
     # processing
-    print "filling null values..."
     df_total.fillna('', inplace=True)
-    print "resetting index..."
     df_total.reset_index(level=0, inplace=True)
-    print "calculating time..."
     df_total['timestamp'] = map(
         calctime, df_total['time'], df_total['act_startDate'])
     df_total['timestamp'].astype('datetime64[ns]')
-    print "splitting lat/lng..."
     df_total['lat'] = map(split_lat, (df_total['latlng']))
     df_total['long'] = map(split_long, (df_total['latlng']))
-    print 'dropping unused columns...'
     df_total.drop(['latlng', 'act_startDate', 'index'], axis=1, inplace=True)
-    print 'adding point column...'
     df_total['point'] = map(create_points, df_total['lat'], df_total['long'])
-    print "renaming columns..."
     df_total.rename(columns={'time': 'elapsed_time',
                              'distance': 'elapsed_dist'},
                     inplace=True)
-    print df_total.head(5)
 
     return df_total
 
 
 def process_activities(client, limit, types, engine, table_name):
     # Applies a number of functions to get and convert and clean
-    print "getting activity list..."
     activities = GetActivities(client, limit)
     already_dl_act_id_list = get_acts_in_db(engine, table_name)
     df_total = loop_activities(

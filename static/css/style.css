@@ -1,9 +1,8 @@
 <style>
-.color-p-0 { color: #2A2DD9 }    /* Dark Blue */
-.color-p-1 { color: #D9C46A }    /* Dark Tan */
-.color-p-2 { color: #61618C }    /* Light Blue */
-.color-p-3 { color: #FFFDF3 }    /* Light Tan */
-.color-p-4 { color: #DC7614}     /* Super Dark Tan */
+.jumbotron {
+    background-color: #FF0000 !important; /* Blue */
+    color: #ffffff;
+}
 .container-fluid {
     max-width: 1000px;
 }
@@ -11,7 +10,7 @@
   max-width: 1000px;
 }
 .bg-grey {
-    background-color: #FFFDF3;
+    background-color: #FF0000 ;
 }
 div.table{
   border: 1px solid black; 
@@ -122,6 +121,36 @@ input[type="radio"], input[type="checkbox"] {
 .table {
   margin-bottom: 0px;
 }
+
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #777;
+}
+
+.social .fa-facebook:hover {
+    color: #4060A5;
+}
+
+.social .fa-twitter:hover {
+    color: #00ABE3;
+}
+
+.social .fa-google-plus:hover {
+    color: #e64522;
+}
+
+.social .fa-linkedin:hover {
+    color: #0094BC;
+}
+
+.social .fa-instagram:hover {
+    color: #517fa4;
+}
+
+.social .fa-pinterest:hover {
+    color: #e64522;
+}
+
 .navbar .navbar-brand {
   font-weight: bold;
   font-size: 25px;
@@ -204,16 +233,92 @@ input[type="radio"], input[type="checkbox"] {
     color: #FFFFFF;
   }
 }
-/* Print Handling */
-@media print {
-  .navbar {
-    display: none !important;
-  }
-  .leaflet-control-container {
-    display: none !important;
-  }
+
+/* Footer */
+@media (max-height:800px){
+  footer { position: static; }
+  header { padding-top:40px; }
 }
 
+footer{
+  position: fixed;
+  bottom: 0;
+}
+
+.footer-distributed{
+  background-color: #292c2f;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+  width: 100%;
+  text-align: left;
+  font: normal 16px sans-serif;
+
+  padding: 45px 50px;
+  margin-top: 80px;
+}
+
+.footer-distributed .footer-left p{
+  color:  #8f9296;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Footer links */
+
+.footer-distributed p.footer-links{
+  font-size:18px;
+  font-weight: bold;
+  color:  #ffffff;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.footer-distributed p.footer-links a{
+  display:inline-block;
+  line-height: 1.8;
+  text-decoration: none;
+  color:  inherit;
+}
+
+.footer-distributed .footer-right{
+  float: right;
+  margin-top: 6px;
+  max-width: 180px;
+}
+
+.footer-distributed .footer-right a{
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  background-color:  #33383b;
+  border-radius: 2px;
+
+  font-size: 20px;
+  color: #ffffff;
+  text-align: center;
+  line-height: 35px;
+
+  margin-left: 3px;
+}
+
+/* If you don't want the footer to be responsive, remove these media queries */
+
+@media (max-width: 600px) {
+
+  .footer-distributed .footer-left,
+  .footer-distributed .footer-right{
+    text-align: center;
+  }
+
+  .footer-distributed .footer-right{
+    float: none;
+    margin: 0 auto 20px;
+  }
+
+  .footer-distributed .footer-left p.footer-links{
+    line-height: 1.8;
+  }
+}
 /*  ---------  Now the UI buttons  ---------  */
 #render_map {
   position: absolute;
@@ -239,7 +344,6 @@ div.slider.slider-horizontal {
   }
 img {
   display: block;
-  background-image: url("static/img/loading.gif");
   background-position: center center;
 }
 </style>

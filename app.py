@@ -40,8 +40,10 @@ BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 #  API   #
 ##########
 
+
 class Heat_Points(Resource):
 
+    @cache.cached(timeout=3600, key_prefix='myHeatPoints')
     def get(self, ath_id):
         heatpoints = json.loads(
             sp.get_heatmap_points(engine, int(ath_id)))['points']
@@ -51,14 +53,29 @@ class Heat_Points(Resource):
 
 class Heat_Lines(Resource):
 
+    @cache.cached(timeout=3600, key_prefix='myHeatLines')
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
-            engine, '"V_Stream_LineString"', int(session['ath_id']))
+            engine, '"V_Stream_LineString"', int(ath_id))
         return geojsonlines
         # We can have PUT,DELETE,POST here if needed
-        #
+
+class Current_Acts(Resource):
+
+    #@cache.cached(timeout=3600, key_prefix='myCurrentActs')
+    def get(self, ath_id):
+        print "getting current activities..."
+        try:
+            act_data = sp.get_acts_html(engine, int(ath_id)).to_html(
+                       classes=["table table-striped", 
+                                "table table-condensed"])
+        except:
+            print "error getting current activity list from DB!"
+        return act_data
+
 api.add_resource(Heat_Points, '/heat_points/<int:ath_id>')
 api.add_resource(Heat_Lines, '/heat_lines/<int:ath_id>')
+api.add_resource(Current_Acts, '/current_acts/<int:ath_id>')
 
 ##########
 # routes #
@@ -120,8 +137,8 @@ def homepage():
 
         return render_template('main.html',
                                act_limit=int(session.get('act_limit', 1)),
-                               act_list_html=act_data,
-                               act_count=act_count,
+                               current_act_url= BASEPATH +
+                                  'current_acts/' + str(session['ath_id']),
                                athlete=athlete)
 
 
@@ -146,12 +163,7 @@ def act_input():
 def login():
     client = stravalib.client.Client()
     # Check port configuration for dev vs. deployed environments
-    if str(app.config['PORT']) == '':
-        redirect_uri = r'http://' + app.config['HOST_NAME'] + '/auth'
-    else:
-        redirect_uri = r'http://' + \
-            app.config['HOST_NAME'] + ':' + str(app.config['PORT']) + '/auth'
-
+    redirect_uri = app.config['HEADER'] + app.config['HOST_NAME'] + '/auth'
     auth_url = client.authorization_url(
         client_id=app.config['STRAVA_CLIENT_ID'],
         redirect_uri=redirect_uri)
@@ -218,7 +230,7 @@ def download_strava():
 
 
 @app.route('/strava_mapbox')
-@cache.cached(timeout=50)
+@cache.cached(timeout=3600)
 def strava_mapbox():
     """
     A function to get the data for vizualization from the database,
@@ -249,7 +261,7 @@ def delete_acts():
     """Delete all activities from the user currently logged in"""
     if request.method == 'POST':
         try:
-            print "deleting all activities from current athlete ..."
+            cache.clear()
             acts_dl_list = []
             for act in Activity.query.filter_by(
                     ath_id=int(session['ath_id'])).with_entities(
@@ -286,7 +298,7 @@ def internal_error(exception):
 
 
 @celery.task(name='long_task.add', bind=True)
-def long_task(self, act_limit, ath_id, types, access_token, resolution):
+def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, resolution):
     """
     A celery task to update the Strava rides into the AthleteDataViz database
     """
@@ -297,7 +309,7 @@ def long_task(self, act_limit, ath_id, types, access_token, resolution):
 
     # Get a list of activities, compare to what's in the DB, return only
     # activities not in DB items
-    acts_list = sp.GetActivities(client, act_limit)
+    acts_list = sp.GetActivities(client, startDate, endDate, act_limit)
     # Return a list of already cached activities in the database
     acts_dl_list = []
     for act in Activity.query.filter_by\
@@ -308,7 +320,6 @@ def long_task(self, act_limit, ath_id, types, access_token, resolution):
     # stream
     count = 0
     total = len([act for act in acts_list if act.id not in acts_dl_list])
-    print "total number of acts to dl : " + str(total)
     for act in acts_list:
         if act.id not in acts_dl_list:
             count += 1
@@ -325,8 +336,6 @@ def long_task(self, act_limit, ath_id, types, access_token, resolution):
                 else:
                     print "no new data to clean"
 
-                print "okay, now inserting into the database!"
-
                 new_act = Activity(ath_id=ath_id,
                                    act_id=act.id,
                                    act_type=act.type,
@@ -341,13 +350,11 @@ def long_task(self, act_limit, ath_id, types, access_token, resolution):
 
                 db.session.add(new_act)
                 db.session.commit()
-                print "successfully added activity to db!"
 
                 # Write stream dataframe to db
                 df.to_sql('Stream', engine,
                           if_exists='append',
                           index=False)
-                print "Successfully added stream to db!"
 
             except:
                 print "error entering activity or stream data into db!"
@@ -358,14 +365,36 @@ def long_task(self, act_limit, ath_id, types, access_token, resolution):
 
 @app.route('/longtask', methods=['POST'])
 def longtask():
-    task = long_task.delay(int(session.get('act_limit', 10)),
+    """
+    Begin the long task of downloading data from strava.  Accepts params from the form of 
+    startDate, endDate, and activity limit from the page. 
+    """
+    # Clear cache because we are importing new data
+    cache.clear()
+
+    # Get the post data from the form via AJAX
+    try:
+        startDate = request.json['startDate']
+        endDate = request.json['endDate']
+        act_limit = request.json['act_limit']
+    except:
+        print "error parsing request headers!"
+        startDate = '2015-01-01'
+        endDate = '2016-01-01'
+        act_limit = 10
+    # Start the celery task
+    task = long_task.delay(startDate,
+                           endDate,
+                           act_limit,
                            int(session['ath_id']),
                            ['latlng', 'time', 'distance', 'velocity_smooth', 'altitude',
                             'grade_smooth', 'watts', 'temp', 'heartrate', 'cadence', 'moving'],
                            session['access_token'],
                            'medium')
-    return jsonify({}), 202, {'Location': url_for('taskstatus', _scheme='https',
-                                                  _external=True, task_id=task.id)}
+    return jsonify({}), 202, {'Location': url_for('taskstatus',
+                                                  scheme='https',
+                                                  _external=True,
+                                                  task_id=task.id)}
 
 
 @app.route('/status/<task_id>')

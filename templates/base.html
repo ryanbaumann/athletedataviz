@@ -9,18 +9,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="AthleteDataViz">
     <meta name="author" content="RyanBaumann">
+    <meta name="keywords" content="athlete, data, viz, athletedataviz, heatmap, map, cycling, running, hiking, triathalon, vizualization, mapbox" />
+    <meta name="p:domain_verify" content="2518dde61dca1f34a95baa06a75883a0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
-    <link rel="stylesheet" href="static/css/style.css" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
-    {% block import_script %} {% endblock %}
+    <link rel="stylesheet" href="static/css/style.css" type="text/css"> {% block import_script %} {% endblock %}
 </head>
-<!-- asynchronous google analytics
-change the UA-XXXXX-X to be your site's ID -->
+
+<body>
+    <div id="fb-root"></div>
+    <script>
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <!--- BEGINNING OF NAVBAR -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <div class="navbar-icon-container">
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> {% if request.path=="/strava_mapbox" %}
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o"> Show Toolbar </i></a> {% endif %}
+                </div>
+                <a class="navbar-brand" action="login">Athlete Data Viz </a>
+            </div>
+            <div class="navbar-collapse collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/strava_mapbox">Viz Designer</a></li>
+                    <li>
+                        {% if not session.access_token %}
+                        <a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
+                    {% else %}
+                    <a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
+                    {% endif %}
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if request.path=="/strava_mapbox" %}
+                    <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Show Toolbar</li></a> {% endif %}
+                </ul>
+                <!-- social media icons -->
+                <u1 class="nav navbar-nav navbar-right social">
+                    <li> <a href="https://www.facebook.com/athletedataviz" target="_blank"><i class="fa fa-lg fa-facebook"></i></a></li>
+                    <li><a href="https://www.instagram.com/athletedataviz" target="_blank"><i class="fa fa-lg fa-instagram"></i></a></li>
+                    <li><a href='https://plus.google.com/b/105079309559797917196/105079309559797917196/posts?gmbpt=true&pageId=105079309559797917196&hl=en' target="_blank"><i class="fa fa-lg fa-google-plus"></i></a></li>
+                    <li><a href="https://twitter.com/AthleteDataViz" target="_blank"><i class="fa fa-lg fa-twitter"></i></a></li>
+                    <li><a href="https://www.linkedin.com/company/athletedataviz?trk=prof-following-company-logo" target="_blank"><i class="fa fa-lg fa-linkedin"></i></a></li>
+                    <li><a href="https://www.pinterest.com/athletedataviz/" target="_blank"><i class="fa fa-lg fa-pinterest"></i></a></li>
+                </u1>
+            </div>
+        </div>
+    </nav>
+    <!-- Load Facebook SDK for JavaScript -->
+    <div id="fb-root"></div>
+    <script>
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+    </script>
+    {% block content %} {% endblock %}
+</body>
 <script>
+$("#full-extent-btn").click(function() {
+    map.fitBounds(boroughs.getBounds());
+    $(".navbar-collapse.in").collapse("hide");
+    return false;
+});
+
+$("#legend-btn").click(function() {
+    $("#legendModal").modal("show");
+    $(".navbar-collapse.in").collapse("hide");
+    return false;
+});
+
+$("#login-btn").click(function() {
+    $("#loginModal").modal("show");
+    $(".navbar-collapse.in").collapse("hide");
+    return false;
+});
+
+$("#list-btn").click(function() {
+    $('#sidebar').toggle();
+    map.invalidateSize();
+    return false;
+});
+
+$("#nav-btn").click(function() {
+    $(".navbar-collapse").collapse("toggle");
+    return false;
+});
+
+$("#sidebar-toggle-btn").click(function() {
+    $("#sidebar").toggle();
+    map.invalidateSize();
+    return false;
+});
+
+$("#sidebar-hide-btn").click(function() {
+    $('#sidebar').hide();
+    map.invalidateSize();
+});
+
+// Asynchronous google analytics
+
 var _gaq = [
     ['_setAccount', 'UA-58623894-3'],
     ['_trackPageview']
@@ -32,90 +139,6 @@ var _gaq = [
     g.src = '//www.google-analytics.com/ga.js';
     s.parentNode.insertBefore(g, s);
 })(document, 'script');
-</script>
-
-<body>
-    <!--- BEGINNING OF NAVBAR -->
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <div class="navbar-icon-container">
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a>
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-search fa-lg white"> Designer </i></a>
-                </div>
-                <a class="navbar-brand" action="login">Athlete Data Viz </a>
-            </div>
-            <div class="navbar-collapse collapse" id="myNavbar">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="/">Home</a></li>
-                    <li><a href="/about">About</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li> {% if not session.access_token %}
-                        <a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-                    {% else %}
-                    <a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
-                    {% endif %}
-                    <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-list white"></i>&nbsp;&nbsp;Designer</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Load Facebook SDK for JavaScript -->
-    <div id="fb-root"></div>
-    <script>(function(d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));</script>
-
-      {% block content %} {% endblock %}
-</body>
-<script>
-$("#full-extent-btn").click(function() {
-  map.fitBounds(boroughs.getBounds());
-  $(".navbar-collapse.in").collapse("hide");
-  return false;
-});
-
-$("#legend-btn").click(function() {
-  $("#legendModal").modal("show");
-  $(".navbar-collapse.in").collapse("hide");
-  return false;
-});
-
-$("#login-btn").click(function() {
-  $("#loginModal").modal("show");
-  $(".navbar-collapse.in").collapse("hide");
-  return false;
-});
-
-$("#list-btn").click(function() {
-  $('#sidebar').toggle();
-  map.invalidateSize();
-  return false;
-});
-
-$("#nav-btn").click(function() {
-  $(".navbar-collapse").collapse("toggle");
-  return false;
-});
-
-$("#sidebar-toggle-btn").click(function() {
-  $("#sidebar").toggle();
-  map.invalidateSize();
-  return false;
-});
-
-$("#sidebar-hide-btn").click(function() {
-  $('#sidebar').hide();
-  map.invalidateSize();
-});
-
 </script>
 
 </html>
