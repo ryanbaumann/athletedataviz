@@ -37,15 +37,14 @@
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="/">Athlete Data Viz</a>
                 <div class="navbar-icon-container">
-                    <li><a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> </li>
+                    <a class="navbar-brand" href="/">Athlete Data Viz </a>
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> 
                     {% if request.path=="/strava_mapbox" %}
-                    <li class="hidden-xs"><a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o"> Show Toolbar </i></a></li>
+                    <li><a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o"> Show Toolbar </i></a></li>
                     {% endif %}
-                    
                 </div>
-                
+
             </div>
             <div class="navbar-collapse collapse" id="myNavbar">
                 <ul class="nav navbar-nav">
@@ -53,9 +52,10 @@
                     {% if not session.access_token %}
                     <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
                     {% else %}
-                    <li><a href="/strava_mapbox">Design</a></li>
+                    <li><a href="/strava_mapbox">Designer</a></li>
                     <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
                     {% endif %}
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right social">
                     <!-- social media icons -->
