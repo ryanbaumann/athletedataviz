@@ -71,7 +71,7 @@
                                 <br>
                                 <br>
                                 <b> Line Width </b>
-                                <input id="line_width" class="slider" data-slider-id='line_width_slider' type="text" data-slider-min="0.5" data-slider-value="2" data-slider-max="5" data-slider-step="0.5" onclick="render()">
+                                <input id="line_width" class="slider" data-slider-id='line_width_slider' type="text" data-slider-min="0.5" data-slider-value="1.5" data-slider-max="5" data-slider-step="0.5" onclick="render()">
                                 <br>
                                 <br>
                                 <b>Line Opacity</b>
@@ -540,8 +540,8 @@
             }
             var width = 8;
             var height = 6;
-            var dpi = 250;
-            var format = 'jpg';
+            var dpi = 450;
+            var format = 'png';
             var unit = 'in';
             var zoom = gl._glMap.getZoom();
             var center = gl._glMap.getCenter();
@@ -601,9 +601,7 @@
                 console.log('adding source linestring layer!');
                 linestring_src = new mapboxgl.GeoJSONSource({
                     data: stravaLineGeoJson,
-                    maxzoom: 17,
-                    buffer: 10,
-                    tolerance: 0.5
+                    maxzoom: 17
                 });
                 renderMap.addSource('linestring', linestring_src);
                 renderMap.addLayer(lineHeatStyle);
@@ -618,7 +616,7 @@
             });
 
             renderMap.once('load', function() {
-                if (format == 'jpg') {  
+                if (format == 'png') {  
                     try {
                         var canvas = renderMap.getCanvas();
                         var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
@@ -626,14 +624,14 @@
                         img.height = targetDims['height'];
                         img.href = img.src;
                         img.id = 'snapshot_img';
-                        img.src = canvas.toDataURL("image/jpeg", 1);
+                        img.src = canvas.toDataURL(); //("image/jpeg", 1);
                         img.class = "img-responsive center-block";
                         //put the new image in the div
                         snapshot.innerHTML = '';
                         snapshot.appendChild(img);
                         $("#snapshot_img").addClass("img-responsive center-block");
                         $('#download_viz').attr('href', img.src).
-                                           attr('download', "ADV_{{ath_name}}.jpg");
+                                           attr('download', "ADV_{{ath_name}}.png");
                         $('#facebook_share').attr('data-href', img.src)
                     }
                     catch (err) {
