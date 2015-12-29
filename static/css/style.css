@@ -76,10 +76,13 @@ input[type="radio"], input[type="checkbox"] {
 }
 #sidebar-toggle-btn {
   margin-top: -2px;
+  background-color: rgba(255, 255, 255, 0.9);
+  text-align: center;
   /*
-  position: fixed;
-  top: 55px;
+  position: relative;
+  top: 50px;
   right: 50%;
+  float: right;
   z-index:1000;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);*/
