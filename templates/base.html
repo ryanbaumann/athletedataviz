@@ -41,7 +41,7 @@
                     <a class="navbar-brand" href="/">Athlete Data Viz </a>
                     <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> 
                     {% if request.path=="/strava_mapbox" %}
-                    <li><a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o"> Show Toolbar </i></a></li>
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o"> Show Toolbar </i></a>
                     {% endif %}
                 </div>
 
@@ -67,7 +67,7 @@
                     <li><a href="https://www.pinterest.com/athletedataviz/" target="_blank"><i class="fa fa-lg fa-pinterest"></i></a></li>
                     <!-- Toolbar for Map editor -->
                     {% if request.path=="/strava_mapbox" %}
-                    <li class="hidden-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Show Toolbar</li></a> 
+                    <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Show Toolbar</li></a> 
                     {% endif %}
                 </u1>
             </div>
