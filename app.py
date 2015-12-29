@@ -43,7 +43,7 @@ BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 
 class Heat_Points(Resource):
 
-    @cache.cached(timeout=3600, key_prefix='myHeatPoints')
+    #@cache.cached(timeout=3600, key_prefix='myHeatPoints')
     def get(self, ath_id):
         heatpoints = json.loads(
             sp.get_heatmap_points(engine, int(ath_id)))['points']
@@ -53,7 +53,7 @@ class Heat_Points(Resource):
 
 class Heat_Lines(Resource):
 
-    @cache.cached(timeout=3600, key_prefix='myHeatLines')
+    #@cache.cached(timeout=3600, key_prefix='myHeatLines')
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
