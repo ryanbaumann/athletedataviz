@@ -392,7 +392,7 @@ def longtask():
                            session['access_token'],
                            'medium')
     return jsonify({}), 202, {'Location': url_for('taskstatus',
-                                                  scheme='https',
+                                                  _scheme='https',
                                                   _external=True,
                                                   task_id=task.id)}
 
