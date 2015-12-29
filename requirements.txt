@@ -18,8 +18,8 @@ requests==2.3.0
 gunicorn
 psycopg2
 flask-debugtoolbar
-celery==3.1.19
-kombu==3.0.29
+celery
+kombu
 redis
 healthgraph-api
 flask-restful
