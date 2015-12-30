@@ -13,6 +13,7 @@ down_revision = ${repr(down_revision)}
 from alembic import op
 import sqlalchemy as sa
 import geoalchemy2 
+from sqlalchemy_utils import URLType
 
 ${imports if imports else ""}
 

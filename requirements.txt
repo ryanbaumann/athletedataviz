@@ -3,6 +3,7 @@ stravalib
 pandas
 pg
 sqlalchemy
+sqlalchemy-utils
 flask-sqlalchemy
 geoalchemy2
 MarkupSafe

@@ -1,5 +1,7 @@
-# Athlete Data Viz
-*powered by Flask, PostGis, Mapbox, and Strava*
+## Athlete Data Viz
+*powered by Flask, PostGis, Mapbox, Strava, Bootleaf, print-maps, and AWS S3*
+
+## Building
 
 ## Deploy to Heroku PAAS
 To deploy a clone of this application using the [`heroku` command line tool](https://devcenter.heroku.com/articles/heroku-command):
@@ -30,6 +32,15 @@ Obtain an application ID, then set environment variables
     heroku config:set STRAVA_CLIENT_ID=<your_strava_client_id> --remote <your_app_name>
     heroku config:set STRAVA_CLIENT_SECRET=<your_strava_client_secret> --remote <your_app_name>
 
+
+## Credits
+
+* [Matthew Petroff](http://mpetroff.net/), Original Author
+* [Mapbox GL JS](https://github.com/mapbox/mapbox-gl-js)
+* [FileSaver.js](https://github.com/eligrey/FileSaver.js/)
+* [canvas-toBlob.js](https://github.com/eligrey/canvas-toBlob.js)
+* [jsPDF](https://github.com/MrRio/jsPDF)
+* [Bootstrap](http://getbootstrap.com/)
 
 ## License
 The MIT License (MIT)

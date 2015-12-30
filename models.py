@@ -3,19 +3,22 @@ from sqlalchemy.dialects.postgresql import JSON
 from datetime import datetime
 from geoalchemy2 import Geometry
 from geoalchemy2.functions import GenericFunction
+from sqlalchemy_utils import URLType
+
 
 class Athlete(db.Model):
     __tablename__ = 'Athlete'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     data_source = db.Column(db.String(), index=True)
     ath_id = db.Column(db.Integer, index=True, unique=True)
-    last_updated_datetime_utc = db.Column(db.DateTime(), default=datetime.utcnow)
+    last_updated_datetime_utc = db.Column(
+        db.DateTime(), default=datetime.utcnow)
     api_code = db.Column(db.String(50))
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
 
-    def __init__(self, data_source, ath_id, 
+    def __init__(self, data_source, ath_id,
                  api_code, first_name, last_name):
         self.data_source = data_source
         self.ath_id = ath_id
@@ -24,9 +27,10 @@ class Athlete(db.Model):
         self.last_name = last_name
 
     def __repr__(self):
-        return '<ath_id %s, ath_firstname %s, ath_lastname %s>' % (self.ath_id, 
-                                                                   self.first_name, 
+        return '<ath_id %s, ath_firstname %s, ath_lastname %s>' % (self.ath_id,
+                                                                   self.first_name,
                                                                    self.last_name)
+
 
 class Activity(db.Model):
     __tablename__ = 'Activity'
@@ -34,7 +38,8 @@ class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ath_id = db.Column(db.Integer, db.ForeignKey('Athlete.ath_id'), index=True)
     act_id = db.Column(db.Integer, index=True, unique=True)
-    last_updated_datetime_utc = db.Column(db.DateTime(), default=datetime.utcnow)
+    last_updated_datetime_utc = db.Column(
+        db.DateTime(), default=datetime.utcnow)
     act_type = db.Column(db.String(20), index=True)
     act_name = db.Column(db.String(200))
     act_description = db.Column(db.String(500))
@@ -43,7 +48,7 @@ class Activity(db.Model):
     act_totalElevGain = db.Column(db.Float(precision=4))
 
     def __init__(self, ath_id, act_id,
-                 act_type, act_name, act_description, 
+                 act_type, act_name, act_description,
                  act_startDate, act_dist, act_totalElevGain,
                  act_avgSpd, act_calories):
 
@@ -63,12 +68,15 @@ class Activity(db.Model):
                 act_name %s, act_startDate %s>' % (self.ath_id, self.act_id,
                                                    self.act_name, self.act_startDate)
 
+
 class Stream(db.Model):
     __tablename__ = 'Stream'
 
     id = db.Column(db.Integer, primary_key=True)
-    act_id = db.Column(db.Integer, db.ForeignKey('Activity.act_id'), index=True)
-    last_updated_datetime_utc = db.Column(db.DateTime(), default=datetime.utcnow)
+    act_id = db.Column(
+        db.Integer, db.ForeignKey('Activity.act_id'), index=True)
+    last_updated_datetime_utc = db.Column(
+        db.DateTime(), default=datetime.utcnow)
     timestamp = db.Column(db.DateTime())
     lat = db.Column(db.Float(precision=8))
     long = db.Column(db.Float(precision=8))
@@ -106,15 +114,18 @@ class Stream(db.Model):
     def __repr__(self):
         return '<act_id %s, timestamp %s, \
                 velocity_smooth %s, point %s>' % (self.act_id, self.timestamp,
-                                                   self.velocity_smooth, self.point)
+                                                  self.velocity_smooth, self.point)
+
 
 class Stream_Act(db.Model):
     __tablename__ = 'Stream_Act'
 
     id = db.Column(db.Integer, primary_key=True)
     ath_id = db.Column(db.Integer, db.ForeignKey('Athlete.ath_id'), index=True)
-    act_id = db.Column(db.Integer, db.ForeignKey('Activity.act_id'), index=True)
-    last_updated_datetime_utc = db.Column(db.DateTime(), default=datetime.utcnow)
+    act_id = db.Column(
+        db.Integer, db.ForeignKey('Activity.act_id'), index=True)
+    last_updated_datetime_utc = db.Column(
+        db.DateTime(), default=datetime.utcnow)
     act_name = db.Column(db.String(200))
     linestring = db.Column(Geometry('LINESTRING'), index=True)
     multipoint = db.Column(Geometry('MULTIPOINT'), index=True)
@@ -126,3 +137,31 @@ class Stream_Act(db.Model):
         self.act_name = act_name
         self.linestring = linestring
         self.multipoint = multipoint
+
+
+class Athlete_Fact(db.Model):
+    __tablename__ = 'Athlete_Fact'
+
+    id = db.Column(db.Integer, primary_key=True)
+    objecttypeid = db.Column(db.String(), index=True)
+    ath_id = db.Column(db.Integer, db.ForeignKey('Athlete.ath_id'), index=True)
+    last_updated_datetime_utc = db.Column(
+        db.DateTime(), default=datetime.utcnow)
+    filename = db.Column(db.String())
+    url = db.Column(URLType)
+    exp_datetime_utc = db.Column(db.DateTime())
+
+    def __init__(self, objecttypeid, ath_id, filename,
+                 url, exp_datetime_utc):
+        self.objecttypeid = objecttypeid
+        self.ath_id = ath_id
+        self.filename = filename
+        self.url = url
+        self.exp_datetime_utc = exp_datetime_utc
+
+    def __repr__(self):
+        return '<ath_id %s, objecttypeid %s, filename %s>' % (self.ath_id,
+                                                              self.objecttypeid,
+                                                              self.filename)
+    def getUrl(self, filename):
+        return self.url

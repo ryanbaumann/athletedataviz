@@ -1,13 +1,7 @@
 {% extends "base.html" %} 
 
-{% block import_script %}
-<!-- Upload images !-->
-<script src="/static/js/upload_img.js"></script>
-
-{% endblock %}
-
 {% block content %}
-<h2> THIS IS THE CONTACT PAGE <h2>
+<h2> THIS IS THE IMAGE UPLOAD ACCOUNT PAGE <h2>
 
 <input type="file" id="file_input"/>
 <p id="status">Please select a file</p>
@@ -19,5 +13,8 @@
     <input type="text" name="full_name" placeholder="Full name" /><br /><br />
     <input type="submit" value="Update profile" />
 </form>
+
+
+<script src="/static/js/upload_img.js"></script>
 
 {% endblock %}

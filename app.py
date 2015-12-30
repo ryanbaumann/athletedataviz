@@ -1,13 +1,18 @@
+import time
 import os
+import json
+import base64
+import hmac
+import urllib
+import stravalib
+from hashlib import sha1
 from datetime import datetime
 from flask import Flask, request, flash, url_for, redirect, \
     render_template, session,  jsonify
 from flask_restful import Resource, Api
 from flask.ext.sqlalchemy import SQLAlchemy
-import stravalib
 import stravaParse_v2 as sp
 from sqlalchemy import create_engine
-import json
 from celery import Celery
 from flask.ext.compress import Compress
 from flask.ext.cache import Cache
@@ -44,6 +49,7 @@ BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 class Heat_Points(Resource):
 
     #@cache.cached(timeout=3600, key_prefix='myHeatPoints')
+
     def get(self, ath_id):
         heatpoints = json.loads(
             sp.get_heatmap_points(engine, int(ath_id)))['points']
@@ -54,21 +60,24 @@ class Heat_Points(Resource):
 class Heat_Lines(Resource):
 
     #@cache.cached(timeout=3600, key_prefix='myHeatLines')
+
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
         return geojsonlines
         # We can have PUT,DELETE,POST here if needed
 
+
 class Current_Acts(Resource):
 
     #@cache.cached(timeout=3600, key_prefix='myCurrentActs')
+
     def get(self, ath_id):
         print "getting current activities..."
         try:
             act_data = sp.get_acts_html(engine, int(ath_id)).to_html(
-                       classes=["table table-striped", 
-                                "table table-condensed"])
+                classes=["table table-striped",
+                         "table table-condensed"])
         except:
             print "error getting current activity list from DB!"
         return act_data
@@ -137,8 +146,8 @@ def homepage():
 
         return render_template('main.html',
                                act_limit=int(session.get('act_limit', 1)),
-                               current_act_url= BASEPATH +
-                                  'current_acts/' + str(session['ath_id']),
+                               current_act_url=BASEPATH +
+                               'current_acts/' + str(session['ath_id']),
                                athlete=athlete)
 
 
@@ -182,6 +191,65 @@ def logout():
 def contact():
     """ Sends user to contact page """
     return render_template('contact.html')
+
+
+@app.route('/account')
+def account():
+    """ Sends user to contact page """
+    return render_template('account.html')
+
+
+@app.route('/sign_s3/')
+def sign_s3():
+    # how long to keep the file on AWS S3 storage
+    days_to_expire = 120
+    # AWS S3 access information from environment variables
+    AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+    # Folder to store images in
+    foldername = r'user_img'
+    # Get filename and filetype from request header in URL
+    object_name = urllib.quote_plus(r'img/' + request.args.get('file_name'))
+    mime_type = request.args.get('file_type')
+    # Set expiration date of file - currently set to "days_to_expire"
+    expires = int(time.time() + 60 * 60 * 24 * days_to_expire)
+    amz_headers = "x-amz-acl:public-read"
+    # Generate the put request to store the image on the AWS S3 bucket
+    string_to_sign = "PUT\n\n%s\n%d\n%s\n/%s/%s" % (
+        mime_type, expires, amz_headers, S3_BUCKET, object_name)
+    # Encode the signature to post the URL
+    signature = base64.encodestring(
+        hmac.new(AWS_SECRET_KEY.encode(), string_to_sign.encode('utf8'), sha1).digest())
+    signature = urllib.quote_plus(signature.strip())
+    # URL for the newly stored file
+    url = 'https://%s.s3.amazonaws.com/%s' % (
+        S3_BUCKET, object_name)
+    # Store the image location in the database
+    new_act_fact = Athlete_Fact(objecttypeid='user_image',
+                                ath_id=session['ath_id'],
+                                filename=request.args.get('file_name'),
+                                url=url,
+                                exp_datetime_utc=datetime.fromtimestamp(expires))
+    db.session.add(new_act_fact)
+    db.session.commit()
+    db.session.close()
+    # return json to the browser to finish use the image link in the browser
+    content = json.dumps({
+        'signed_request': '%s?AWSAccessKeyId=%s&Expires=%s&Signature=%s' % (url, AWS_ACCESS_KEY, expires, signature),
+        'url': url,
+    })
+
+    return content
+
+
+@app.route("/submit_form/", methods=["POST"])
+def submit_form():
+    username = request.form["username"]
+    full_name = request.form["full_name"]
+    avatar_url = request.form["avatar_url"]
+    update_account(username, full_name, avatar_url)
+    return redirect(url_for('profile'))
 
 
 @app.route('/about')
