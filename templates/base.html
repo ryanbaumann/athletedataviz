@@ -8,31 +8,56 @@
     <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="AthleteDataViz">
+    <meta name="title" content="AthleteDataViz">
+    <meta property="fb:app_id" content="1250707668278763" />
     <meta name="author" content="RyanBaumann">
     <meta name="keywords" content="athlete, data, viz, athletedataviz, heatmap, map, cycling, running, hiking, triathalon, vizualization, mapbox" />
     <meta name="p:domain_verify" content="2518dde61dca1f34a95baa06a75883a0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <link rel="stylesheet" href="static/css/style.css" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
-    <link rel="stylesheet" href="static/css/style.css" type="text/css"> {% block import_script %} {% endblock %}
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    {% block import_script %} {% endblock %}
 </head>
 
 <body>
-    <div id="fb-root"></div>
     <script>
-    (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5";
-        fjs.parentNode.insertBefore(js, fjs);
+    // Asynchronous google analytics
+    var _gaq = [
+        ['_setAccount', 'UA-58623894-3'],
+        ['_trackPageview']
+    ];
+    (function(d, t) {
+        var g = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        g.async = true;
+        g.src = '//www.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g, s);
+    })(document, 'script');
+
+    //facebook sdk
+    window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1250707668278763',
+      xfbml      : true,
+      version    : 'v2.5'
+    });
+    };
+
+    (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
     </script>
+
     <!--- BEGINNING OF NAVBAR -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container-fluid">
@@ -65,6 +90,7 @@
                     <li><a href="https://twitter.com/AthleteDataViz" target="_blank"><i class="fa fa-lg fa-twitter"></i></a></li>
                     <li><a href="https://www.linkedin.com/company/athletedataviz?trk=prof-following-company-logo" target="_blank"><i class="fa fa-lg fa-linkedin"></i></a></li>
                     <li><a href="https://www.pinterest.com/athletedataviz/" target="_blank"><i class="fa fa-lg fa-pinterest"></i></a></li>
+
                     <!-- Toolbar for Map editor -->
                     {% if request.path=="/strava_mapbox" %}
                     <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Show Toolbar</li></a> 
@@ -73,19 +99,7 @@
             </div>
         </div>
     </nav>
-    <!-- Load Facebook SDK for JavaScript -->
-    <div id="fb-root"></div>
-    <script>
-    (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-    </script>
-    {% block content %} {% endblock %}
+{% block content %} {% endblock %}
 </body>
 <script>
 $("#full-extent-btn").click(function() {
@@ -128,19 +142,6 @@ $("#sidebar-hide-btn").click(function() {
     map.invalidateSize();
 });
 
-// Asynchronous google analytics
-
-var _gaq = [
-    ['_setAccount', 'UA-58623894-3'],
-    ['_trackPageview']
-];
-(function(d, t) {
-    var g = d.createElement(t),
-        s = d.getElementsByTagName(t)[0];
-    g.async = true;
-    g.src = '//www.google-analytics.com/ga.js';
-    s.parentNode.insertBefore(g, s);
-})(document, 'script');
 </script>
 
 </html>

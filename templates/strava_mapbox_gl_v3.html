@@ -14,6 +14,19 @@
 <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
 <!-- Leaflet Image -->
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js'></script>
+<!-- Twitter -->
+<script>
+! function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0],
+        p = /^http:/.test(d.location) ? 'http' : 'https';
+    if (!d.getElementById(id)) {
+        js = d.createElement(s);
+        js.id = id;
+        js.src = p + '://platform.twitter.com/widgets.js';
+        fjs.parentNode.insertBefore(js, fjs);
+    }
+}(document, 'script', 'twitter-wjs');
+</script>
 {% endblock %} {% block content %}
 <!-- Sidebar -->
 <div id="container">
@@ -25,7 +38,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-xs-8 col-md-8"> 
+                        <div class="col-xs-8 col-md-8">
                             <button type="submit" id='snap' class="btn btn-primary" data-toggle="modal" data-target="#SaveDesign">Save Design</button>
                             <br>
                             <div id="spinner"></div>
@@ -44,7 +57,7 @@
                             <br>
                             <b>Map Style</b>
                             <select id='mapStyle' name="mapStyle" value="dark" style="font-size: 20px;">
-                                <option value="dark-nolabel">Dark: no Label</option> 
+                                <option value="dark-nolabel">Dark: no Label</option>
                                 <option value="dark">Dark: Label</option>
                                 <option value="basic">Basic</option>
                                 <option value="streets">Streets</option>
@@ -53,7 +66,8 @@
                                 <option value="light">Light</option>
                                 <option value="satellite">Satellite</option>
                             </select>
-                            <br><br>
+                            <br>
+                            <br>
                             <div id="VizType_hide_heat-line" class="collapse in">
                                 <b>Line Color</b>
                                 <select id='line_color' name="line_color" style="font-size: 18px;">
@@ -113,59 +127,55 @@
             </div>
         </div>
     </div>
-
     <div id='map'></div>
     <div id="loading">
-      <div class="loading-indicator">
-        <div class="progress progress-striped active">
-          <div class="progress-bar progress-bar-info progress-bar-full"></div>
-        </div>
-      </div>
-    </div>
-
-  <div class="modal fade" id="SaveDesign" role="dialog" tabindex="-1" aria-labelledby="SaveDesign" >
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h3 class="modal-title text-center">Your Athlete Data Viz creation</h3>
-        </div>
-        <div class="modal-body">
-            <div id='snapshot'></div>
-        </div>
-        <div class="modal-footer">
-            <div class="row">
-                <div class="text-center">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Try a new Design</button>
-                    <a type="button" id="download_viz" class="btn btn-default" href="#" download="ADV_viz.jpg">Download Viz</a>
-                </div>
-            </div>
-            <br>
-            <div class="row text-center">
-                <div class="text-center">
-                    <!-- Shares -->
-                    <a class="btnz share facebook" href="#"><i class="fa fa-facebook text-center"></i> Share</a>
-                    <a class="btnz share gplus" href="#"><i class="fa fa-google-plus text-center"></i> Share</a>
-                    <a class="btnz share twitter" href="#"><i class="fa fa-twitter text-center"></i> Tweet</a>
-                    <a class="btnz share pinterest" href="#"><i class="fa fa-pinterest text-center"></i> Pin it</a>
-                    <a class="btnz share linkedin" href="#"><i class="fa fa-linkedin text-center"></i> LinkedIn</a>
-                </div>
+        <div class="loading-indicator">
+            <div class="progress progress-striped active">
+                <div class="progress-bar progress-bar-info progress-bar-full"></div>
             </div>
         </div>
-      </div>
     </div>
-</div>
-
+    <div class="modal fade" id="SaveDesign" role="dialog" tabindex="-1" aria-labelledby="SaveDesign">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h3 class="modal-title text-center">Your Athlete Data Viz creation</h3>
+                </div>
+                <div class="modal-body">
+                    <div id='snapshot'></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Try a new Design</button>
+                            <a type="button" id="download_viz" class="btn btn-default" href="#" download="ADV_viz.jpg">Download Viz</a>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row text-center">
+                        <div class="text-center">
+                            <!-- Shares -->
+                            <a id="share_fb" class="btnz share facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://athletedataviz-pro.herokuapp.com"><i class="fa fa-facebook text-center"></i> Share</a>
+                            <a id="share_gplus" class="btnz share gplus" href="https://plus.google.com/share?url=https://athletedataviz-pro.herokuapp.com"><i class="fa fa-google-plus text-center"></i> Share</a>
+                            <a id="share_twit" class="btnz share twitter" href="https://twitter.com/home?status=Check%20out%20custom%20designs%20at%20www.athletedataviz.com"<i class="fa fa-twitter text-center"></i> Tweet</a>
+                            <a id="share_pin" class="btnz share pinterest" href="https://pinterest.com/pin/create/button/?url=https://athletedataviz-pro.herokuapp.com&media=https%3A//athletedataviz-pro.herokuapp.com/static/img/title_gallery_3.jpg&description=Check%20out%20my%20custom%20design!"><i class="fa fa-pinterest text-center"></i> Pin it</a>
+                            <a id="share_link" class="btnz share linkedin" href="https://www.linkedin.com/shareArticle?mini=true&url=https://athletedataviz-pro.herokuapp.com&title=Athlete%20Data%20Viz&summary=Check%20out%20my%20custom%20design!&source=https://athletedataviz-pro.herokuapp.com/static/img/title_gallery_3.jpg"><i class="fa fa-linkedin text-center"></i> LinkedIn</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Map Designer Time! -->
     <script>
     jQuery(document).ready(function($) {
-   $('.share').click(function() {
-         var NWin = window.open($(this).prop('href'), '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');
-         if (window.focus)
-         {
-           NWin.focus();
-         }
-         return false;
+        $('.share').click(function() {
+            var NWin = window.open($(this).prop('href'), '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');
+            if (window.focus) {
+                NWin.focus();
+            }
+            return false;
         });
     });
     // API tokens 
@@ -195,22 +205,22 @@
     };
 
     var lineHeatStyle = {
-            "id": "linestring",
-            "type": "line",
-            "source": "linestring",
-            "layout": {
-                "line-cap": "round",
-                "line-join": "round"
-            },
-            "paint": {
-                "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-                "line-width": parseFloat(document.getElementById("line_width").value),
-                "line-color": document.getElementById("line_color").value
-            },
-            "transition": {
-              "duration": 300,
-              "delay": 0
-            }
+        "id": "linestring",
+        "type": "line",
+        "source": "linestring",
+        "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+        },
+        "paint": {
+            "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+            "line-width": parseFloat(document.getElementById("line_width").value),
+            "line-color": document.getElementById("line_color").value
+        },
+        "transition": {
+            "duration": 300,
+            "delay": 0
+        }
 
     };
     var center_point = [{{avg_lat | safe}}, {{avg_long | safe}}];
@@ -223,13 +233,13 @@
     var dark_style = 'mapbox://styles/mapbox/dark-v8'
     try {
         var gl = L.mapboxGL({
-                accessToken: mapboxgl.accessToken,
-                container: 'map',
-                style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
-                center: center_point,
-                zoom: 9,
-                minZoom: 1,
-                maxZoom: 20,
+            accessToken: mapboxgl.accessToken,
+            container: 'map',
+            style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
+            center: center_point,
+            zoom: 9,
+            minZoom: 1,
+            maxZoom: 20,
         }).addTo(map);
     } catch (e) {
         var mapContainer = document.getElementById('map');
@@ -243,26 +253,28 @@
 
     function getDataHeat() {
         var r = $.Deferred();
-        $.getJSON( '{{ heatpoint_url|safe}}' , function(data) {
+        $.getJSON('{{ heatpoint_url|safe}}', function(data) {
             heatPointsRaw = JSON.parse(data);
             heatPoints = heatPointsRaw.map(function(p) {
                 maxScale = Math.max(p[document.getElementById('heattype').value])
                 return [p['lt'], p['lg'],
                     p[document.getElementById('heattype').value]
                 ];
-            });   
-            r.resolve(); 
-        });
-        return r;
-    };
-    function getDataLinestring() {
-        var r = $.Deferred();
-        $.getJSON( '{{heatline_url|safe}}' , function(data) {
-            stravaLineGeoJson = JSON.parse(data); 
+            });
             r.resolve();
         });
         return r;
     };
+
+    function getDataLinestring() {
+        var r = $.Deferred();
+        $.getJSON('{{heatline_url|safe}}', function(data) {
+            stravaLineGeoJson = JSON.parse(data);
+            r.resolve();
+        });
+        return r;
+    };
+
     function addLayerHeat() {
         // Mapbox JS Api - import heatmap layer
         var heatConfig = {
@@ -275,6 +287,7 @@
         heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
         map.removeLayer(heat);
     };
+
     function addLayerLinestring() {
         //Create source for linestrings
         linestring_src = new mapboxgl.GeoJSONSource({
@@ -294,12 +307,12 @@
     getDataLinestring().done(addLayerLinestring);
 
     //Stop the loading bar when ajax requests complete
-    $(document).one("ajaxStop", function () {
+    $(document).one("ajaxStop", function() {
         $("#loading").hide();
     });
 
     //////////////// SLIDERS AND BUTTON ACTIONS ////////////
-    
+
     //on change of VizType, show only menu options linked to selected viztype
     $('#VizType').change(function() {
         var selector = '#VizType_hide_' + $(this).val();
@@ -367,28 +380,39 @@
 
     var VizType = 'heat-line'
     var map_style = 'dark-nolabel'
+
     function switchLayer() {
         layer = document.getElementById("mapStyle").value
         if (layer != 'dark-nolabel') {
             gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
-        }
-        else { 
+        } else {
             gl._glMap.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
         }
-        gl._glMap.on('style.load', function () {
-            try {addLayerLinestring();}
-            catch (err) {console.log(err);}
-            try {if (document.getElementById("VizType").value == "heat-line") { 
-                     set_visibility(gl._glMap, 'linestring', 'on')}}
-            catch (err) {console.log(err);}
-            try { paintLayer(gl._glMap,
-                        document.getElementById("line_color").value,
-                        parseFloat($('#line_width').slider('getValue')),
-                        parseFloat($('#line_opacity').slider('getValue')),
-                        'linestring');} 
-            catch (err) {console.log(err);}
+        gl._glMap.on('style.load', function() {
+            try {
+                addLayerLinestring();
+            } catch (err) {
+                console.log(err);
+            }
+            try {
+                if (document.getElementById("VizType").value == "heat-line") {
+                    set_visibility(gl._glMap, 'linestring', 'on')
+                }
+            } catch (err) {
+                console.log(err);
+            }
+            try {
+                paintLayer(gl._glMap,
+                    document.getElementById("line_color").value,
+                    parseFloat($('#line_width').slider('getValue')),
+                    parseFloat($('#line_opacity').slider('getValue')),
+                    'linestring');
+            } catch (err) {
+                console.log(err);
+            }
         });
     };
+
     function set_visibility(mapid, id, onoff) {
         var visibility = mapid.getLayoutProperty(id, 'visibility');
         if (onoff == 'off') {
@@ -397,11 +421,13 @@
             mapid.setLayoutProperty(id, 'visibility', 'visible');
         }
     };
+
     function paintLayer(mapid, color, width, opacity, layer) {
-            mapid.setPaintProperty(layer, 'line-color', color);
-            mapid.setPaintProperty(layer, 'line-width', width);
-            mapid.setPaintProperty(layer, 'line-opacity', opacity);
+        mapid.setPaintProperty(layer, 'line-color', color);
+        mapid.setPaintProperty(layer, 'line-width', width);
+        mapid.setPaintProperty(layer, 'line-opacity', opacity);
     }
+
     function updateHeat() {
         if (document.getElementById("heat_color").value == "heatColors2") {
             heatColors = heatColors2
@@ -426,6 +452,7 @@
             gradient: heatColors
         };
     }
+
     function switchMapStyle() {
         //Check if the mapStyle changed - if so, change it here
         if (document.getElementById("mapStyle").value != map_style) {
@@ -433,6 +460,7 @@
             map_style = document.getElementById("mapStyle").value;
         }
     }
+
     function render() {
         //Check if the viz type changed - if so, change it here  
         if (document.getElementById("VizType").value != VizType) {
@@ -466,7 +494,7 @@
                 }
                 VizType = 'heat-line'
             }
-        //Check if the viz type did not change - if so, update values and render here
+            //Check if the viz type did not change - if so, update values and render here
         } else if (document.getElementById("VizType").value == VizType) {
             if (VizType == 'heat-point') {
                 //update the heatmap
@@ -490,210 +518,223 @@
             }
         }
     }
-        function log(msg) {
-            setTimeout(function() {
-                throw new Error(msg);
-            }, 0);
+
+    function log(msg) {
+        setTimeout(function() {
+            throw new Error(msg);
+        }, 0);
+    }
+
+    /**
+     * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
+     * images to fit into a certain area.
+     */
+    function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+
+        var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+        return {
+            width: srcWidth * ratio,
+            height: srcHeight * ratio
+        };
+    }
+
+    // Helper functions
+    function toPixels(length) {
+        'use strict';
+        var unit = 'in';
+        var conversionFactor = 96;
+        if (unit == 'mm') {
+            conversionFactor /= 25.4;
         }
+        return conversionFactor * length + 'px';
+    }
 
-         /**
-          * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
-          * images to fit into a certain area.
-          */
-        function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+    //Download link
+    function download_img(link, img_src, filename) {
+        link.href = img_src;
+        link.download = filename;
+    }
 
-            var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
-            return { width: srcWidth*ratio, height: srcHeight*ratio };
-         }
+    // High-res map rendering
+    function generateMap() {
+        'use strict';
 
-        // Helper functions
-        function toPixels(length) {
-            'use strict';
-            var unit = 'in';
-            var conversionFactor = 96;
-            if (unit == 'mm') {
-                conversionFactor /= 25.4;
+        document.getElementById('spinner').style.display = 'inline-block';
+        document.getElementById('snap').classList.add('disabled');
+        //Get the current map style
+        var style;
+        var layer = document.getElementById("mapStyle").value
+        if (layer != 'dark-nolabel') {
+            style = 'mapbox://styles/mapbox/' + layer + '-v8';
+        } else {
+            style = 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn';
+        }
+        var width = 8;
+        var height = 6;
+        var dpi = 300;
+        var format = 'jpg';
+        var unit = 'in';
+        var zoom = gl._glMap.getZoom();
+        var center = gl._glMap.getCenter();
+        var bearing = gl._glMap.getBearing();
+
+        createPrintMap(width, height, dpi, format, unit, zoom, center,
+            bearing, style);
+    }
+
+    function createPrintMap(width, height, dpi, format, unit, zoom, center,
+        bearing, style, source) {
+        'use strict';
+
+        // Calculate pixel ratio
+        var actualPixelRatio = window.devicePixelRatio;
+        Object.defineProperty(window, 'devicePixelRatio', {
+            get: function() {
+                return dpi / 96
             }
-            return conversionFactor * length + 'px';
+        });
+
+        // Create map container
+        var hidden = document.createElement('div');
+        hidden.className = 'hidden-map';
+        document.body.appendChild(hidden);
+        var container = document.createElement('div');
+        container.style.width = toPixels(width);
+        container.style.height = toPixels(height);
+        hidden.appendChild(container);
+        //remove any existing image elements
+        snapshot.innerHTML = '';
+        var img = document.createElement('img');
+        //Show loading image
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        if (w > 640) {
+            w = 640;
+            h = 480;
+        } else {
+            w = w * 0.8;
+            h = h * 0.8;
         }
+        img.width = w;
+        img.height = h;
+        img.src = "{{ url_for('static', filename='img/loading.gif') }}";
+        snapshot.appendChild(img);
+        $("#snapshot_img").addClass("img-responsive center-block");
 
-        //Download link
-        function download_img(link, img_src, filename) {
-            link.href = img_src;
-            link.download = filename;
-        }
 
-        // High-res map rendering
-        function generateMap() {
-            'use strict';
+        // Render map
+        var renderMap = new mapboxgl.Map({
+            container: container,
+            center: center,
+            zoom: zoom,
+            style: style,
+            bearing: bearing,
+            interactive: false,
+            attributionControl: false
+        });
 
-            document.getElementById('spinner').style.display = 'inline-block';
-            document.getElementById('snap').classList.add('disabled');
-            //Get the current map style
-            var style;
-            var layer = document.getElementById("mapStyle").value
-            if (layer != 'dark-nolabel') {
-                style = 'mapbox://styles/mapbox/' + layer + '-v8';
-            }
-            else { 
-                style = 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn';
-            }
-            var width = 8;
-            var height = 6;
-            var dpi = 300;
-            var format = 'jpg';
-            var unit = 'in';
-            var zoom = gl._glMap.getZoom();
-            var center = gl._glMap.getCenter();
-            var bearing = gl._glMap.getBearing();
-
-            createPrintMap(width, height, dpi, format, unit, zoom, center,
-                bearing, style);
-        }
-
-        function createPrintMap(width, height, dpi, format, unit, zoom, center,
-            bearing, style, source) {
-            'use strict';
-
-            // Calculate pixel ratio
-            var actualPixelRatio = window.devicePixelRatio;
-            Object.defineProperty(window, 'devicePixelRatio', {
-                get: function() {return dpi / 96}
+        renderMap.on('style.load', function() {
+            console.log('adding source linestring layer!');
+            linestring_src = new mapboxgl.GeoJSONSource({
+                data: stravaLineGeoJson,
+                maxzoom: 17
             });
-
-            // Create map container
-            var hidden = document.createElement('div');
-            hidden.className = 'hidden-map';
-            document.body.appendChild(hidden);
-            var container = document.createElement('div');
-            container.style.width = toPixels(width);
-            container.style.height = toPixels(height);
-            hidden.appendChild(container);
-            //remove any existing image elements
-            snapshot.innerHTML = '';
-            var img = document.createElement('img');
-            //Show loading image
-            var w = window.innerWidth;
-            var h = window.innerHeight;
-            if (w>640) 
-                {w = 640; h=480;}
-            else 
-                {w = w*0.8; h=h*0.8;}
-            img.width = w;
-            img.height = h;
-            img.src = "{{ url_for('static', filename='img/loading.gif') }}";
-            snapshot.appendChild(img);
-            $("#snapshot_img").addClass("img-responsive center-block");
-            
-            
-            // Render map
-            var renderMap = new mapboxgl.Map({
-                container: container,
-                center: center,
-                zoom: zoom,
-                style: style,
-                bearing: bearing,
-                interactive: false,
-                attributionControl: false
-            });
-
-            renderMap.on('style.load', function() {
-                console.log('adding source linestring layer!');
-                linestring_src = new mapboxgl.GeoJSONSource({
-                    data: stravaLineGeoJson,
-                    maxzoom: 17
-                });
-                renderMap.addSource('linestring', linestring_src);
-                renderMap.addLayer(lineHeatStyle);
-                try {if (document.getElementById("VizType").value == "heat-line") { 
-                    set_visibility(renderMap, 'linestring', 'on')}}
-                catch (err) {console.log(err);}
-                paintLayer(renderMap,
-                        document.getElementById("line_color").value,
-                        parseFloat($('#line_width').slider('getValue')),
-                        parseFloat($('#line_opacity').slider('getValue')),
-                        'linestring');
-            });
-
-            renderMap.once('load', function() {
-                if (format == 'jpg') {  
-                    try {
-                        var canvas = renderMap.getCanvas();
-                        var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
-                        img.width = targetDims['width'];
-                        img.height = targetDims['height'];
-                        img.href = img.src;
-                        img.id = 'snapshot_img';
-                        img.src = canvas.toDataURL("image/jpeg", 1);
-                        img.class = "img-responsive center-block";
-                        //put the new image in the div
-                        snapshot.innerHTML = '';
-                        snapshot.appendChild(img);
-                        $("#snapshot_img").addClass("img-responsive center-block");
-                        $('#download_viz').attr('href', img.src).
-                                           attr('download', "ADV_{{ath_name}}.jpg");
-                        $('#facebook_share').attr('data-href', img.src)
-                    }
-                    catch (err) {
-                        console.log(err);
-                    }
-
-                } else {
-                    var pdf = new jsPDF({
-                        orientation: width > height ? 'l' : 'p',
-                        unit: unit,
-                        format: [width, height],
-                        compress: true
-                    });
-
-                    pdf.addImage(renderMap.canvas.canvas.toDataURL('image/jpeg', 1),
-                        'jpeg', 0, 0, width, height);
-                    pdf.save('map.pdf');
+            renderMap.addSource('linestring', linestring_src);
+            renderMap.addLayer(lineHeatStyle);
+            try {
+                if (document.getElementById("VizType").value == "heat-line") {
+                    set_visibility(renderMap, 'linestring', 'on')
                 }
-                renderMap.remove();
-                hidden.parentNode.removeChild(hidden);
-                Object.defineProperty(window, 'devicePixelRatio', {
-                    get: function() {return actualPixelRatio}
-                });
-                document.getElementById('spinner').style.display = 'none';
-                document.getElementById('snap').classList.remove('disabled');
-            });
-        }
-
-        ///////////////////  Error Modal  //////////
-        var origBodyPaddingRight;
-
-        function openErrorModal(msg) {
-            'use strict';
-            var modal = document.getElementById('errorModal');
-            document.getElementById('modal-error-text').innerHTML = msg;
-            modal.style.display = 'block';
-            document.body.classList.add('modal-open');
-            document.getElementById('modal-backdrop').style.height =
-                modal.scrollHeight + 'px';
-
-            if (document.body.scrollHeight > document.documentElement.clientHeight) {
-                origBodyPaddingRight = document.body.style.paddingRight;
-                var padding = parseInt((document.body.style.paddingRight || 0), 10);
-                document.body.style.paddingRight = padding + measureScrollbar() + 'px';
+            } catch (err) {
+                console.log(err);
             }
-        }
+            paintLayer(renderMap,
+                document.getElementById("line_color").value,
+                parseFloat($('#line_width').slider('getValue')),
+                parseFloat($('#line_opacity').slider('getValue')),
+                'linestring');
+        });
 
-        function closeErrorModal() {
-            'use strict';
-            document.getElementById('errorModal').style.display = 'none';
-            document.body.classList.remove('modal-open');
-            document.body.style.paddingRight = origBodyPaddingRight;
-        }
+        renderMap.once('load', function() {
+            if (format == 'jpg') {
+                try {
+                    var canvas = renderMap.getCanvas();
+                    var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
+                    img.width = targetDims['width'];
+                    img.height = targetDims['height'];
+                    img.href = img.src;
+                    img.id = 'snapshot_img';
+                    img.src = canvas.toDataURL("image/jpeg", 1);
+                    img.class = "img-responsive center-block";
+                    //put the new image in the div
+                    snapshot.innerHTML = '';
+                    snapshot.appendChild(img);
+                    $("#snapshot_img").addClass("img-responsive center-block");
+                    $('#download_viz').attr('href', img.src).
+                    attr('download', "ADV_{{ath_name}}.jpg");
+                    $('#facebook_share').attr('data-href', img.src)
+                } catch (err) {
+                    console.log(err);
+                }
 
-        function measureScrollbar() {
-            'use strict';
-            var scrollDiv = document.createElement('div');
-            scrollDiv.className = 'modal-scrollbar-measure';
-            document.body.appendChild(scrollDiv);
-            var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
-            document.body.removeChild(scrollDiv);
-            return scrollbarWidth;
+            } else {
+                var pdf = new jsPDF({
+                    orientation: width > height ? 'l' : 'p',
+                    unit: unit,
+                    format: [width, height],
+                    compress: true
+                });
+
+                pdf.addImage(renderMap.canvas.canvas.toDataURL('image/jpeg', 1),
+                    'jpeg', 0, 0, width, height);
+                pdf.save('map.pdf');
+            }
+            renderMap.remove();
+            hidden.parentNode.removeChild(hidden);
+            Object.defineProperty(window, 'devicePixelRatio', {
+                get: function() {
+                    return actualPixelRatio
+                }
+            });
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('snap').classList.remove('disabled');
+        });
+    }
+
+    ///////////////////  Error Modal  //////////
+    var origBodyPaddingRight;
+
+    function openErrorModal(msg) {
+        'use strict';
+        var modal = document.getElementById('errorModal');
+        document.getElementById('modal-error-text').innerHTML = msg;
+        modal.style.display = 'block';
+        document.body.classList.add('modal-open');
+        document.getElementById('modal-backdrop').style.height =
+            modal.scrollHeight + 'px';
+
+        if (document.body.scrollHeight > document.documentElement.clientHeight) {
+            origBodyPaddingRight = document.body.style.paddingRight;
+            var padding = parseInt((document.body.style.paddingRight || 0), 10);
+            document.body.style.paddingRight = padding + measureScrollbar() + 'px';
         }
+    }
+
+    function closeErrorModal() {
+        'use strict';
+        document.getElementById('errorModal').style.display = 'none';
+        document.body.classList.remove('modal-open');
+        document.body.style.paddingRight = origBodyPaddingRight;
+    }
+
+    function measureScrollbar() {
+        'use strict';
+        var scrollDiv = document.createElement('div');
+        scrollDiv.className = 'modal-scrollbar-measure';
+        document.body.appendChild(scrollDiv);
+        var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+        document.body.removeChild(scrollDiv);
+        return scrollbarWidth;
+    }
     </script>
     {% endblock %}
