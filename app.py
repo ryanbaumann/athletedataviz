@@ -209,7 +209,7 @@ def sign_s3():
     AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
     # Folder to store images in
-    foldername = r'/user/' + str(session['ath_id']) + r'/'
+    foldername = r'user/' + str(session['ath_id']) + r'/'
     # Get filename and filetype from request header in URL
     object_name = foldername + urllib.quote_plus( request.args.get('file_name'))
     mime_type = request.args.get('file_type')
