@@ -8,11 +8,12 @@
         else{
             get_signed_request(file, basepath);
         }
+        return false;
     };
 })();
 
 function get_signed_request(file, basepath_n){
-    console.log(basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type);
+    console.log(basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type+'/');
     $.ajax({
         url : basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type,
         type : "get",
