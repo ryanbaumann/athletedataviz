@@ -37,8 +37,7 @@ celery.conf.update(app.config)
 compress.init_app(app)
 cache.init_app(app)
 if 'DYNO' in os.environ:
-    pass
-    #sslify = SSLify(app)
+    sslify = SSLify(app)
 from models import *
 BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 
