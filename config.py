@@ -11,7 +11,7 @@ class Config(object):
     CSRF_ENABLED = True
     WTF_CSRF_ENABLED = True
     SECRET_KEY = os.environ.get(
-        'SECRET_KEY', '\xfb\x13\xdf\xa1@i\xd6>V\xc0\xbf\x8fp\x16#Z\x0b\x81\xeb\x16')
+        'SECURE_KEY', '\xfb\x13\xdf\xa1@i\xd6>V\xc0\xbf\x8fp\x16#Z\x0b\x81\xeb\x16')
 
     IP = os.environ.get('OPENSHIFT_PYTHON_IP', '127.0.0.1')
     PORT = str(os.environ.get('PORT', 33507))
@@ -39,16 +39,16 @@ class Config(object):
     CELERY_REDIS_MAX_CONNECTIONS = 39
     # Name and email addresses of recipients
     ADMINS = (
-        ('Ryan Baumann', 'athletedataviz@gmail.com')
+        ('test', 'test@gmail.com')
     )
     # Email address used as sender (From field).
-    SERVER_EMAIL = 'no-reply@athletedataviz.com'
+    SERVER_EMAIL = 'no-reply@test.com'
     # Mailserver configuration
-    EMAIL_HOST='smtp.gmail.com'
-    EMAIL_HOST_USER='athletedataviz@gmail.com'
-    EMAIL_HOST_PASSWORD=os.environ['ATHLETEDATAVIZ_EMAIL_PW']
-    EMAIL_PORT=587
-    EMAIL_USE_TLS = True
+    #EMAIL_HOST='smtp.gmail.com'
+    #EMAIL_HOST_USER='test@gmail.com'
+    #EMAIL_HOST_PASSWORD=os.environ['ATHLETEDATAVIZ_EMAIL_PW']
+    #EMAIL_PORT=587
+    #EMAIL_USE_TLS = True
     CELERYD_TASK_SOFT_TIME_LIMIT = 300
     CELERYD_TASK_TIME_LIMIT = 600
 
