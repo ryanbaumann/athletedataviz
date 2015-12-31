@@ -37,7 +37,7 @@ celery.conf.update(app.config)
 compress.init_app(app)
 cache.init_app(app)
 if 'DYNO' in os.environ:
-    sslify = SSLify(app)
+    sslify = SSLify(app, permanent=True, skips=[])
 from models import *
 BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 
@@ -200,7 +200,7 @@ def account():
                             basepath = BASEPATH)
 
 
-@app.route('/sign_s3/')
+@app.route('/sign_s3')
 def sign_s3():
     # how long to keep the file on AWS S3 storage
     days_to_expire = 120
