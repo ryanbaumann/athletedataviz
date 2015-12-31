@@ -18,6 +18,7 @@ function get_signed_request(file, basepath_n){
         type : "get",
         success : function(data) {
             var response = JSON.parse(data);
+            console.log(response)
              upload_file(file, response.signed_request, response.url);
         }
     });
@@ -36,6 +37,7 @@ function upload_file(file, signed_request, url){
         }
     });
 */
+    console.log('putting...')
     var xhr = new XMLHttpRequest();
     xhr.open("PUT", signed_request);
     xhr.setRequestHeader('x-amz-acl', 'public-read');
