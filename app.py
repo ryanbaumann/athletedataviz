@@ -37,7 +37,7 @@ celery.conf.update(app.config)
 compress.init_app(app)
 cache.init_app(app)
 if 'DYNO' in os.environ:
-    sslify = SSLify(app, permanent=True, skips=[])
+    sslify = SSLify(app, permanent=True)
 from models import *
 BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 
@@ -209,9 +209,9 @@ def sign_s3():
     AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
     # Folder to store images in
-    foldername = r'user_img'
+    foldername = r'/user/' + str(session['ath_id']) + r'/'
     # Get filename and filetype from request header in URL
-    object_name = urllib.quote_plus(r'img/' + request.args.get('file_name'))
+    object_name = foldername + urllib.quote_plus( request.args.get('file_name'))
     mime_type = request.args.get('file_type')
     # Set expiration date of file - currently set to "days_to_expire"
     expires = int(time.time() + 60 * 60 * 24 * days_to_expire)
