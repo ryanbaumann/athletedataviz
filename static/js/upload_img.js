@@ -12,25 +12,30 @@
 })();
 
 function get_signed_request(file, basepath_n){
-    console.log(file.name + " - " + file.type);
     console.log(basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type);
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type);
-    xhr.onreadystatechange = function(){
-        if(xhr.readyState === 4){
-            if(xhr.status === 200){
-                var response = JSON.parse(xhr.responseText);
-                upload_file(file, response.signed_request, response.url);
-            }
-            else{
-                alert("Could not get signed URL.");
-            }
+    $.ajax({
+        url : basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type,
+        type : "get",
+        success : function(data) {
+            var response = JSON.parse(data);
+             upload_file(file, response.signed_request, response.url);
         }
-    };
-    xhr.send();
+    });
 }
 
 function upload_file(file, signed_request, url){
+
+    /*
+    $.ajax({
+        url : signed_request,
+        type : "put",
+        headers : {'x-amz-acl' : 'public-read'},
+        success : function() {
+            document.getElementById("preview").src = url;
+            document.getElementById("avatar_url").value = url;
+        }
+    });
+*/
     var xhr = new XMLHttpRequest();
     xhr.open("PUT", signed_request);
     xhr.setRequestHeader('x-amz-acl', 'public-read');

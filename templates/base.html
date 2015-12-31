@@ -6,21 +6,25 @@
     <!--[if IE]><![endif]-->
     <meta charset="utf-8">
     <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="AthleteDataViz">
-    <meta name="title" content="AthleteDataViz">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="AthleteDataViz" />
+    <meta name="title" content="AthleteDataViz" />
     <meta property="fb:app_id" content="1250707668278763" />
-    <meta name="author" content="RyanBaumann">
+    <meta name="author" content="RyanBaumann" />
     <meta name="keywords" content="athlete, data, viz, athletedataviz, heatmap, map, cycling, running, hiking, triathalon, vizualization, mapbox" />
     <meta name="p:domain_verify" content="2518dde61dca1f34a95baa06a75883a0" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" type="text/css"  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"  href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/stylesheets/jquery.sidr.light.css">
+    
     <link rel="stylesheet" href="static/css/style.css" type="text/css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js" async defer></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js" async defer></script>
+    <script src="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/jquery.sidr.js" async defer></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     {% block import_script %} {% endblock %}
 </head>
@@ -39,23 +43,6 @@
         g.src = '//www.google-analytics.com/ga.js';
         s.parentNode.insertBefore(g, s);
     })(document, 'script');
-
-    //facebook sdk
-    window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '1250707668278763',
-      xfbml      : true,
-      version    : 'v2.5'
-    });
-    };
-
-    (function(d, s, id){
-     var js, fjs = d.getElementsByTagName(s)[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement(s); js.id = id;
-     js.src = "//connect.facebook.net/en_US/sdk.js";
-     fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
     </script>
 
     <!--- BEGINNING OF NAVBAR -->
@@ -66,7 +53,7 @@
                     <a class="navbar-brand" href="/">Athlete Data Viz </a>
                     <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> 
                     {% if request.path=="/strava_mapbox" %}
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o"> Show Toolbar </i></a>
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o">&nbsp;&nbsp;Toolbar </i></a>
                     {% endif %}
                 </div>
 
@@ -94,7 +81,7 @@
 
                     <!-- Toolbar for Map editor -->
                     {% if request.path=="/strava_mapbox" %}
-                    <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Show Toolbar</li></a> 
+                    <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Toolbar</li></a> 
                     {% endif %}
                 </u1>
             </div>
@@ -103,46 +90,32 @@
 {% block content %} {% endblock %}
 </body>
 <script>
-$("#full-extent-btn").click(function() {
-    map.fitBounds(boroughs.getBounds());
-    $(".navbar-collapse.in").collapse("hide");
-    return false;
-});
+    $("#full-extent-btn").click(function() {
+        map.fitBounds(boroughs.getBounds());
+        $(".navbar-collapse.in").collapse("hide");
+        return false;
+    });
 
-$("#legend-btn").click(function() {
-    $("#legendModal").modal("show");
-    $(".navbar-collapse.in").collapse("hide");
-    return false;
-});
+    $("#legend-btn").click(function() {
+        $("#legendModal").modal("show");
+        $(".navbar-collapse.in").collapse("hide");
+        return false;
+    });
 
-$("#login-btn").click(function() {
-    $("#loginModal").modal("show");
-    $(".navbar-collapse.in").collapse("hide");
-    return false;
-});
+    $("#login-btn").click(function() {
+        $("#loginModal").modal("show");
+        $(".navbar-collapse.in").collapse("hide");
+        return false;
+    });
 
-$("#list-btn").click(function() {
-    $('#sidebar').toggle();
-    map.invalidateSize();
-    return false;
-});
-
-$("#nav-btn").click(function() {
-    $(".navbar-collapse").collapse("toggle");
-    return false;
-});
-
-$("#sidebar-toggle-btn").click(function() {
-    $("#sidebar").toggle();
-    map.invalidateSize();
-    return false;
-});
-
-$("#sidebar-hide-btn").click(function() {
-    $('#sidebar').hide();
-    map.invalidateSize();
-});
-
+    $("#nav-btn").click(function() {
+        $(".navbar-collapse").collapse("toggle");
+        return false;
+    });
+    $("#list-btn").click(function() {
+        $('#sidebar').toggle();
+        map.invalidateSize();
+        return false;
+    });
 </script>
-
 </html>

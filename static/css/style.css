@@ -26,7 +26,6 @@ html, body, #container {
   overflow-y:;
 }
 html {
-  overflow-y: scroll !important;
   overflow-x: hidden !important;
 }
 body {
@@ -78,8 +77,7 @@ input[type="radio"], input[type="checkbox"] {
   margin-top: -2px;
   background-color: rgba(255, 255, 255, 0.9);
   text-align: center;
-  /*
-  position: relative;
+  /*position: relative;
   top: 50px;
   right: 50%;
   float: right;

@@ -1,19 +1,18 @@
 {% extends "base.html" %} {% block import_script %}
 <!-- Mapbox GL -->
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js'></script>
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js' ></script>
 <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.css' rel='stylesheet'>
 <!-- Mapbox JS -->
-<script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
-<link href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
+<script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js' ></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' />
 <!-- Leaflet Heat !-->
-<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js'></script>
+<script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js" ></script>
 <!-- Mapbox JS extended to Mapbox GL JS !-->
-<script src="/static/js/leaflet-mapbox-gl.js"></script>
+<script src="/static/js/leaflet-mapbox-gl.js" ></script>
 <!-- Bootstrap Slider -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css">
-<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
-<!-- Leaflet Image -->
-<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-image/v0.0.4/leaflet-image.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js' ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.15/jquery.touchSwipe.min.js"></script>
 
 {% endblock %} {% block content %}
 <!-- Sidebar -->
@@ -165,6 +164,35 @@
     var mapbox_accessToken = '{{ mapbox_accessToken|safe }}';
     var mapboxgl_accessToken = '{{ mapbox_gl_accessToken|safe }}';
     var ath_name = '{{ath_name}}'
+
+    $(document).ready(function() {
+        $('#sidebar').swipe({
+            swipeLeft:function() {
+                $('#sidebar').toggle();
+                map.invalidateSize();
+                return false;
+            }
+        });
+        $('#sidebar').swipe({
+            swipeRight:function() {
+                $('#sidebar').hide();
+                map.invalidateSize();
+                return false;
+            }
+        });
+    });
+
+    $("#sidebar-toggle-btn").click(function() {
+        $("#sidebar").toggle();
+        map.invalidateSize();
+        return false;
+    });
+
+    $("#sidebar-hide-btn").click(function() {
+        $('#sidebar').hide();
+        map.invalidateSize();
+    });
+
     </script>
 
     <script type="text/javascript" src="/static/js/upload_img.js"></script>
