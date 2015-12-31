@@ -13,7 +13,7 @@
 
 function get_signed_request(file, basepath_n){
     console.log(file.name + " - " + file.type);
-    console.log(basepath_n);
+    console.log(basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type);
     var xhr = new XMLHttpRequest();
     xhr.open("GET", basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type);
     xhr.onreadystatechange = function(){

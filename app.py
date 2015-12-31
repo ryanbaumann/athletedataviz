@@ -219,10 +219,12 @@ def sign_s3():
     # Generate the put request to store the image on the AWS S3 bucket
     string_to_sign = "PUT\n\n%s\n%d\n%s\n/%s/%s" % (
         mime_type, expires, amz_headers, S3_BUCKET, object_name)
+    print string_to_sign
     # Encode the signature to post the URL
     signature = base64.encodestring(
         hmac.new(AWS_SECRET_KEY.encode(), string_to_sign.encode('utf8'), sha1).digest())
     signature = urllib.quote_plus(signature.strip())
+    print signature
     # URL for the newly stored file
     url = 'https://%s.s3.amazonaws.com/%s' % (
         S3_BUCKET, object_name)

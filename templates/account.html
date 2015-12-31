@@ -1,14 +1,14 @@
 {% extends "base.html" %} 
 
 {% block content %}
-<div id="container-fluid">
-	<div id="row">
-		<div id="col-sm-12">
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
 			<h2> THIS IS THE IMAGE UPLOAD ACCOUNT PAGE </h2>
 
 			<input type="file" id="file_input"/>
 			<p id="status">Please select a file</p>
-			<img id="preview" src="/static/img/loading.gif" />
+			<img id="preview" src="/static/img/loading.gif" class="img-responsive" />
 
 			<form method="POST" action="/submit_form/">
 			    <input type="hidden" id="avatar_url" name="avatar_url" value="/static/default.png" />
