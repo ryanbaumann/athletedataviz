@@ -1,20 +1,28 @@
 {% extends "base.html" %} 
 
 {% block content %}
-<h2> THIS IS THE IMAGE UPLOAD ACCOUNT PAGE <h2>
+<div id="container-fluid">
+	<div id="row">
+		<div id="col-sm-12">
+			<h2> THIS IS THE IMAGE UPLOAD ACCOUNT PAGE </h2>
 
-<input type="file" id="file_input"/>
-<p id="status">Please select a file</p>
-<img id="preview" src="/static/img/loading.gif" />
+			<input type="file" id="file_input"/>
+			<p id="status">Please select a file</p>
+			<img id="preview" src="/static/img/loading.gif" />
 
-<form method="POST" action="/submit_form/">
-    <input type="hidden" id="avatar_url" name="avatar_url" value="/static/default.png" />
-    <input type="text" name="username" placeholder="Username" /><br />
-    <input type="text" name="full_name" placeholder="Full name" /><br /><br />
-    <input type="submit" value="Update profile" />
-</form>
+			<form method="POST" action="/submit_form/">
+			    <input type="hidden" id="avatar_url" name="avatar_url" value="/static/default.png" />
+			    <input type="text" name="username" placeholder="Username" /><br />
+			    <input type="text" name="full_name" placeholder="Full name" /><br /><br />
+			    <input type="submit" value="Update profile" />
+			</form>
+		</div>
+	</div>
+</div>
 
-
+<script>
+var basepath = '{{basepath|safe}}';
+</script>
 <script src="/static/js/upload_img.js"></script>
 
 {% endblock %}

@@ -6,14 +6,16 @@
             alert("No file selected.");
         }
         else{
-            get_signed_request(file);
+            get_signed_request(file, basepath);
         }
     };
 })();
 
-function get_signed_request(file){
+function get_signed_request(file, basepath_n){
+    console.log(file.name + " - " + file.type);
+    console.log(basepath_n);
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/sign_s3?file_name="+file.name+"&file_type="+file.type);
+    xhr.open("GET", basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type);
     xhr.onreadystatechange = function(){
         if(xhr.readyState === 4){
             if(xhr.status === 200){

@@ -196,7 +196,8 @@ def contact():
 @app.route('/account')
 def account():
     """ Sends user to contact page """
-    return render_template('account.html')
+    return render_template('account.html',
+                            basepath = BASEPATH)
 
 
 @app.route('/sign_s3/')
