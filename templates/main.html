@@ -158,10 +158,10 @@ function get_acts() {
     });
 }
 
-var today = moment().format('YYYY-MM-DD');
-var threeMonthsAgo = moment().subtract(90, 'days').format('YYYY-MM-DD');
 $( document ).ready(function() {
     get_acts();
+    var today = moment().format('YYYY-MM-DD');
+    var threeMonthsAgo = moment().subtract(90, 'days').format('YYYY-MM-DD');
     $('#startDate').val(threeMonthsAgo);
     $('#endDate').val(today);
 });
