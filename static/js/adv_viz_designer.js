@@ -207,7 +207,12 @@ $('#heattype').on('click touch tap onchange', render);
 $('#heat_color').on('click touch tap onchange', render);
 $('#line_color').on('click touch tap onchange', render);
 $('#snap').on('click touch tap onchange', generateMap);
-//$('#download_viz').on('click', save_img(draw_canvas, "ADV_" + ath_name + ".png"));
+var fb_shareurl = 'https://www.facebook.com/sharer/sharer.php?u=' + $('download_viz').attr('href')
+var pin_shareurl = 'https://pinterest.com/pin/create/button/?url=' + $('download_viz').attr('href') +
+'&media=https%3A//athletedataviz-pro.herokuapp.com'+
+'&description=Check%20out%20my%20Athlete%20Data%20Viz!'
+
+
 var VizType = 'heat-line'
 var map_style = 'dark-nolabel'
 
@@ -397,6 +402,7 @@ function generateMap() {
 
     document.getElementById('spinner').style.display = 'inline-block';
     document.getElementById('snap').classList.add('disabled');
+    $("#loading").show();
     //Get the current map style
     var style;
     var layer = document.getElementById("mapStyle").value
@@ -407,7 +413,7 @@ function generateMap() {
     }
     var width = 8;
     var height = 6;
-    var dpi = 350;
+    var dpi = 300;
     var format = 'png';
     var unit = 'in';
     var zoom = gl._glMap.getZoom();
@@ -492,16 +498,19 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             'linestring');
     });
 
-    draw_canvas = renderMap.once('load', function() {
+    renderMap.once('load', function() {
         if (format == 'png') {
             try {
                 var canvas = renderMap.getCanvas();
+                canvas.getContext("webgl", 
+                 { antialias: true,
+                   depth: true });
                 var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
                 img.width = targetDims['width'];
                 img.height = targetDims['height'];
                 img.href = img.src;
                 img.id = 'snapshot_img';
-                var imgsrc = canvas.toDataURL("image/jpeg", 1.0);
+                var imgsrc = canvas.toDataURL("image/jpeg", 0.8);
                 var file;
                 img.class = "img-responsive center-block";
                 if (canvas.toBlob) {
@@ -515,14 +524,13 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                                 type: "image/jpeg"
                             });
                         },
-                        'image/jpeg'
+                        'image/jpeg', 0.99
                     );
                 }
                 img.src = imgsrc;
                 //put the new image in the div
                 snapshot.innerHTML = '';
                 snapshot.appendChild(img);
-                get_signed_request(file);
                 $("#snapshot_img").addClass("img-responsive center-block");
             } catch (err) {
                 console.log(err);
@@ -550,7 +558,8 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         });
         document.getElementById('spinner').style.display = 'none';
         document.getElementById('snap').classList.remove('disabled');
-        return canvas
+        $("#loading").hide();
+        get_signed_request(file);
     });
 }
 
