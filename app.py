@@ -327,7 +327,8 @@ def strava_mapbox():
                            'heat_points/' + str(session['ath_id']),
                            heatline_url=BASEPATH +
                            'heat_lines/' + str(session['ath_id']),
-                           ath_name=athlete.firstname + "_" + athlete.lastname)
+                           ath_name=athlete.firstname + "_" + athlete.lastname + '_' +
+                           str(datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')))
 
 
 @app.route('/delete_acts', methods=['POST'])

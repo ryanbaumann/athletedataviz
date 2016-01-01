@@ -28,4 +28,4 @@ markdown
 flask-compress
 flask-cache
 flask-sslify
-s3-saver
+Image

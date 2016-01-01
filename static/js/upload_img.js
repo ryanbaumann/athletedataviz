@@ -1,20 +1,8 @@
-(function() {
-    document.getElementById("file_input").onchange = function(){
-        var files = document.getElementById("file_input").files;
-        var file = files[0];
-        if(file == null){
-            alert("No file selected.");
-        }
-        else{
-            get_signed_request(file, basepath);
-        }
-    };
-})();
 
-function get_signed_request(file, basepath_n){
-    console.log(basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type);
+function get_signed_request(file){
+    var datapath = '/sign_s3?file_name='+file.name+"&file_type="+file.type
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", basepath_n+'sign_s3?file_name='+file.name+"&file_type="+file.type);
+    xhr.open("GET", datapath);
     xhr.onreadystatechange = function(){
         if(xhr.readyState === 4){
             if(xhr.status === 200){
@@ -35,8 +23,8 @@ function upload_file(file, signed_request, url){
     xhr.setRequestHeader('x-amz-acl', 'public-read');
     xhr.onload = function() {
         if (xhr.status === 200) {
-            document.getElementById("preview").src = url;
-            document.getElementById("avatar_url").value = url;
+            $('#download_viz').attr('href', url).
+                    attr('download', "ADV_" + ath_name + ".jpg");
         }
     };
     xhr.onerror = function() {

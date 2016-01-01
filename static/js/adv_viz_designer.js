@@ -451,8 +451,8 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         w = w * 0.8;
         h = h * 0.8;
     }
-    img.width = w;
-    img.height = h;
+    img.width = 250;
+    img.height = 250;
     img.src = "/static/img/loading.gif";
     snapshot.appendChild(img);
     $("#snapshot_img").addClass("img-responsive center-block");
@@ -501,15 +501,29 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                 img.height = targetDims['height'];
                 img.href = img.src;
                 img.id = 'snapshot_img';
-                img.src = canvas.toDataURL("image/jpeg", 1);
+                var imgsrc = canvas.toDataURL("image/jpeg", 1.0);
+                var file;
                 img.class = "img-responsive center-block";
+                if (canvas.toBlob) {
+                    canvas.toBlob(
+                        function (blob) {
+                            // Do something with the blob object,
+                            // e.g. creating a multipart form for file uploads:
+                            var formData = new FormData();
+                            formData.append('file', blob, "ADV_" + ath_name + ".jpg")
+                            file = new File([blob], "ADV_" + ath_name + ".jpg", {
+                                type: "image/jpeg"
+                            });
+                        },
+                        'image/jpeg'
+                    );
+                }
+                img.src = imgsrc;
                 //put the new image in the div
                 snapshot.innerHTML = '';
                 snapshot.appendChild(img);
+                get_signed_request(file);
                 $("#snapshot_img").addClass("img-responsive center-block");
-                $('#download_viz').attr('href', img.src).
-                    attr('download', "ADV_" + ath_name + ".jpg");
-                $('#facebook_share').attr('data-href', img.src)
             } catch (err) {
                 console.log(err);
             }
