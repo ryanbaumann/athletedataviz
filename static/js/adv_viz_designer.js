@@ -207,11 +207,6 @@ $('#heattype').on('click touch tap onchange', render);
 $('#heat_color').on('click touch tap onchange', render);
 $('#line_color').on('click touch tap onchange', render);
 $('#snap').on('click touch tap onchange', generateMap);
-var fb_shareurl = 'https://www.facebook.com/sharer/sharer.php?u=' + $('download_viz').attr('href')
-var pin_shareurl = 'https://pinterest.com/pin/create/button/?url=' + $('download_viz').attr('href') +
-'&media=https%3A//athletedataviz-pro.herokuapp.com'+
-'&description=Check%20out%20my%20Athlete%20Data%20Viz!'
-
 
 var VizType = 'heat-line'
 var map_style = 'dark-nolabel'
@@ -477,7 +472,6 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     });
 
     renderMap.on('style.load', function() {
-        console.log('adding source linestring layer!');
         linestring_src = new mapboxgl.GeoJSONSource({
             data: stravaLineGeoJson,
             maxzoom: 17
