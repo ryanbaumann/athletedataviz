@@ -511,10 +511,8 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                     canvas.toBlob(
                         function (blob) {
                             // Do something with the blob object,
-                            // e.g. creating a multipart form for file uploads:
-                            var formData = new FormData();
-                            formData.append('file', blob, "ADV_" + ath_name + ".jpg")
-                            file = new File([blob], "ADV_" + ath_name + ".jpg", {
+                            var randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
+                            file = new File([blob], "ADV_" + ath_name + "_" + randNum + ".jpg", {
                                 type: "image/jpeg"
                             });
                         },
