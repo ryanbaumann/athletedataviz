@@ -169,14 +169,14 @@
         $('#sidebar').swipe({
             swipeLeft:function() {
                 $('#sidebar').toggle();
-                map.invalidateSize();
+                map.resize();
                 return false;
             }
         });
         $('#sidebar').swipe({
             swipeRight:function() {
                 $('#sidebar').hide();
-                map.invalidateSize();
+                map.resize();
                 return false;
             }
         });
@@ -184,13 +184,13 @@
 
     $("#sidebar-toggle-btn").click(function() {
         $("#sidebar").toggle();
-        map.invalidateSize();
+        map.resize();
         return false;
     });
 
     $("#sidebar-hide-btn").click(function() {
         $('#sidebar').hide();
-        map.invalidateSize();
+        map.resize();
     });
 
     function copyToClipboard(text) {
