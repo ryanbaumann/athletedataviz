@@ -85,6 +85,7 @@
 <script>
 function start_long_task() {
     // add task status elements
+    setTimeout('document.getElementById("dl_form").disabled=false;',30000);
     div = $('<div class="progress"><div></div><div>0%</div><div></div><div>&nbsp;</div></div>');
     $('#progress').append(div);
 

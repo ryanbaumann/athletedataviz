@@ -16,10 +16,7 @@ class Config(object):
     IP = os.environ.get('OPENSHIFT_PYTHON_IP', '127.0.0.1')
     PORT = str(os.environ.get('PORT', 33507))
     PREFERRED_URL_SCHEME = 'https'
-    HOST_NAME = os.environ.get('OPENSHIFT_APP_DNS', 'localhost:33507') #:33507
-    APP_NAME = os.environ.get('OPENSHIFT_APP_NAME', 'webdev5')
     REDIS_URL = os.environ['REDIS_URL']
-    HEADER = r'http://'
     MAPBOX_GL_ACCESS_TOKEN = os.environ['MAPBOX_GL_ACCESS_TOKEN']
     MAPBOX_ACCESS_TOKEN = os.environ['MAPBOX_ACCESS_TOKEN']
     STRAVA_CLIENT_ID = os.environ['STRAVA_CLIENT_ID']
@@ -80,10 +77,17 @@ class ProductionConfig(Config):
 
 class StagingConfig(Config):
     DEVELOPMENT = True
+    HOST_NAME = r'athletedataviz-stage.herokuapp.com'
+    APP_NAME = r'athletedataviz-stage'
+    HEADER = r'https://'
+    PORT = r''
     DEBUG = True
 
 
 class DevelopmentConfig(Config):
+    HOST_NAME = r'localhost:33507'
+    APP_NAME = r'webdev5'
+    HEADER = r'http://'
     DEVELOPMENT = True
     DEBUG = True
 

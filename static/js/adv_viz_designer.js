@@ -524,6 +524,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                 snapshot.innerHTML = '';
                 snapshot.appendChild(img);
                 $("#snapshot_img").addClass("img-responsive center-block");
+                get_signed_request(file);
             } catch (err) {
                 console.log(err);
             }
@@ -551,7 +552,6 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         document.getElementById('spinner').style.display = 'none';
         document.getElementById('snap').classList.remove('disabled');
         $("#loading").hide();
-        get_signed_request(file);
     });
 }
 

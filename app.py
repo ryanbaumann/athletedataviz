@@ -48,8 +48,7 @@ BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 
 class Heat_Points(Resource):
 
-    #@cache.cached(timeout=3600, key_prefix='myHeatPoints')
-
+    #@cache.memoize(timeout=3600, make_cache_key=)
     def get(self, ath_id):
         heatpoints = json.loads(
             sp.get_heatmap_points(engine, int(ath_id)))['points']
@@ -59,8 +58,7 @@ class Heat_Points(Resource):
 
 class Heat_Lines(Resource):
 
-    #@cache.cached(timeout=3600, key_prefix='myHeatLines')
-
+    #@cache.memoize(timeout=3600)
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
@@ -70,8 +68,7 @@ class Heat_Lines(Resource):
 
 class Current_Acts(Resource):
 
-    #@cache.cached(timeout=3600, key_prefix='myCurrentActs')
-
+    #@cache.memoize(timeout=3600)
     def get(self, ath_id):
         print "getting current activities..."
         try:
@@ -169,6 +166,7 @@ def act_input():
 
 
 @app.route('/login')
+@cache.memoize(timeout=3600)
 def login():
     client = stravalib.client.Client()
     # Check port configuration for dev vs. deployed environments
@@ -193,9 +191,21 @@ def contact():
     return render_template('contact.html')
 
 
+@app.route('/products')
+def products():
+    """ Temporary redirect to home page until implemented """
+    return redirect(url_for('homepage'))
+
+
+@app.route('/blog')
+def blog():
+    """ Temporary redirect to home page until implemented """
+    return redirect(url_for('homepage'))
+
+
 @app.route('/account')
 def account():
-    """ Sends user to contact page """
+    """ Sends user to account page """
     return render_template('account.html',
                             basepath = BASEPATH)
 
@@ -465,10 +475,14 @@ def longtask():
                             'grade_smooth', 'watts', 'temp', 'heartrate', 'cadence', 'moving'],
                            session['access_token'],
                            'medium')
-    return jsonify({}), 202, {'Location': url_for('taskstatus',
-                                                  _scheme='https',
-                                                  _external=True,
+    if os.environ['APP_SETTINGS'] == 'config.DevelopmentConfig':
+        return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
+    else:
+        return jsonify({}), 202, {'Location': url_for('taskstatus',
+                                                      _scheme='https',
+                                                      _external=True,
+                                                      task_id=task.id)}
 
 
 @app.route('/status/<task_id>')
