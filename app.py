@@ -207,7 +207,7 @@ def sign_s3():
     # AWS S3 access information from environment variables
     AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+    S3_BUCKET = os.environ.get('S3_BUCKET_IMAGES')
     # Folder to store images in
     foldername = r'user/' + str(session['ath_id']) + r'/'
     # Get filename and filetype from request header in URL
@@ -226,7 +226,7 @@ def sign_s3():
     signature = urllib.quote_plus(signature.strip())
     print signature
     # URL for the newly stored file
-    url = 'https://%s.s3.amazonaws.com/%s' % (
+    url = 'https://%s/%s' % (
         S3_BUCKET, object_name)
     # Store the image location in the database
     new_act_fact = Athlete_Fact(objecttypeid='user_image',

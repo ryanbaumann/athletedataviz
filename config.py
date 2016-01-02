@@ -72,7 +72,7 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEBUG = False
-    HOST_NAME = r'athletedataviz-pro.herokuapp.com'
+    HOST_NAME = r'athletedataviz.com'
     APP_NAME = r'athletedataviz-pro'
     HEADER = r'https://'
     PORT = r''
