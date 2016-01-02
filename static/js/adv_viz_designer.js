@@ -219,14 +219,14 @@ $('#minOpacity').slider().on('slide', function(ev) {
     $('#minOpacity').slider('setValue', ev.value);
     render();
 });
-$('#heat_color').on('onchange', render);
 $('#Refresh').on('click touch tap', switchMapStyle);
 $('#Refresh').on('click touch tap', render);
-$('#VizType').on('onchange', render);
-$('#mapStyle').on('onchange', switchMapStyle);
-$('#heattype').on('onchange', render);
-$('#heat_color').on('onchange', render);
-$('#line_color').on('onchange', render);
+$('#heat_color').change(render);
+$('#VizType').change(render);
+$('#mapStyle').change(switchMapStyle);
+$('#heattype').change(render);
+$('#heat_color').change(render);
+$('#line_color').change(render);
 $('#snap').on('click touch tap', generateMap);
 
 var VizType = 'heat-line'
