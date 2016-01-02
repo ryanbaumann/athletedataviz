@@ -147,13 +147,13 @@ function addLayerLinestring() {
     //Add linestrings to map and set the visibility to "hidden"
     map.addSource('linestring', linestring_src);
     map.addLayer(lineHeatStyle);
-    map.addControl(new mapboxgl.Navigation());
-    map.dragRotate.disable();
     render();
 };
 
 //Load the data asrchnoutsly from api, then add layers to map
 //getDataHeat().done(addLayerHeat);
+map.addControl(new mapboxgl.Navigation());
+map.dragRotate.disable();
 getDataLinestring().done(addLayerLinestring);
 
 //Stop the loading bar when ajax requests complete
