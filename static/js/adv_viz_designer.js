@@ -8,7 +8,7 @@ jQuery(document).ready(function($) {
     });
 });
 // API tokens 
-L.mapbox.accessToken = mapbox_accessToken;
+//L.mapbox.accessToken = mapbox_accessToken;
 mapboxgl.accessToken = mapboxgl_accessToken;
 //Global variables
 var heatColors1 = {
@@ -58,19 +58,18 @@ var stravaLineGeoJson;
 var linestring_src;
 var heat;
 var maxScale;
-var map = L.mapbox.map('map').setView(center_point, 10)
-var dark_style = 'mapbox://styles/mapbox/dark-v8'
+//var map = L.mapbox.map('map').setView(center_point, 10)
+
 try {
-    var gl = L.mapboxGL({
-        accessToken: mapboxgl.accessToken,
+    var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
-        center: center_point,
+        center: mapboxgl.LngLat.convert(center_point),
         zoom: 9,
-        minZoom: 1,
-        maxZoom: 20,
+        minZoom: 3,
+        maxZoom: 17,
         attributionControl: true
-    }).addTo(map);
+    });
 } catch (e) {
     var mapContainer = document.getElementById('map');
     mapContainer.parentNode.removeChild(mapContainer);
@@ -78,8 +77,27 @@ try {
     openErrorModal('This site requires WebGL, but your browser doesn\'t seem' +
         ' to support it. Sorry.');
 }
+/*
+var linestring_src = new mapboxgl.GeoJSONSource({
+        data: heatline_url,
+        maxzoom: 17,
+        buffer: 10,
+        tolerance: 0.5
+    });
 
-gl._glMap.dragRotate.disable();
+map.on('style.load', function() {
+    try {
+        map.addSource('linestring', linestring_src);
+        map.addLayer(lineHeatStyle);
+    } 
+    catch (err) {
+        console.log(err);
+    }
+    map.dragRotate.disable();
+    render();
+    $("#loading").hide();
+});
+*/
 
 function getDataHeat() {
     var r = $.Deferred();
@@ -99,7 +117,7 @@ function getDataHeat() {
 function getDataLinestring() {
     var r = $.Deferred();
     $.getJSON(heatline_url, function(data) {
-        stravaLineGeoJson = JSON.parse(data);
+        stravaLineGeoJson = data;
         r.resolve();
     });
     return r;
@@ -127,8 +145,10 @@ function addLayerLinestring() {
         tolerance: 0.5
     });
     //Add linestrings to map and set the visibility to "hidden"
-    gl._glMap.addSource('linestring', linestring_src);
-    gl._glMap.addLayer(lineHeatStyle);
+    map.addSource('linestring', linestring_src);
+    map.addLayer(lineHeatStyle);
+    map.addControl(new mapboxgl.Navigation());
+    map.dragRotate.disable();
     render();
 };
 
@@ -214,11 +234,11 @@ var map_style = 'dark-nolabel'
 function switchLayer() {
     layer = document.getElementById("mapStyle").value
     if (layer != 'dark-nolabel') {
-        gl._glMap.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
+        map.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
     } else {
-        gl._glMap.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
+        map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
     }
-    gl._glMap.on('style.load', function() {
+    map.on('style.load', function() {
         try {
             addLayerLinestring();
         } catch (err) {
@@ -226,13 +246,13 @@ function switchLayer() {
         }
         try {
             if (document.getElementById("VizType").value == "heat-line") {
-                set_visibility(gl._glMap, 'linestring', 'on')
+                set_visibility(map, 'linestring', 'on')
             }
         } catch (err) {
             console.log(err);
         }
         try {
-            paintLayer(gl._glMap,
+            paintLayer(map,
                 document.getElementById("line_color").value,
                 parseFloat($('#line_width').slider('getValue')),
                 parseFloat($('#line_opacity').slider('getValue')),
@@ -296,7 +316,7 @@ function render() {
     if (document.getElementById("VizType").value != VizType) {
         if (document.getElementById("VizType").value == "heat-point") {
             try {
-                set_visibility(gl._glMap, 'linestring', 'off')
+                set_visibility(map, 'linestring', 'off')
             } catch (err) {
                 console.log(err);
             }
@@ -313,8 +333,8 @@ function render() {
                 console.log(err);
             }
             try {
-                set_visibility(gl._glMap, 'linestring', 'on');
-                paintLayer(gl._glMap,
+                set_visibility(map, 'linestring', 'on');
+                paintLayer(gl,
                     document.getElementById("line_color").value,
                     parseFloat($('#line_width').slider('getValue')),
                     parseFloat($('#line_opacity').slider('getValue')),
@@ -337,7 +357,7 @@ function render() {
         } else if (VizType == 'heat-line') {
             //Update the linestring layer
             try {
-                paintLayer(gl._glMap,
+                paintLayer(map,
                     document.getElementById("line_color").value,
                     parseFloat($('#line_width').slider('getValue')),
                     parseFloat($('#line_opacity').slider('getValue')),
@@ -384,13 +404,7 @@ function download_img(link, img_src, filename) {
     link.href = img_src;
     link.download = filename;
 }
-/*
-function save_img(canvas, filename) {
-    canvas.toBlob(function(blob) {
-                    saveAs(blob, filename);
-                });
-}
-*/
+
 // High-res map rendering
 function generateMap() {
     'use strict';
@@ -411,9 +425,9 @@ function generateMap() {
     var dpi = 300;
     var format = 'png';
     var unit = 'in';
-    var zoom = gl._glMap.getZoom();
-    var center = gl._glMap.getCenter();
-    var bearing = gl._glMap.getBearing();
+    var zoom = map.getZoom();
+    var center = map.getCenter();
+    var bearing = map.getBearing();
 
     createPrintMap(width, height, dpi, format, unit, zoom, center,
         bearing, style);
@@ -496,9 +510,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         if (format == 'png') {
             try {
                 var canvas = renderMap.getCanvas();
-                canvas.getContext("webgl", 
-                 { antialias: true,
-                   depth: true });
+                var gl = canvas.getContext("webgl", {antialias: true});
                 var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
                 img.width = targetDims['width'];
                 img.height = targetDims['height'];

@@ -1,6 +1,5 @@
 import time
 import os
-import json
 import base64
 import hmac
 import urllib
@@ -8,7 +7,7 @@ import stravalib
 from hashlib import sha1
 from datetime import datetime
 from flask import Flask, request, flash, url_for, redirect, \
-    render_template, session,  jsonify
+    render_template, session,  jsonify, Response, json
 from flask_restful import Resource, Api
 from flask.ext.sqlalchemy import SQLAlchemy
 import stravaParse_v2 as sp
@@ -44,9 +43,14 @@ BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 ##########
 #  API   #
 ##########
-
+#
+def output_html(data, code, headers=None):
+    resp = Response(data, mimetype='text/html', headers=headers)
+    resp.status_code = code
+    return resp
 
 class Heat_Points(Resource):
+
 
     #@cache.memoize(timeout=3600, make_cache_key=)
     def get(self, ath_id):
@@ -62,7 +66,7 @@ class Heat_Lines(Resource):
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
-        return geojsonlines
+        return output_html(geojsonlines, 200)
         # We can have PUT,DELETE,POST here if needed
 
 
