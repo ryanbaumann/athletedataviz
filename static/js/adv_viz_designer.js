@@ -152,8 +152,9 @@ function addLayerLinestring() {
 
 //Load the data asrchnoutsly from api, then add layers to map
 //getDataHeat().done(addLayerHeat);
-map.addControl(new mapboxgl.Navigation());
+map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
 map.dragRotate.disable();
+map.touchZoomRotate.disableRotation();
 getDataLinestring().done(addLayerLinestring);
 
 //Stop the loading bar when ajax requests complete
@@ -218,15 +219,15 @@ $('#minOpacity').slider().on('slide', function(ev) {
     $('#minOpacity').slider('setValue', ev.value);
     render();
 });
-$('#heat_color').on('click touch tap onchange', render);
-$('#Refresh').on('click touch tap onchange', switchMapStyle);
-$('#Refresh').on('click touch tap onchange', render);
-$('#VizType').on('click touch tap onchange', render);
-$('#mapStyle').on('click touch tap onchange', switchMapStyle);
-$('#heattype').on('click touch tap onchange', render);
-$('#heat_color').on('click touch tap onchange', render);
-$('#line_color').on('click touch tap onchange', render);
-$('#snap').on('click touch tap onchange', generateMap);
+$('#heat_color').on('onchange', render);
+$('#Refresh').on('click touch tap', switchMapStyle);
+$('#Refresh').on('click touch tap', render);
+$('#VizType').on('onchange', render);
+$('#mapStyle').on('onchange', switchMapStyle);
+$('#heattype').on('onchange', render);
+$('#heat_color').on('onchange', render);
+$('#line_color').on('onchange', render);
+$('#snap').on('click touch tap', generateMap);
 
 var VizType = 'heat-line'
 var map_style = 'dark-nolabel'
