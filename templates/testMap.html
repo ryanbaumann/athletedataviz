@@ -30,25 +30,6 @@ var mapboxgl_accessToken = '{{ mapbox_gl_accessToken|safe }}';
 var ath_name = '{{ath_name}}'
 mapboxgl.accessToken = mapboxgl_accessToken;
 
-var newStyle = {
-  version: 8,
-  name: 'Basic',
-  sources: {
-    'us-counties': {
-      'type': 'vector',
-      'url': 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn'
-    }
-  },
-  sprite: '',
-  glyphs: '',
-  layers: [{
-    id: 'background',
-    type: 'background',
-    paint: { 'background-color': '#000' }
-  }]
-}
-
-
 var lineHeatStyle = {
     "id": "linestring2",
     "type": "circle",
