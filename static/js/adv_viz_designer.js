@@ -224,27 +224,7 @@ function switchLayer() {
         map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
     }
     map.on('style.load', function() {
-        try {
-            addLayerLinestring();
-        } catch (err) {
-            console.log(err);
-        }
-        try {
-            if (document.getElementById("VizType").value == "heat-line") {
-                set_visibility(map, 'linestring', 'on')
-            }
-        } catch (err) {
-            console.log(err);
-        }
-        try {
-            paintLayer(map,
-                document.getElementById("line_color").value,
-                parseFloat($('#line_width').slider('getValue')),
-                parseFloat($('#line_opacity').slider('getValue')),
-                'linestring');
-        } catch (err) {
-            console.log(err);
-        }
+        addLayerLinestring();
     });
 };
 
@@ -410,7 +390,7 @@ function generateMap() {
     }
     var width = 8;
     var height = 6;
-    var dpi = 400;
+    var dpi = 350;
     var format = 'png';
     var unit = 'in';
     var zoom = map.getZoom();
