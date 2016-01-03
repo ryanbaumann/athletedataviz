@@ -368,7 +368,7 @@ def testmap():
     client = stravalib.client.Client(access_token=session['access_token'])
     athlete = client.get_athlete()
 
-    return render_template('testmap.html',
+    return render_template('testmap2.html',
                            avg_lat=avg_lat,
                            avg_long=avg_long,
                            mapbox_gl_accessToken=app.config[
@@ -421,6 +421,11 @@ def page_not_found(error):
 def internal_error(exception):
     app.logger.exception(exception)
     return render_template('500.html'), 500
+
+@app.route('/robots.txt')
+@app.route('/sitemap.xml')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
 
 
 @celery.task(name='long_task.add', bind=True)
