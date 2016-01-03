@@ -43,9 +43,11 @@ function upload_file(file, signed_request, url){
     xhr.setRequestHeader('x-amz-acl', 'public-read');
     xhr.onload = function() {
         if (xhr.status === 200) {
-            $('#download_viz').attr('href', url).
-                    attr('download', "ADV_" + ath_name + ".jpg");
+            $('#download_viz').attr('href', url);
             updateLinks(url);
+            $('#social').show();
+            document.getElementById('download_viz').classList.remove('disabled');
+            document.getElementById('img_share_url').classList.remove('disabled');
         }
     };
     xhr.onerror = function() {

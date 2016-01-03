@@ -395,6 +395,7 @@ function generateMap() {
     'use strict';
     //Disable buttons until objects are loaded
     document.getElementById('spinner').style.display = 'inline-block';
+    $('#social').hide();
     document.getElementById('snap').classList.add('disabled');
     document.getElementById('download_viz').classList.add('disabled');
     document.getElementById('img_share_url').classList.add('disabled');
@@ -551,8 +552,6 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         });
         document.getElementById('spinner').style.display = 'none';
         document.getElementById('snap').classList.remove('disabled');
-        document.getElementById('download_viz').classList.remove('disabled');
-        document.getElementById('img_share_url').classList.remove('disabled');
     });
 }
 
