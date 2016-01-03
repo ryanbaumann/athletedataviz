@@ -59,8 +59,9 @@ var linestring_src;
 var heat;
 var maxScale;
 //var map = L.mapbox.map('map').setView(center_point, 10)
-
-try {
+if (!mapboxgl.supported()) {
+    alert('Your browser does not support Mapbox GL');
+} else {
     var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
@@ -69,35 +70,8 @@ try {
         minZoom: 3,
         maxZoom: 17,
         attributionControl: true
-    });
-} catch (e) {
-    var mapContainer = document.getElementById('map');
-    mapContainer.parentNode.removeChild(mapContainer);
-    document.getElementById('config-fields').setAttribute('disabled', 'yes');
-    openErrorModal('This site requires WebGL, but your browser doesn\'t seem' +
-        ' to support it. Sorry.');
+        });
 }
-/*
-var linestring_src = new mapboxgl.GeoJSONSource({
-        data: heatline_url,
-        maxzoom: 17,
-        buffer: 10,
-        tolerance: 0.5
-    });
-
-map.on('style.load', function() {
-    try {
-        map.addSource('linestring', linestring_src);
-        map.addLayer(lineHeatStyle);
-    } 
-    catch (err) {
-        console.log(err);
-    }
-    map.dragRotate.disable();
-    render();
-    $("#loading").hide();
-});
-*/
 
 function getDataHeat() {
     var r = $.Deferred();
@@ -144,9 +118,16 @@ function addLayerLinestring() {
         buffer: 10,
         tolerance: 0.5
     });
-    //Add linestrings to map and set the visibility to "hidden"
-    map.addSource('linestring', linestring_src);
-    map.addLayer(lineHeatStyle);
+    try {
+        map.addSource('linestring', linestring_src);
+    } catch (err) {
+            console.log(err);
+    }
+    try {
+        map.addLayer(lineHeatStyle);
+    } catch (err) {
+            console.log(err);
+    }
     render();
 };
 
@@ -155,7 +136,10 @@ function addLayerLinestring() {
 map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
 map.dragRotate.disable();
 map.touchZoomRotate.disableRotation();
-getDataLinestring().done(addLayerLinestring);
+map.once('style.load', function() {
+    getDataLinestring().done(addLayerLinestring);
+});
+
 
 //Stop the loading bar when ajax requests complete
 $(document).one("ajaxStop", function() {
@@ -409,9 +393,11 @@ function download_img(link, img_src, filename) {
 // High-res map rendering
 function generateMap() {
     'use strict';
-
+    //Disable buttons until objects are loaded
     document.getElementById('spinner').style.display = 'inline-block';
     document.getElementById('snap').classList.add('disabled');
+    document.getElementById('download_viz').classList.add('disabled');
+    document.getElementById('img_share_url').classList.add('disabled');
     $("#loading").show();
     //Get the current map style
     var style;
@@ -423,7 +409,7 @@ function generateMap() {
     }
     var width = 8;
     var height = 6;
-    var dpi = 300;
+    var dpi = 400;
     var format = 'png';
     var unit = 'in';
     var zoom = map.getZoom();
@@ -472,6 +458,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     img.src = "/static/img/loading.gif";
     snapshot.appendChild(img);
     $("#snapshot_img").addClass("img-responsive center-block");
+    $("#loading").hide();
 
 
     // Render map
@@ -489,7 +476,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     renderMap.on('style.load', function() {
         linestring_src = new mapboxgl.GeoJSONSource({
             data: stravaLineGeoJson,
-            maxzoom: 17
+            maxzoom: 20
         });
         renderMap.addSource('linestring', linestring_src);
         renderMap.addLayer(lineHeatStyle);
@@ -520,6 +507,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                 var imgsrc = canvas.toDataURL("image/jpeg", 0.8);
                 var file;
                 img.class = "img-responsive center-block";
+                img.src = imgsrc;
                 if (canvas.toBlob) {
                     canvas.toBlob(
                         function (blob) {
@@ -531,8 +519,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                         },
                         'image/jpeg', 0.99
                     );
-                }
-                img.src = imgsrc;
+                } 
                 //put the new image in the div
                 snapshot.innerHTML = '';
                 snapshot.appendChild(img);
@@ -564,7 +551,8 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         });
         document.getElementById('spinner').style.display = 'none';
         document.getElementById('snap').classList.remove('disabled');
-        $("#loading").hide();
+        document.getElementById('download_viz').classList.remove('disabled');
+        document.getElementById('img_share_url').classList.remove('disabled');
     });
 }
 

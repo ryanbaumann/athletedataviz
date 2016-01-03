@@ -67,7 +67,15 @@ class Heat_Lines(Resource):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
         return output_html(geojsonlines, 200)
-        # We can have PUT,DELETE,POST here if needed
+
+
+class Heat_Lines2(Resource):
+
+    #@cache.memoize(timeout=3600)
+    def get(self, ath_id):
+        geojsonlines = sp.get_heatmap_lines(
+            engine, int(ath_id))
+        return output_html(geojsonlines, 200)
 
 
 class Current_Acts(Resource):
@@ -85,6 +93,7 @@ class Current_Acts(Resource):
 
 api.add_resource(Heat_Points, '/heat_points/<int:ath_id>')
 api.add_resource(Heat_Lines, '/heat_lines/<int:ath_id>')
+api.add_resource(Heat_Lines2, '/heat_lines2/<int:ath_id>')
 api.add_resource(Current_Acts, '/current_acts/<int:ath_id>')
 
 ##########
@@ -331,6 +340,35 @@ def strava_mapbox():
     athlete = client.get_athlete()
 
     return render_template('strava_mapbox_gl_v3.html',
+                           avg_lat=avg_lat,
+                           avg_long=avg_long,
+                           mapbox_gl_accessToken=app.config[
+                               'MAPBOX_GL_ACCESS_TOKEN'],
+                           mapbox_accessToken=app.config[
+                               'MAPBOX_ACCESS_TOKEN'],
+                           heatpoint_url=BASEPATH +
+                           'heat_points/' + str(session['ath_id']),
+                           heatline_url=BASEPATH +
+                           'heat_lines/' + str(session['ath_id']),
+                           ath_name=athlete.firstname + "_" + athlete.lastname + '_' + datetime.utcnow().strftime('%y%m%d'))
+
+@app.route('/testmap')
+def testmap():
+    """
+    A function to get the data for vizualization from the database,
+    and return the template for the user's vizualization (map)
+    """
+    # First get the map extents so we can draw a point at the center
+    try:
+        avg_long, avg_lat = sp.get_acts_centroid(
+            engine, int(session['ath_id']))
+    except:
+        print "error retrieving map extents!"
+
+    client = stravalib.client.Client(access_token=session['access_token'])
+    athlete = client.get_athlete()
+
+    return render_template('testmap.html',
                            avg_lat=avg_lat,
                            avg_long=avg_long,
                            mapbox_gl_accessToken=app.config[

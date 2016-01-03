@@ -405,3 +405,24 @@ def get_acts_html(engine, ath_id):
     df.sort(ascending=False, inplace=True)
 
     return df
+
+def get_heatmap_lines(engine, ath_id):
+    geojson_sql = """
+                 SELECT row_to_json(fc.*) AS row_to_json
+                   FROM ( SELECT 'FeatureCollection' AS type,
+                            array_to_json(array_agg(f.*)) AS features
+                           FROM ( SELECT 'Feature' AS type,
+                                    st_asgeojson(lg.point)::json AS geometry,
+                                    row_to_json(( SELECT l.*::record AS l
+                                           FROM ( SELECT lg.act_id,
+                                                    round(lg.density::numeric, 1) AS d,
+                                                    round(lg.speed::numeric, 1) AS s,
+                                                    round(lg.grade::numeric, 1) AS g) l)) AS properties
+                                   FROM "V_Act_Heat" lg WHERE lg.ath_id=%s) f) fc;
+                """ %(ath_id)
+    result = engine.execute(geojson_sql)
+    for row in result:
+        data = row.values()
+
+    geojson_data = str(json.dumps(data)[1:-1])
+    return geojson_data

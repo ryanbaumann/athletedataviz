@@ -46,7 +46,6 @@ function upload_file(file, signed_request, url){
             $('#download_viz').attr('href', url).
                     attr('download', "ADV_" + ath_name + ".jpg");
             updateLinks(url);
-
         }
     };
     xhr.onerror = function() {

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block import_script %}
+<!-- Mapbox GL -->
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js' ></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.css' rel='stylesheet'>
+<!-- Mapbox JS -->
+<script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js' ></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' />
+<!-- Leaflet Heat !-->
+<script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js" ></script>
+<!-- Bootstrap Slider -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css">
+<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js' ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.15/jquery.touchSwipe.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js"></script>
+
+{% endblock %} {% block content %}
+<div id="container">
+<div id="map">
+</div>
+</div>
+<script>
+//initialize variables from server
+
+    var center_point = [{{avg_long | safe}}, {{avg_lat | safe}}];
+    var heatpoint_url = '{{ heatpoint_url | safe}}';
+    var heatline_url = '{{ heatline_url | safe}}';
+    var mapbox_accessToken = '{{ mapbox_accessToken|safe }}';
+    var mapboxgl_accessToken = '{{ mapbox_gl_accessToken|safe }}';
+    var ath_name = '{{ath_name}}'
+mapboxgl.accessToken = mapboxgl_accessToken;
+
+var lineHeatStyle = {
+    "id": "linestring",
+    "type": "fill",
+    "source": "linestring",
+    "layout": {
+        "icon-image": "{marker-symbol}-15",
+        "text-field": "{s}",
+        "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+        "text-offset": [0, 0.6],
+        "text-anchor": "top",
+        "fill-color":"#FF0000"
+    },
+    "paint": {
+        "text-size": 12,
+        "text-color":"red"
+    }
+
+};
+function set_visibility(mapid, id, onoff) {
+    var visibility = mapid.getLayoutProperty(id, 'visibility');
+    if (onoff == 'off') {
+        mapid.setLayoutProperty(id, 'visibility', 'none');
+    } else if (onoff == 'on') {
+        mapid.setLayoutProperty(id, 'visibility', 'visible');
+    }
+};
+
+function addLayerLinestring() {
+    //Create source for linestrings
+    linestring_src = new mapboxgl.GeoJSONSource({
+        data: stravaLineGeoJson,
+        maxzoom: 17,
+        buffer: 10,
+        tolerance: 0.5
+    });
+    //Add linestrings to map and set the visibility to "hidden"
+    map.addSource('linestring', linestring_src);
+    map.addLayer(lineHeatStyle);
+    set_visibility(map, 'linestring', 'on');
+    paintLayer(map, "#FF0000", 2, 1, 'linestring');
+};
+
+function getDataLinestring() {
+    var r = $.Deferred();
+    $.getJSON('http://localhost:33507/heat_lines2/1705436', function(data) {
+        stravaLineGeoJson = data;
+        console.log(stravaLineGeoJson);
+        r.resolve();
+    });
+    return r;
+};
+
+function paintLayer(mapid, color, width, opacity, layer) {
+    mapid.setPaintProperty(layer, 'line-color', color);
+    mapid.setPaintProperty(layer, 'line-width', width);
+    mapid.setPaintProperty(layer, 'line-opacity', opacity);
+}
+
+try {
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
+        center: mapboxgl.LngLat.convert(center_point),
+        zoom: 9,
+        minZoom: 3,
+        maxZoom: 17,
+        attributionControl: true
+    });
+} catch (e) {
+    var mapContainer = document.getElementById('map');
+    mapContainer.parentNode.removeChild(mapContainer);
+    document.getElementById('config-fields').setAttribute('disabled', 'yes');
+    openErrorModal('This site requires WebGL, but your browser doesn\'t seem' +
+        ' to support it. Sorry.');
+}
+
+map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
+map.dragRotate.disable();
+map.touchZoomRotate.disableRotation();
+getDataLinestring().done(addLayerLinestring);
+/*
+var linestring_src = new mapboxgl.GeoJSONSource({
+        data: 'http://localhost:33507/heat_lines2/1705436',
+        maxzoom: 17,
+        buffer: 10,
+        tolerance: 0.5
+    });
+
+map.on('style.load', function() {
+    try {
+        map.addSource('linestring', linestring_src);
+        map.addLayer(lineHeatStyle);
+    } 
+    catch (err) {
+        console.log(err);
+    }
+    map.dragRotate.disable();
+    set_visibility(map, 'linestring', 'on');
+});*/
+</script>
+ {% endblock %}
