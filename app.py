@@ -226,7 +226,7 @@ def account():
 @app.route('/sign_s3')
 def sign_s3():
     # how long to keep the file on AWS S3 storage
-    days_to_expire = 120
+    days_to_expire = 30
     # AWS S3 access information from environment variables
     AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')

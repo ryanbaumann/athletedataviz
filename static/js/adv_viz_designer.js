@@ -388,15 +388,17 @@ function generateMap() {
     } else {
         style = 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn';
     }
+    //Set image quality
     var width = 8;
     var height = 6;
     var dpi = 350;
     var format = 'png';
     var unit = 'in';
+    //get current map settings to recreate in backcanvas for image
     var zoom = map.getZoom();
     var center = map.getCenter();
     var bearing = map.getBearing();
-
+    //function to create the map
     createPrintMap(width, height, dpi, format, unit, zoom, center,
         bearing, style);
 }
@@ -439,10 +441,11 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     img.src = "/static/img/loading.gif";
     snapshot.appendChild(img);
     $("#snapshot_img").addClass("img-responsive center-block");
+    //hide the loading bar, and begin creating the image in the background
     $("#loading").hide();
+    
 
-
-    // Render map
+    // Create backcanvas map for high-rez image
     var renderMap = new mapboxgl.Map({
         container: container,
         center: center,
@@ -454,20 +457,13 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         preserveDrawingBuffer: true
     });
 
-    renderMap.on('style.load', function() {
+    renderMap.on('style.load', function addLayers() {
         linestring_src = new mapboxgl.GeoJSONSource({
             data: stravaLineGeoJson,
             maxzoom: 20
         });
         renderMap.addSource('linestring', linestring_src);
         renderMap.addLayer(lineHeatStyle);
-        try {
-            if (document.getElementById("VizType").value == "heat-line") {
-                set_visibility(renderMap, 'linestring', 'on')
-            }
-        } catch (err) {
-            console.log(err);
-        }
         paintLayer(renderMap,
             document.getElementById("line_color").value,
             parseFloat($('#line_width').slider('getValue')),
@@ -475,54 +471,40 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             'linestring');
     });
 
-    renderMap.once('load', function() {
-        if (format == 'png') {
-            try {
-                var canvas = renderMap.getCanvas();
-                var gl = canvas.getContext("webgl", {antialias: true});
-                var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
-                img.width = targetDims['width'];
-                img.height = targetDims['height'];
-                img.href = img.src;
-                img.id = 'snapshot_img';
-                var imgsrc = canvas.toDataURL("image/jpeg", 0.8);
-                var file;
-                img.class = "img-responsive center-block";
-                img.src = imgsrc;
-                if (canvas.toBlob) {
-                    canvas.toBlob(
-                        function (blob) {
-                            // Do something with the blob object,
-                            var randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
-                            file = new File([blob], "ADV_" + ath_name + "_" + randNum + ".jpg", {
-                                type: "image/jpeg"
-                            });
-                        },
-                        'image/jpeg', 0.99
-                    );
-                } 
-                //put the new image in the div
-                snapshot.innerHTML = '';
-                snapshot.appendChild(img);
-                $("#snapshot_img").addClass("img-responsive center-block");
-                get_signed_request(file);
-            } catch (err) {
-                console.log(err);
-            }
-
-        } else {
-            var pdf = new jsPDF({
-                orientation: width > height ? 'l' : 'p',
-                unit: unit,
-                format: [width, height],
-                compress: true
-            });
-
-            pdf.addImage(renderMap.canvas.canvas.toDataURL('image/jpeg', 1),
-                'jpeg', 0, 0, width, height);
-            pdf.save('map.pdf');
-
+    renderMap.once('load', function createImage() {
+        try {
+            var canvas = renderMap.getCanvas();
+            var gl = canvas.getContext("webgl", {antialias: true});
+            var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
+            img.width = targetDims['width'];
+            img.height = targetDims['height'];
+            img.href = img.src;
+            img.id = 'snapshot_img';
+            var imgsrc = canvas.toDataURL("image/jpeg", 0.8);
+            var file;
+            img.class = "img-responsive center-block";
+            img.src = imgsrc;
+            if (canvas.toBlob) {
+                canvas.toBlob(
+                    function (blob) {
+                        // Do something with the blob object,
+                        var randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
+                        file = new File([blob], "ADV_" + ath_name + "_" + randNum + ".jpg", {
+                            type: "image/jpeg"
+                        });
+                    },
+                    'image/jpeg', 0.99
+                );
+            } 
+            //put the new image in the div
+            snapshot.innerHTML = '';
+            snapshot.appendChild(img);
+            $("#snapshot_img").addClass("img-responsive center-block");
+            get_signed_request(file);
+        } catch (err) {
+            console.log(err);
         }
+
         renderMap.remove();
         hidden.parentNode.removeChild(hidden);
         Object.defineProperty(window, 'devicePixelRatio', {
@@ -533,6 +515,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         document.getElementById('spinner').style.display = 'none';
         document.getElementById('snap').classList.remove('disabled');
     });
+
 }
 
 ///////////////////  Error Modal  //////////

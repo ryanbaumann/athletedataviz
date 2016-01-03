@@ -17,6 +17,13 @@
 {% endblock %} {% block content %}
 <div id="container">
 <div id="map">
+<div id="loading">
+        <div class="loading-indicator">
+            <div class="progress progress-striped active">
+                <div class="progress-bar progress-bar-info progress-bar-full"></div>
+            </div>
+        </div>
+    </div>
 </div>
 </div>
 <script>
@@ -31,42 +38,52 @@ var mapboxgl_accessToken = '{{ mapbox_gl_accessToken|safe }}';
 var ath_name = '{{ath_name}}'
 mapboxgl.accessToken = mapboxgl_accessToken;
 
-var lineHeatStyle = {
+var mapStyle = {
+  version: 8,
+  name: 'Basic',
+  sources: {
+    'us-counties': {
+      'type': 'vector',
+      'url': 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn'
+    }
+  },
+  sprite: '',
+  glyphs: '',
+  layers: [{
     "id": "linestring2",
     "type": "circle",
     "source": "linestring",
     "layout": {},
     "paint": {"circle-color": "red"}
+    }]
 };
 
 //circle heatmap styling for Mapbox GL JS
-/*
+
 var breaks = [0, 4, 8,12,16,20,24,28]
 for (var p = 0; p < breaks.length; p++) {
   var filters
   if (p < breaks.length - 1) {
     filters = [ 'all',
-      [ '>=', 'd', breaks[p] ],
-      [ '<', 'd', breaks[p + 1] ]
+      [ '>=', 's', breaks[p] ],
+      [ '<', 's', breaks[p + 1] ]
     ]
   } else {
     filters = [ 'all',
-      [ '>=', 'd', breaks[p] ]
+      [ '>=', 's', breaks[p] ]
     ]
   }
-  
-map.getStyle('linestring').layers.push({
-    id: 'points-pop-' + p,
-    type: 'circle',
-    source: 'linestring',
-    'source-layer': 'linestring',
-    paint: {
-       "line-color": (p + 1) / breaks.length
-    },
-    filter: filters
-  })
+  mapStyle.layers.push({
+    "id": "linestring2",
+    "type": "circle",
+    "source": "linestring",
+    "layout": {},
+    "paint": {"circle-color": "red",
+              "circle-opacity": (p + 1) / breaks.length},
+    "filter": filters
+  });
 }
-*/
+
 try {
     var map = new mapboxgl.Map({
         container: 'map',
@@ -110,6 +127,7 @@ function addLayerLinestring() {
         buffer: 10,
         tolerance: 0.5
     });
+
     try {
         map.addSource('linestring', linestring_src);
     } catch (err) {
@@ -130,13 +148,14 @@ function addLayerLinestring() {
             "text-field": "{s}",
             "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
             "text-offset": [0, 0.0],
-            "text-anchor": "top",
-            "text-allow-overlap" : true
+            "text-anchor": "top"
         },
     "paint": {
         "text-size": 10,
         "text-color":"blue"},
     });
+
+    map.setStyle(mapStyle);
 /*
     map.on("mousemove", function(e) {
     map.featuresAt(e.point, {
@@ -170,5 +189,28 @@ function paintLayer(mapid, color, width, opacity, layer) {
     mapid.setPaintProperty(layer, 'line-width', width);
     mapid.setPaintProperty(layer, 'line-opacity', opacity);
 }
+
+//Stop the loading bar when ajax requests complete
+$(document).one("ajaxStop", function() {
+    $("#loading").hide();
+});
+
+var lineHeatStyle = {
+    "id": "linestring2",
+    "type": "line",
+    "source": "linestring",
+    "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+    },
+    "paint": {
+        "line-color": "red"
+    },
+    "transition": {
+        "duration": 300,
+        "delay": 0
+    }
+}
+
 </script>
  {% endblock %}
