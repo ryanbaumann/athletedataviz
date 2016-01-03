@@ -24,7 +24,8 @@
 
 var center_point = [{{avg_long | safe}}, {{avg_lat | safe}}];
 var heatpoint_url = '{{ heatpoint_url | safe}}';
-var heatline_url = '{{ heatline_url | safe}}';
+var heatline2_url = '{{ heatline2_url | safe}}';
+console.log(heatline2_url);
 var mapbox_accessToken = '{{ mapbox_accessToken|safe }}';
 var mapboxgl_accessToken = '{{ mapbox_gl_accessToken|safe }}';
 var ath_name = '{{ath_name}}'
@@ -157,9 +158,8 @@ function addLayerLinestring() {
 
 function getDataLinestring() {
     var r = $.Deferred();
-    $.getJSON('http://localhost:33507/heat_lines2/1705436', function(data) {
+    $.getJSON(heatline2_url, function(data) {
         stravaLineGeoJson = data;
-        console.log(stravaLineGeoJson);
         r.resolve();
     });
     return r;

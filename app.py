@@ -377,8 +377,8 @@ def testmap():
                                'MAPBOX_ACCESS_TOKEN'],
                            heatpoint_url=BASEPATH +
                            'heat_points/' + str(session['ath_id']),
-                           heatline_url=BASEPATH +
-                           'heat_lines/' + str(session['ath_id']),
+                           heatline2_url=BASEPATH +
+                           'heat_lines2/' + str(session['ath_id']),
                            ath_name=athlete.firstname + "_" + athlete.lastname + '_' + datetime.utcnow().strftime('%y%m%d'))
 
 
