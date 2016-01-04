@@ -269,7 +269,7 @@ def sign_s3():
     return content
 
 
-@app.route("/submit_form/", methods=["POST"])
+@app.route("/submit_form", methods=["POST"])
 def submit_form():
     username = request.form["username"]
     full_name = request.form["full_name"]
