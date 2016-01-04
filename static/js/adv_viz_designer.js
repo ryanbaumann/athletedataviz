@@ -403,9 +403,17 @@ function generateMap() {
         bearing, style);
 }
 
+
 function createPrintMap(width, height, dpi, format, unit, zoom, center,
     bearing, style, source) {
-    'use strict';
+    //'use strict';
+    //blob data for image global variable so we can add a listener event
+    var imgBlob;
+    //random number generator for the filename
+    var randNum;
+    //create file object variable for use to reference image blog
+    var file;
+    var filename;
 
     // Calculate pixel ratio
     var actualPixelRatio = window.devicePixelRatio;
@@ -484,23 +492,23 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             var file;
             img.class = "img-responsive center-block";
             img.src = imgsrc;
-            if (canvas.toBlob) {
-                canvas.toBlob(
-                    function (blob) {
-                        // Do something with the blob object,
-                        var randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
-                        file = new File([blob], "ADV_" + ath_name + "_" + randNum + ".jpg", {
-                            type: "image/jpeg"
-                        });
-                    },
-                    'image/jpeg', 0.99
-                );
-            } 
             //put the new image in the div
             snapshot.innerHTML = '';
             snapshot.appendChild(img);
             $("#snapshot_img").addClass("img-responsive center-block");
-            get_signed_request(file);
+            //Now create the high rez image and upload it to the server
+            if (canvas.toBlob) {
+                canvas.toBlob(
+                    function (blob) {
+                        // Do something with the blob object,
+                        randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
+                        filename = "ADV_" + ath_name + "_" + randNum + ".jpg"
+                        file = new File([blob], filename , {type: "image/jpeg"});
+                        get_signed_request(file);
+                    },
+                    'image/jpeg', 0.99
+                );
+            } 
         } catch (err) {
             console.log(err);
         }
@@ -512,44 +520,6 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                 return actualPixelRatio
             }
         });
-        document.getElementById('spinner').style.display = 'none';
-        document.getElementById('snap').classList.remove('disabled');
     });
 
-}
-
-///////////////////  Error Modal  //////////
-var origBodyPaddingRight;
-
-function openErrorModal(msg) {
-    'use strict';
-    var modal = document.getElementById('errorModal');
-    document.getElementById('modal-error-text').innerHTML = msg;
-    modal.style.display = 'block';
-    document.body.classList.add('modal-open');
-    document.getElementById('modal-backdrop').style.height =
-        modal.scrollHeight + 'px';
-
-    if (document.body.scrollHeight > document.documentElement.clientHeight) {
-        origBodyPaddingRight = document.body.style.paddingRight;
-        var padding = parseInt((document.body.style.paddingRight || 0), 10);
-        document.body.style.paddingRight = padding + measureScrollbar() + 'px';
-    }
-}
-
-function closeErrorModal() {
-    'use strict';
-    document.getElementById('errorModal').style.display = 'none';
-    document.body.classList.remove('modal-open');
-    document.body.style.paddingRight = origBodyPaddingRight;
-}
-
-function measureScrollbar() {
-    'use strict';
-    var scrollDiv = document.createElement('div');
-    scrollDiv.className = 'modal-scrollbar-measure';
-    document.body.appendChild(scrollDiv);
-    var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
-    document.body.removeChild(scrollDiv);
-    return scrollbarWidth;
 }

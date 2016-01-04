@@ -1,6 +1,6 @@
 
 function get_signed_request(file){
-    var datapath = '/sign_s3?file_name='+file.name+"&file_type="+file.type
+    var datapath = '/sign_s3?file_name='+file.name+'&file_type='+file.type
     var xhr = new XMLHttpRequest();
     xhr.open("GET", datapath);
     xhr.onreadystatechange = function(){
@@ -19,7 +19,6 @@ function get_signed_request(file){
 
 //update links
 function updateLinks(url) {
-    console.log(encodeURIComponent(url))
     var fb_share = 'https://www.facebook.com/sharer/sharer.php?u=' + 
                 encodeURIComponent(url);
     var pin_share = 'https://pinterest.com/pin/create/button/?url=url=www.athletedataviz.com&media=' + 
@@ -28,13 +27,10 @@ function updateLinks(url) {
     var twit_share = 'https://twitter.com/home?status=' +
                 encodeURIComponent('Check out my AthleteDataViz! ' + url);
     var google_share = 'https://plus.google.com/share?url=' + encodeURIComponent(url);
-    var link_share = 'https://www.linkedin.com/shareArticle?mini=true&url=' + encodeURIComponent(url) +
-                '&title=athletedataviz&summary=Check%20out%20my%20AthleteDataViz!&source=www.athletedataviz.com'
     $("#share_fb").attr('href', fb_share);
     $("#share_pin").attr('href', pin_share);
     $("#share_twit").attr('href', twit_share);
     $("#share_gplus").attr('href', google_share);
-    $("#share_link").attr('href', link_share);
 }
 
 function upload_file(file, signed_request, url){
@@ -43,9 +39,12 @@ function upload_file(file, signed_request, url){
     xhr.setRequestHeader('x-amz-acl', 'public-read');
     xhr.onload = function() {
         if (xhr.status === 200) {
-            $('#download_viz').attr('href', url);
             updateLinks(url);
+            $("#download_viz").attr('href', url)//.attr('download', file.name);
+            //show new icons, activate download and share buttons, reactivate save design btn
             $('#social').show();
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('snap').classList.remove('disabled');
             document.getElementById('download_viz').classList.remove('disabled');
             document.getElementById('img_share_url').classList.remove('disabled');
         }

@@ -127,19 +127,20 @@ function addLayerLinestring() {
         buffer: 10,
         tolerance: 0.5
     });
-
+    console.log('here!')
     try {
         map.addSource('linestring', linestring_src);
     } catch (err) {
             console.log(err);
     }
+    console.log('here!')
     try {
         map.addLayer(lineHeatStyle);
     } catch (err) {
             console.log(err);
     }
-    paintLayer(map, "#FF0000", 2, 1, 'linestring2');
-
+    //paintLayer(map, "#FF0000", 2, 1, 'linestring2');
+    console.log('here!')
     map.addLayer({
         "id": "route-hover",
         "type": "symbol",
@@ -154,7 +155,7 @@ function addLayerLinestring() {
         "text-size": 10,
         "text-color":"blue"},
     });
-
+    console.log('here!')
     map.setStyle(mapStyle);
 /*
     map.on("mousemove", function(e) {
@@ -196,7 +197,7 @@ $(document).one("ajaxStop", function() {
 });
 
 var lineHeatStyle = {
-    "id": "linestring2",
+    "id": "linestring",
     "type": "line",
     "source": "linestring",
     "layout": {
