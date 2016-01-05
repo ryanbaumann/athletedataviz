@@ -379,6 +379,7 @@ function generateMap() {
     document.getElementById('snap').classList.add('disabled');
     document.getElementById('download_viz').classList.add('disabled');
     document.getElementById('img_share_url').classList.add('disabled');
+    document.getElementById('order_viz').classList.add('disabled');
     $("#loading").show();
     //Get the current map style
     var style;
@@ -502,17 +503,20 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                     function (blob) {
                         // Do something with the blob object,
                         randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
-                        filename = "ADV_" + ath_name + "_" + randNum + ".jpg"
+                        filename = "ADV_" + ath_name + "_" + randNum + ".jpg";
+                        console.log('creating file...')
                         file = new File([blob], filename , {type: "image/jpeg"});
+                        console.log('getting file to server...')
                         get_signed_request(file);
+
                     },
                     'image/jpeg', 0.99
                 );
-            } 
+            }
+            else {} 
         } catch (err) {
             console.log(err);
         }
-
         renderMap.remove();
         hidden.parentNode.removeChild(hidden);
         Object.defineProperty(window, 'devicePixelRatio', {

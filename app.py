@@ -17,6 +17,8 @@ from flask.ext.compress import Compress
 from flask.ext.cache import Cache
 from flask_sslify import SSLify
 from celery.exceptions import SoftTimeLimitExceeded
+from forms import OrderForm
+
 #################
 # configuration #
 #################
@@ -44,15 +46,18 @@ BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 #  API   #
 ##########
 #
+
+
 def output_html(data, code, headers=None):
     resp = Response(data, mimetype='text/html', headers=headers)
     resp.status_code = code
     return resp
 
+
 class Heat_Points(Resource):
 
-
     #@cache.memoize(timeout=3600, make_cache_key=)
+
     def get(self, ath_id):
         heatpoints = json.loads(
             sp.get_heatmap_points(engine, int(ath_id)))['points']
@@ -63,6 +68,7 @@ class Heat_Points(Resource):
 class Heat_Lines(Resource):
 
     #@cache.memoize(timeout=3600)
+
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
@@ -72,6 +78,7 @@ class Heat_Lines(Resource):
 class Heat_Lines2(Resource):
 
     #@cache.memoize(timeout=3600)
+
     def get(self, ath_id):
         geojsonlines = sp.get_heatmap_lines(
             engine, int(ath_id))
@@ -81,6 +88,7 @@ class Heat_Lines2(Resource):
 class Current_Acts(Resource):
 
     #@cache.memoize(timeout=3600)
+
     def get(self, ath_id):
         print "getting current activities..."
         try:
@@ -198,10 +206,20 @@ def logout():
     return redirect(url_for('homepage'))
 
 
-@app.route('/contact')
-def contact():
+@app.route('/order', methods=['GET', 'POST'])
+def order():
     """ Sends user to contact page """
-    return render_template('contact.html')
+    form = OrderForm()
+    session['img_url'] = request.args.get('url')
+    if request.method == 'POST':
+        if form.validate() == False:
+            flash('All fields are required.')
+            return render_template('order.html', form=form)
+        else:
+            return 'Form posted.'
+
+    elif request.method == 'GET':
+        return render_template('order.html', form=form, img_url=session['img_url'])
 
 
 @app.route('/products')
@@ -220,7 +238,7 @@ def blog():
 def account():
     """ Sends user to account page """
     return render_template('account.html',
-                            basepath = BASEPATH)
+                           basepath=BASEPATH)
 
 
 @app.route('/sign_s3')
@@ -234,7 +252,7 @@ def sign_s3():
     # Folder to store images in
     foldername = r'user/' + str(session['ath_id']) + r'/'
     # Get filename and filetype from request header in URL
-    object_name = foldername + urllib.quote_plus( request.args.get('file_name'))
+    object_name = foldername + urllib.quote_plus(request.args.get('file_name'))
     mime_type = request.args.get('file_type')
     # Set expiration date of file - currently set to "days_to_expire"
     expires = int(time.time() + 60 * 60 * 24 * days_to_expire)
@@ -352,6 +370,7 @@ def strava_mapbox():
                            'heat_lines/' + str(session['ath_id']),
                            ath_name=athlete.firstname + "_" + athlete.lastname + '_' + datetime.utcnow().strftime('%y%m%d'))
 
+
 @app.route('/testmap')
 def testmap():
     """
@@ -421,6 +440,7 @@ def page_not_found(error):
 def internal_error(exception):
     app.logger.exception(exception)
     return render_template('500.html'), 500
+
 
 @app.route('/robots.txt')
 @app.route('/sitemap.xml')
@@ -524,7 +544,7 @@ def longtask():
                            'medium')
     if os.environ['APP_SETTINGS'] == 'config.DevelopmentConfig':
         return jsonify({}), 202, {'Location': url_for('taskstatus',
-                                                  task_id=task.id)}
+                                                      task_id=task.id)}
     else:
         return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                       _scheme='https',

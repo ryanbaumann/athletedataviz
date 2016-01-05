@@ -19,8 +19,8 @@
     <link rel="stylesheet" type="text/css"  href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/stylesheets/jquery.sidr.light.css">
-    
     <link rel="stylesheet" href="static/css/style.css" type="text/css">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" ></script>
@@ -68,20 +68,20 @@
                     <li><a href="/strava_mapbox">Designer</a></li>
                     <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
                     {% endif %}
-                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right social">
                     <!-- social media icons -->
                     <li> <a href="https://www.facebook.com/athletedataviz" target="_blank"><i class="fa fa-lg fa-facebook"></i></a></li>
                     <li><a href="https://www.instagram.com/athletedataviz" target="_blank"><i class="fa fa-lg fa-instagram"></i></a></li>
-                    <li><a href='https://plus.google.com/b/105079309559797917196/105079309559797917196/posts?gmbpt=true&pageId=105079309559797917196&hl=en' target="_blank"><i class="fa fa-lg fa-google-plus"></i></a></li>
+                    <li><a href='https://plus.google.com/b/105079309559797917196/105079309559797917196/posts?gmbpt=true&pageId=105079309559797917196&hl=en' 
+                           target="_blank"><i class="fa fa-lg fa-google-plus"></i></a></li>
                     <li><a href="https://twitter.com/AthleteDataViz" target="_blank"><i class="fa fa-lg fa-twitter"></i></a></li>
                     <li><a href="https://www.linkedin.com/company/athletedataviz?trk=prof-following-company-logo" target="_blank"><i class="fa fa-lg fa-linkedin"></i></a></li>
                     <li><a href="https://www.pinterest.com/athletedataviz/" target="_blank"><i class="fa fa-lg fa-pinterest"></i></a></li>
 
                     <!-- Toolbar for Map editor -->
                     {% if request.path=="/strava_mapbox" %}
-                    <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Toolbar</li></a> 
+                    <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Toolbar</a> </li>
                     {% endif %}
                 </u1>
             </div>

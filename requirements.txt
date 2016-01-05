@@ -29,3 +29,4 @@ flask-compress
 flask-cache
 flask-sslify
 Image
+flask-wtf

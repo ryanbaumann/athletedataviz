@@ -165,3 +165,54 @@ class Athlete_Fact(db.Model):
                                                               self.filename)
     def getUrl(self, filename):
         return self.url
+
+
+class Orders(db.Model):
+    __tablename__ = 'Orders'
+
+    order_id = db.Column(db.Integer, primary_key=True)
+    ath_id = db.Column(db.Integer, db.ForeignKey('Athlete.ath_id'), index=True)
+    ath_fact_id = db.Column(db.Integer, db.ForeignKey('Athlete_Fact.id'), index=True)
+    order_placed_date = db.Column(
+        db.DateTime(), default=datetime.utcnow, index=True)
+    last_updated_datetime_utc = db.Column(
+        db.DateTime(), default=datetime.utcnow)
+    first_name = db.Column(db.String())
+    last_name = db.Column(db.String())
+    address = db.Column(db.String())
+    state =  db.Column(db.String())
+    zipcode = db.Column(db.String())
+    country = db.Column(db.String())
+    phone = db.Column(db.String())
+    comments = db.Column(db.String())
+    paid = db.Column(db.Boolean())
+    paid_method = db.Column(db.String())
+    paid_id = db.Column(db.Integer)
+    paid_date = db.Column(db.DateTime())
+    order_supplier_placed = db.Column(db.Boolean())
+    order_supplier_placed_date = db.Column(db.DateTime())
+    order_supplier_shipped = db.Column(db.Boolean())
+    order_supplier_shipped_date = db.Column(db.DateTime())
+    order_closed = db.Column(db.Boolean())
+    order_closed_date = db.Column(db.DateTime())
+
+
+    def __init__(self, ath_id, ath_fact_id, first_name, last_name, address, state, zipcode, 
+                country, phone, comments):
+        self.ath_id = ath_id
+        self.ath_fact_id = ath_fact_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.address = address
+        self.state = state
+        self.zipcode = zipcode
+        self.country = country
+        self.phone = phone
+        self.comments = comments
+
+    def __repr__(self):
+        return '<order_id %s, ath_id %s, ath_fact_id %s>' % (self.order_id,
+                                                              self.ath_id,
+                                                              self.ath_fact_id)
+    def getOrder(self, orderid):
+        return self.order_id
