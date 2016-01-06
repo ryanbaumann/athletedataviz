@@ -62,10 +62,15 @@
             <div class="navbar-collapse collapse" id="myNavbar">
                 <ul class="nav navbar-nav">
                     <li><a href="/">Home</a></li>
+                    {% if session.access_token %}
+                    <li><a href="/strava_mapbox">Design</a></li>
+                    {% endif %}
+                    <li><a href="https://store.athletedataviz.com">Order</a></li>
+                    <li><a href="https://store.athletedataviz.com">About</a></li>
+                    <li><a href="https://store.athletedataviz.com">Contact</a></li>
                     {% if not session.access_token %}
                     <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
                     {% else %}
-                    <li><a href="/strava_mapbox">Designer</a></li>
                     <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
                     {% endif %}
                 </ul>
