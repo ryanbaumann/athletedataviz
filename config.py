@@ -69,7 +69,7 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEBUG = False
-    HOST_NAME = r'athletedataviz.com'
+    HOST_NAME = r'design.athletedataviz.com'
     APP_NAME = r'athletedataviz-pro'
     HEADER = r'https://'
     PORT = r''
