@@ -41,7 +41,7 @@ function upload_file(file, signed_request, url){
         if (xhr.status === 200) {
             updateLinks(url);
             $("#download_viz").attr('href', url)//.attr('download', file.name);
-            $("#order_viz").attr('href', 'order?url='+encodeURIComponent(url))
+            $("#order_viz").attr('href', 'https://athletedataviz.com/collections/frontpage?url='+encodeURIComponent(url))
             //show new icons, activate download and share buttons, reactivate save design btn
             $('#social').show();
             document.getElementById('spinner').style.display = 'none';
