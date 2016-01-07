@@ -195,6 +195,7 @@ def login():
     auth_url = client.authorization_url(
         client_id=app.config['STRAVA_CLIENT_ID'],
         redirect_uri=redirect_uri)
+    print auth_url
     return render_template('login.html', auth_url=auth_url)
 
 
