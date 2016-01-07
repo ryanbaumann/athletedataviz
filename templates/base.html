@@ -61,13 +61,13 @@
             </div>
             <div class="navbar-collapse collapse" id="myNavbar">
                 <ul class="nav navbar-nav">
-                    <li><a href="/">Home</a></li>
+                    <li><a href="https://athletedataviz.com">Home</a></li>
                     {% if session.access_token %}
                     <li><a href="/strava_mapbox">Design</a></li>
                     {% endif %}
-                    <li><a href="https://shop.athletedataviz.com/">Order</a></li>
-                    <li><a href="https://shop.athletedataviz.com/pages/about">About</a></li>
-                    <li><a href="https://shop.athletedataviz.com/pages/contact">Contact</a></li>
+                    <li><a href="https://athletedataviz.com/collections/frontpage">Order</a></li>
+                    <li><a href="https://athletedataviz.com/pages/about">About</a></li>
+                    <li><a href="https://athletedataviz.com/pages/contact">Contact</a></li>
                     {% if not session.access_token %}
                     <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
                     {% else %}
@@ -78,11 +78,12 @@
                     <!-- social media icons -->
                     <li> <a href="https://www.facebook.com/athletedataviz" target="_blank"><i class="fa fa-lg fa-facebook"></i></a></li>
                     <li><a href="https://www.instagram.com/athletedataviz" target="_blank"><i class="fa fa-lg fa-instagram"></i></a></li>
+                    <!--
                     <li><a href='https://plus.google.com/b/105079309559797917196/105079309559797917196/posts?gmbpt=true&pageId=105079309559797917196&hl=en' 
                            target="_blank"><i class="fa fa-lg fa-google-plus"></i></a></li>
                     <li><a href="https://twitter.com/AthleteDataViz" target="_blank"><i class="fa fa-lg fa-twitter"></i></a></li>
                     <li><a href="https://www.linkedin.com/company/athletedataviz?trk=prof-following-company-logo" target="_blank"><i class="fa fa-lg fa-linkedin"></i></a></li>
-                    <li><a href="https://www.pinterest.com/athletedataviz/" target="_blank"><i class="fa fa-lg fa-pinterest"></i></a></li>
+                    <li><a href="https://www.pinterest.com/athletedataviz/" target="_blank"><i class="fa fa-lg fa-pinterest"></i></a></li>-->
 
                     <!-- Toolbar for Map editor -->
                     {% if request.path=="/strava_mapbox" %}
