@@ -18,6 +18,7 @@ from flask.ext.cache import Cache
 from flask_sslify import SSLify
 from celery.exceptions import SoftTimeLimitExceeded
 from forms import OrderForm
+import shopify
 
 #################
 # configuration #
@@ -41,11 +42,14 @@ if 'DYNO' in os.environ:
     sslify = SSLify(app, permanent=True)
 from models import *
 BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
+shop_url = "https://%s:%s@athletedataviz.myshopify.com/admin" % \
+    (app.config['SHOPIFY_API_KEY'], app.config['SHOPIFY_PASSWORD'])
+shopify.ShopifyResource.set_site(shop_url)
+shop = shopify.Shop.current()
 
 ##########
 #  API   #
 ##########
-#
 
 
 def output_html(data, code, headers=None):
@@ -241,6 +245,17 @@ def account():
     return render_template('account.html',
                            basepath=BASEPATH)
 
+@app.route('/newproduct')
+def newproduct():
+    """Posts a new product to the shopify page"""
+
+    # Create a new product
+    new_product = shopify.Product()
+    new_product.title = "Burton Custom Freestyle 151"
+    new_product.product_type = "Snowboard"
+    new_product.vendor = "Burton"
+    success = new_product.save() #returns false if the record is invalid
+    return('posted product!')
 
 @app.route('/sign_s3')
 def sign_s3():

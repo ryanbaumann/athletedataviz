@@ -66,6 +66,9 @@ class Config(object):
     CACHE_TYPE = 'redis'
     CACHE_REDIS_URL = os.environ['REDIS_URL']
 
+    #Shopify API
+    SHOPIFY_API_KEY = os.environ['SHOPIFY_API_KEY']
+    SHOPIFY_PASSWORD = os.environ['SHOPIFY_PASSWORD']
 
 class ProductionConfig(Config):
     DEBUG = False

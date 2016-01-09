@@ -30,3 +30,4 @@ flask-cache
 flask-sslify
 Image
 flask-wtf
+ShopifyAPI
