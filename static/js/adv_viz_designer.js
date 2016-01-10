@@ -137,7 +137,6 @@ function addLayerLinestring() {
     fit();
 };
 
-
 //Load the data asrchnoutsly from api, then add layers to map
 //getDataHeat().done(addLayerHeat);
 map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
@@ -414,7 +413,17 @@ function generateMap() {
 
 function createPrintMap(width, height, dpi, format, unit, zoom, center,
     bearing, style, source) {
-    //'use strict';
+    document.getElementById('download_viz').addEventListener("click", function(event) {
+        event.preventDefault();
+        var canvas = renderMap.getCanvas();
+        canvas.toBlob(function(blob) {
+            saveAs(
+                  blob
+                , (filename)
+            );
+        }, "image/jpeg", 1);
+        }, false);
+
     //blob data for image global variable so we can add a listener event
     var imgBlob;
     //random number generator for the filename
@@ -511,9 +520,10 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                         // Do something with the blob object,
                         randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
                         filename = "ADV_" + ath_name + "_" + randNum + ".jpg";
-                        console.log('creating file...')
+                        console.log('creating file...');
                         file = new File([blob], filename , {type: "image/jpeg"});
-                        console.log('getting file to server...')
+                        console.log('getting file to server...');
+                        imgBlob = blob;
                         get_signed_request(file);
 
                     },
@@ -523,6 +533,9 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             else {} 
         } catch (err) {
             console.log(err);
+            window.alert("Please try a different browser - only Chrome and Firefox are supported for design ordering and sharing!");
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('snap').classList.remove('disabled');
         }
         renderMap.remove();
         hidden.parentNode.removeChild(hidden);

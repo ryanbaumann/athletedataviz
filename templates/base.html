@@ -13,19 +13,17 @@
     <meta name="author" content="RyanBaumann" />
     <meta name="keywords" content="athlete, data, viz, athletedataviz, heatmap, map, cycling, running, hiking, triathalon, vizualization, mapbox" />
     <meta name="p:domain_verify" content="2518dde61dca1f34a95baa06a75883a0" />
-    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico"/>
-    
-    <link rel="stylesheet" type="text/css"  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css"  href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/stylesheets/jquery.sidr.light.css">
     <link rel="stylesheet" href="static/css/style.css" type="text/css">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" ></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js" ></script>
-    <script src="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/jquery.sidr.js" ></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/jquery.sidr.js"></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     {% block import_script %} {% endblock %}
 </head>
@@ -45,19 +43,15 @@
         s.parentNode.insertBefore(g, s);
     })(document, 'script');
     </script>
-
     <!--- BEGINNING OF NAVBAR -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
                 <div class="navbar-icon-container">
                     <a class="navbar-brand" href="/">Athlete Data Viz </a>
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> 
-                    {% if request.path=="/strava_mapbox" %}
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o">&nbsp;&nbsp;Toolbar </i></a>
-                    {% endif %}
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> {% if request.path=="/strava_mapbox" %}
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o">&nbsp;&nbsp;Toolbar </i></a> {% endif %}
                 </div>
-
             </div>
             <div class="navbar-collapse collapse" id="myNavbar">
                 <ul class="nav navbar-nav">
@@ -84,44 +78,44 @@
                     <li><a href="https://twitter.com/AthleteDataViz" target="_blank"><i class="fa fa-lg fa-twitter"></i></a></li>
                     <li><a href="https://www.linkedin.com/company/athletedataviz?trk=prof-following-company-logo" target="_blank"><i class="fa fa-lg fa-linkedin"></i></a></li>
                     <li><a href="https://www.pinterest.com/athletedataviz/" target="_blank"><i class="fa fa-lg fa-pinterest"></i></a></li>-->
-
                     <!-- Toolbar for Map editor -->
                     {% if request.path=="/strava_mapbox" %}
                     <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Toolbar</a> </li>
                     {% endif %}
-                </u1>
+                </ul>
             </div>
         </div>
     </nav>
-{% block content %} {% endblock %}
+    {% block content %} {% endblock %}
 </body>
 <script>
-    $("#full-extent-btn").click(function() {
-        map.fitBounds(boroughs.getBounds());
-        $(".navbar-collapse.in").collapse("hide");
-        return false;
-    });
+$("#full-extent-btn").click(function() {
+    map.fitBounds(boroughs.getBounds());
+    $(".navbar-collapse.in").collapse("hide");
+    return false;
+});
 
-    $("#legend-btn").click(function() {
-        $("#legendModal").modal("show");
-        $(".navbar-collapse.in").collapse("hide");
-        return false;
-    });
+$("#legend-btn").click(function() {
+    $("#legendModal").modal("show");
+    $(".navbar-collapse.in").collapse("hide");
+    return false;
+});
 
-    $("#login-btn").click(function() {
-        $("#loginModal").modal("show");
-        $(".navbar-collapse.in").collapse("hide");
-        return false;
-    });
+$("#login-btn").click(function() {
+    $("#loginModal").modal("show");
+    $(".navbar-collapse.in").collapse("hide");
+    return false;
+});
 
-    $("#nav-btn").click(function() {
-        $(".navbar-collapse").collapse("toggle");
-        return false;
-    });
-    $("#list-btn").click(function() {
-        $('#sidebar').toggle();
-        map.resize();
-        return false;
-    });
+$("#nav-btn").click(function() {
+    $(".navbar-collapse").collapse("toggle");
+    return false;
+});
+$("#list-btn").click(function() {
+    $('#sidebar').toggle();
+    map.resize();
+    return false;
+});
 </script>
+
 </html>

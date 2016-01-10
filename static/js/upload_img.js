@@ -40,7 +40,13 @@ function upload_file(file, signed_request, url){
     xhr.onload = function() {
         if (xhr.status === 200) {
             updateLinks(url);
-            $("#download_viz").attr('href', url)//.attr('download', file.name);
+            //$("#download_viz").attr('href', url)//.attr('download', file.name);
+            $("#img_share_url").click(function() {
+                copyToClipboard(url)
+            });
+            $("#order_viz").click(function() {
+                copyToClipboard(url)
+            });
             $("#order_viz").attr('href', 'https://athletedataviz.com/collections/frontpage?url='+encodeURIComponent(url))
             //show new icons, activate download and share buttons, reactivate save design btn
             $('#social').show();
