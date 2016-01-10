@@ -385,7 +385,7 @@ function generateMap() {
     document.getElementById('snap').classList.add('disabled');
     document.getElementById('download_viz').classList.add('disabled');
     document.getElementById('img_share_url').classList.add('disabled');
-    document.getElementById('order_viz').classList.add('disabled');
+    //document.getElementById('order_viz').classList.add('disabled');
     $("#loading").show();
     //Get the current map style
     var style;

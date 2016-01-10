@@ -54,7 +54,7 @@ function upload_file(file, signed_request, url){
             document.getElementById('snap').classList.remove('disabled');
             document.getElementById('download_viz').classList.remove('disabled');
             document.getElementById('img_share_url').classList.remove('disabled');
-            document.getElementById('order_viz').classList.remove('disabled');
+            //document.getElementById('order_viz').classList.remove('disabled');
         }
     };
     xhr.onerror = function() {
