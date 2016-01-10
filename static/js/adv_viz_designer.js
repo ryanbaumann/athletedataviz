@@ -58,6 +58,7 @@ var stravaLineGeoJson;
 var linestring_src;
 var heat;
 var maxScale;
+var min_lat, min_long, max_lat, max_long
 //var map = L.mapbox.map('map').setView(center_point, 10)
 if (!mapboxgl.supported()) {
     alert('Your browser does not support Mapbox GL');
@@ -110,6 +111,10 @@ function addLayerHeat() {
     map.removeLayer(heat);
 };
 
+function fit() {
+    map.fitBounds(geojsonExtent(stravaLineGeoJson));
+}
+
 function addLayerLinestring() {
     //Create source for linestrings
     linestring_src = new mapboxgl.GeoJSONSource({
@@ -129,7 +134,9 @@ function addLayerLinestring() {
             console.log(err);
     }
     render();
+    fit();
 };
+
 
 //Load the data asrchnoutsly from api, then add layers to map
 //getDataHeat().done(addLayerHeat);
