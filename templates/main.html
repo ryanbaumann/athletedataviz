@@ -36,12 +36,13 @@
             </div>
             <div class="col-sm-6 text-center">
                 <h3> 2) Design your Viz! </h3>
-                <br>
+                {% if session.access_token %}
                 <div id="view_map">
                     <form action="strava_mapbox" method="GET">
                         <input type="submit" class="btn btn-success" value="Viz Designer">
                     </form>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
