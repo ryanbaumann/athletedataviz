@@ -140,8 +140,8 @@ function addLayerLinestring() {
     } catch (err) {
             console.log(err);
     }
-    render();
     fit();
+    render();
 };
 
 //Load the data asrchnoutsly from api, then add layers to map
@@ -152,6 +152,7 @@ map.touchZoomRotate.disableRotation();
 map.once('style.load', function() {
     getDataLinestring().done(addLayerLinestring);
 });
+
 
 
 //Stop the loading bar when ajax requests complete
@@ -504,7 +505,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             'linestring');
     });
 
-    renderMap.once('load', function createImage() {
+    function createImage() {
         try {
             var canvas = renderMap.getCanvas();
             var gl = canvas.getContext("webgl", {antialias: true});
@@ -538,7 +539,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                     'image/jpeg', 0.99
                 );
             }
-            else {} 
+            else {}; 
         } catch (err) {
             console.log(err);
             window.alert("Please try a different browser - only Chrome and Firefox are supported for design ordering and sharing!");
@@ -552,6 +553,11 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                 return actualPixelRatio
             }
         });
+    }
+
+    renderMap.once('load', function()  {
+        console.log('YES!');
+        setTimeout(createImage, 2000);
     });
 
 }

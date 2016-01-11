@@ -42,6 +42,8 @@
                         <input type="submit" class="btn btn-success" value="Viz Designer">
                     </form>
                 </div>
+                {% else %}
+                <strong> Login to try the viz designer! </strong>
                 {% endif %}
             </div>
         </div>
@@ -166,7 +168,7 @@ function update_progress(status_url, nanobar, status_div) {
                 $('#status').html("<strong> Result: "+data['state']+"</strong>");
             }
         } else {
-            // rerun in 1 seconds
+            // rerun in 2.5 seconds
             setTimeout(function() {
                 update_progress(status_url, nanobar, status_div);
                 $('#status').html("<strong>"+data['status']+"</strong>");
