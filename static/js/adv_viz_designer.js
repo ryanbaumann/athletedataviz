@@ -58,11 +58,12 @@ var stravaLineGeoJson;
 var linestring_src;
 var heat;
 var maxScale;
-var min_lat, min_long, max_lat, max_long
+var imgurl;
 //var map = L.mapbox.map('map').setView(center_point, 10)
 if (!mapboxgl.supported()) {
     alert('Your browser does not support Mapbox GL');
 } else {
+    try {
     var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
@@ -72,6 +73,12 @@ if (!mapboxgl.supported()) {
         maxZoom: 17,
         attributionControl: true
         });
+    }
+    catch (err) {
+        console.log(err);
+        $("#loading").hide();
+        $('#DownloadModal').modal("show");
+    }
 }
 
 function getDataHeat() {
@@ -413,6 +420,7 @@ function generateMap() {
 
 function createPrintMap(width, height, dpi, format, unit, zoom, center,
     bearing, style, source) {
+
     document.getElementById('download_viz').addEventListener("click", function(event) {
         event.preventDefault();
         var canvas = renderMap.getCanvas();
@@ -423,6 +431,11 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             );
         }, "image/jpeg", 1);
         }, false);
+
+    document.getElementById('img_share_url').addEventListener("click", function(event) {
+        event.preventDefault();
+        copyToClipboard(imgurl);
+    });
 
     //blob data for image global variable so we can add a listener event
     var imgBlob;

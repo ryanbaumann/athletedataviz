@@ -48,14 +48,14 @@
         <div class="container-fluid">
             <div class="navbar-header">
                 <div class="navbar-icon-container">
-                    <a class="navbar-brand" href="/">Athlete Data Viz </a>
+                    <a class="navbar-brand" href="https://athletedataviz.com">Athlete Data Viz </a>
                     <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> {% if request.path=="/strava_mapbox" %}
                     <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o">&nbsp;&nbsp;Toolbar </i></a> {% endif %}
                 </div>
             </div>
             <div class="navbar-collapse collapse" id="myNavbar">
                 <ul class="nav navbar-nav">
-                    <li><a href="https://athletedataviz.com">Home</a></li>
+                    <li><a href="/">Download</a></li>
                     {% if session.access_token %}
                     <li><a href="/strava_mapbox">Design</a></li>
                     {% endif %}
@@ -63,21 +63,12 @@
                     <li><a href="https://athletedataviz.com/pages/about">About</a></li>
                     <li><a href="https://athletedataviz.com/pages/contact">Contact</a></li>
                     {% if not session.access_token %}
-                    <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
+                    <li><a id="login-btn"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
                     {% else %}
                     <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
                     {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right social">
-                    <!-- social media icons -->
-                    <li> <a href="https://www.facebook.com/athletedataviz" target="_blank"><i class="fa fa-lg fa-facebook"></i></a></li>
-                    <li><a href="https://www.instagram.com/athletedataviz" target="_blank"><i class="fa fa-lg fa-instagram"></i></a></li>
-                    <!--
-                    <li><a href='https://plus.google.com/b/105079309559797917196/105079309559797917196/posts?gmbpt=true&pageId=105079309559797917196&hl=en' 
-                           target="_blank"><i class="fa fa-lg fa-google-plus"></i></a></li>
-                    <li><a href="https://twitter.com/AthleteDataViz" target="_blank"><i class="fa fa-lg fa-twitter"></i></a></li>
-                    <li><a href="https://www.linkedin.com/company/athletedataviz?trk=prof-following-company-logo" target="_blank"><i class="fa fa-lg fa-linkedin"></i></a></li>
-                    <li><a href="https://www.pinterest.com/athletedataviz/" target="_blank"><i class="fa fa-lg fa-pinterest"></i></a></li>-->
                     <!-- Toolbar for Map editor -->
                     {% if request.path=="/strava_mapbox" %}
                     <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Toolbar</a> </li>
@@ -86,8 +77,32 @@
             </div>
         </div>
     </nav>
-    {% block content %} {% endblock %}
-</body>
+
+    <div class="modal fade text-center" id="DownloadModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Just a slight problem...</h4>
+          </div>
+          <div class="modal-body">
+            <h4> Do you have any data on AthleteDataViz?</h4>
+            <a class="btn btn-primary" href="/">Download</a>
+            <br><br>
+            <p> Please email support at <strong>ryanbaumann@athletedataviz.com</strong> if you have any problems </p>
+            </a>
+            <br>
+            
+          </div>
+          <div class="modal-footer text-center">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% block content %} {% endblock %}
+
 <script>
 $("#full-extent-btn").click(function() {
     map.fitBounds(boroughs.getBounds());
@@ -101,7 +116,8 @@ $("#legend-btn").click(function() {
     return false;
 });
 
-$("#login-btn").click(function() {
+
+$('#login-btn').on('click', function() {
     $("#loginModal").modal("show");
     $(".navbar-collapse.in").collapse("hide");
     return false;
@@ -117,5 +133,8 @@ $("#list-btn").click(function() {
     return false;
 });
 </script>
+
+</body>
+
 
 </html>

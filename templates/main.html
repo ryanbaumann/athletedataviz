@@ -9,12 +9,16 @@
             </div>
             {% endfor %}
             <div id="greeting" class="text-center">
+            {% if session.access_token %}
                 <h1>Welcome {{ athlete.firstname }}! </h1>
+            {% endif %}
             </div>
-            <h3> 1) Get you Activities </h3>
-            <div class="col-xs-12">
-                <form class="form-inline" id="dl_form" action="#">
-                <span class="help-block">Enter a Date Range.  Then click "Get Data"</span>
+            <div class="col-sm-6 text-center">
+                 <h3> 1) Get you Activities </h3>
+                <form class="form-horizontal" id="dl_form" action="#">
+                    <br>
+                    <button id= 'dl_data_btn' type="submit" class="btn btn-primary" id="getData">Get Data</button>
+                <!--<span class="help-block">Enter a Date Range.  Then click "Get Data"</span>-->
                     <div class="form-group">
                         <label for="startDate">Start Date</label>
                         <input type="date" class="form-control" min="2012-00-01" max="2017-00-01" value="2015-01-01" id="startDate">
@@ -24,45 +28,43 @@
                         <input type="date" class="form-control" min="2005-00-00" max="2025-00-30" value="2016-01-01" id="endDate">
                     </div>
                     <div class="form-group">
-                        <label for="act_limit">Activity Limit</label>
-                        <input type="input" class="form-control" value="50" id="act_limit">
+                        <!--<label for="act_limit">Activity Limit</label>-->
+                        <!--<input type="input" class="form-control" value="50" id="act_limit">-->
                     </div>
-                    <br><br>
-                    <button type="submit" class="btn btn-primary" id="getData">Get Data</button>
                 </form>
-            </div>
-            <br>
-            <div class="container-fluid">
                 <div id="progress">&nbsp; </div>
             </div>
-            <h3> 2) View your available Activities </h3>
-            <div class="table" id="act_table">
-            Loading...
+            <div class="col-sm-6 text-center">
+                <h3> 2) Design your Viz! </h3>
+                <br>
+                <div id="view_map">
+                    <form action="strava_mapbox" method="GET">
+                        <input type="submit" class="btn btn-success" value="Viz Designer">
+                    </form>
+                </div>
             </div>
-            <br>
-            <h3> 3) Design your Viz! </h3>
-            <div id="view_map">
-                <form action="strava_mapbox" method="GET">
-                    <input type="submit" class="btn btn-success" value="Viz Designer">
-                </form>
-            </div>
-            <br> <br>
-            <h3> Optional - Delete your Data on Athlete Data Viz </h3>
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"> Delete my Data </button>
         </div>
-        <div
-  class="fb-like"
-  data-share="true"
-  data-width="450"
-  data-show-faces="true">
-</div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-6 text-center">
+            <h3> View your available Activities </h3>
+            <div class="table" id="act_table">
+                Loading...
+            </div>
+        </div>
+        <div class="col-sm-6 text-center">
+            <h3> Delete your Data on AthleteDataViz </h3>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"> Delete my Data </button>
+            <br>
+        </div>
     </div>
 </div>
 
 
 
 <!-- Modals -->
-<div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade bs-example-modal-sm text-center" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -73,21 +75,48 @@
                 <p> Are you sure you want to delete all data? </p>
                 This will not effect your Strava account.
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer text-center">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <form action="delete_acts" method="POST">
-                    <button type="submit" class="btn btn-danger">Confirm Deletion</button>
+                <form class="form-horizontal" action="delete_acts" method="POST">
+                    <button  type="submit" class="btn btn-danger">Confirm Deletion</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<div class="modal fade text-center" id="loginModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Login to AthleteDataViz</h4>
+      </div>
+      <div class="modal-body">
+        <h4> Connect to Strava </h4>
+        <a href="{{auth_url | safe}}">
+        <img class="img-responsive center-block" src="/static/img/ConnectWithStrava.png" alt="Connect with Strava" title="Connect with Strava"></a>
+        <br>
+        <h4> Don't have a Strava Account? </h4>
+        <p> Demo coming soon </p>
+        </a>
+        <br>
+        
+      </div>
+      <div class="modal-footer text-center">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 function start_long_task() {
     // add task status elements
-    setTimeout('document.getElementById("dl_form").disabled=false;',30000);
-    div = $('<div class="progress"><div></div><div>0%</div><div></div><div>&nbsp;</div></div>');
-    $('#progress').append(div);
+    document.getElementById('dl_data_btn').classList.add('disabled');
+    div = $('<div class="progress"><div></div><div>0%</div></div>');
+    div2 = $('<div id="status" class="text-center"></div>')
+    $('#progress').append(div).append(div2);
 
     // create a progress bar
     var nanobar = new Nanobar({
@@ -97,7 +126,7 @@ function start_long_task() {
     var params = {
         startDate: document.getElementById("startDate").value,
         endDate: document.getElementById("endDate").value,
-        act_limit: document.getElementById("act_limit").value
+        act_limit: 500
     };
     // send ajax POST request to start background job
     $.ajax({
@@ -122,23 +151,26 @@ function update_progress(status_url, nanobar, status_div) {
         // update UI
         percent = parseInt(data['current'] * 100 / data['total']);
         nanobar.go(percent);
-        console.log(data['status'])
         $(status_div.childNodes[1]).text(percent + '%');
-        $(status_div.childNodes[2]).text("<h4> " + data['status'] + " </h4>");
+        $(status_div.childNodes[2]).text(data['status']);
         if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
             if ('result' in data) {
                 // show result
                 $(status_div.childNodes[3]).text('Result: ' + data['result']);
+                $('#status').html("<strong> Result: "+data['result']+"</strong>");
+                document.getElementById("dl_data_btn").classList.remove("disabled")
             } else {
                 // something unexpected happened
                 $(status_div.childNodes[3]).text('Result: ' + data['state']);
+                $('#status').html("<strong> Result: "+data['state']+"</strong>");
             }
         } else {
             // rerun in 1 seconds
             setTimeout(function() {
                 update_progress(status_url, nanobar, status_div);
+                $('#status').html("<strong>"+data['status']+"</strong>");
                 get_acts();
-            }, 3000);
+            }, 2500);
         }
     });
 }
@@ -154,17 +186,25 @@ $(document).one("ajaxStop", function() {
 });
 
 function get_acts() {
+    {% if session.access_token %}
     $.get("{{ current_act_url|safe }}", function(data, status) {
         $('#act_table').html(data);
     });
+    {% endif %}
 }
 
+
+
 $( document ).ready(function() {
-    get_acts();
+    {% if session.access_token %}
+    $('#act_table').on('load', get_acts());
     var today = moment().format('YYYY-MM-DD');
     var threeMonthsAgo = moment().subtract(90, 'days').format('YYYY-MM-DD');
     $('#startDate').val(threeMonthsAgo);
     $('#endDate').val(today);
+    {% else %}
+    $("#loginModal").modal("show");
+    {% endif %}
 });
 
 </script>

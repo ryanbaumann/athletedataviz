@@ -126,7 +126,14 @@ def homepage():
 
     # Check if the user is logged in, otherwise forward them to the login page
     if 'access_token' not in session:
-        return redirect(url_for('login'))
+        client = stravalib.client.Client()
+        # Check port configuration for dev vs. deployed environments
+        redirect_uri = app.config['HEADER'] + app.config['HOST_NAME'] + '/auth'
+        auth_url = client.authorization_url(
+            client_id=app.config['STRAVA_CLIENT_ID'],
+            redirect_uri=redirect_uri)
+        return render_template('main.html',  
+                                auth_url=auth_url)
 
     # Render the homepage with the user's Strava access token
     if request.method == 'GET':
@@ -191,7 +198,6 @@ def act_input():
 
 
 @app.route('/login')
-@cache.memoize(timeout=3600)
 def login():
     client = stravalib.client.Client()
     # Check port configuration for dev vs. deployed environments
@@ -254,6 +260,7 @@ def newproduct():
     new_product.title = "Burton Custom Freestyle 151"
     new_product.product_type = "Snowboard"
     new_product.vendor = "Burton"
+    new_product.add
     success = new_product.save() #returns false if the record is invalid
     return('posted product!')
 
@@ -494,7 +501,7 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
 
             self.update_state(state='PROGRESS',
                               meta={'current': count, 'total': total,
-                                    'status': 'Analyzing activity ' + str(act.id)})
+                                    'status': 'Analyzing activity ' + str(act.start_date_local)})
             try:
                 # Add results to dictionary
                 df = sp.ParseActivity(client, act, types, resolution)
@@ -527,7 +534,7 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
                 print "error entering activity or stream data into db!"
     db.session.close()
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
-            'result': 'View your Map!'}
+            'result': 'Complete! Got ' + str(count) + ' new activities'}
 
 
 @app.route('/longtask', methods=['POST'])

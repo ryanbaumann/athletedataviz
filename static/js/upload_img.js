@@ -40,21 +40,16 @@ function upload_file(file, signed_request, url){
     xhr.onload = function() {
         if (xhr.status === 200) {
             updateLinks(url);
-            //$("#download_viz").attr('href', url)//.attr('download', file.name);
-            $("#img_share_url").click(function() {
-                copyToClipboard(url)
-            });
-            $("#order_viz").click(function() {
-                copyToClipboard(url)
-            });
-            $("#order_viz").attr('href', 'https://athletedataviz.com/collections/frontpage?url='+encodeURIComponent(url))
             //show new icons, activate download and share buttons, reactivate save design btn
             $('#social').show();
+            $("#img_share_url").click(function() {
+                copyToClipboard(url);
+            });
+            imgurl = url;
             document.getElementById('spinner').style.display = 'none';
             document.getElementById('snap').classList.remove('disabled');
             document.getElementById('download_viz').classList.remove('disabled');
             document.getElementById('img_share_url').classList.remove('disabled');
-            //document.getElementById('order_viz').classList.remove('disabled');
         }
     };
     xhr.onerror = function() {
