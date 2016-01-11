@@ -207,10 +207,10 @@
     $("#sidebar-hide-btn").click(function() {
         $('#sidebar').hide();
         map.resize();
+        return false;
     });
 
     function copyToClipboard(text) {
-        console.log('text is : ' + text);
         window.prompt("A link to your AthleteDataViz design:", text);
     }
     </script>

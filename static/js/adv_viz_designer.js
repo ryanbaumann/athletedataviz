@@ -432,11 +432,6 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         }, "image/jpeg", 1);
         }, false);
 
-    document.getElementById('img_share_url').addEventListener("click", function(event) {
-        event.preventDefault();
-        copyToClipboard(imgurl);
-    });
-
     //blob data for image global variable so we can add a listener event
     var imgBlob;
     //random number generator for the filename
