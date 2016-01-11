@@ -59,6 +59,13 @@ var linestring_src;
 var heat;
 var maxScale;
 var imgurl;
+//blob data for image global variable so we can add a listener event
+var imgBlob;
+//random number generator for the filename
+var randNum;
+//create file object variable for use to reference image blog
+var file;
+var filename;
 //var map = L.mapbox.map('map').setView(center_point, 10)
 if (!mapboxgl.supported()) {
     alert('Your browser does not support Mapbox GL');
@@ -140,8 +147,8 @@ function addLayerLinestring() {
     } catch (err) {
             console.log(err);
     }
-    fit();
     render();
+    fit();
 };
 
 //Load the data asrchnoutsly from api, then add layers to map
@@ -152,7 +159,6 @@ map.touchZoomRotate.disableRotation();
 map.once('style.load', function() {
     getDataLinestring().done(addLayerLinestring);
 });
-
 
 
 //Stop the loading bar when ajax requests complete
@@ -384,6 +390,11 @@ function download_img(link, img_src, filename) {
     link.download = filename;
 }
 
+document.getElementById('download_viz').addEventListener("click", function(event) {
+    event.preventDefault();
+    saveAs(imgBlob, filename);
+});
+
 // High-res map rendering
 function generateMap() {
     'use strict';
@@ -421,25 +432,6 @@ function generateMap() {
 
 function createPrintMap(width, height, dpi, format, unit, zoom, center,
     bearing, style, source) {
-
-    document.getElementById('download_viz').addEventListener("click", function(event) {
-        event.preventDefault();
-        var canvas = renderMap.getCanvas();
-        canvas.toBlob(function(blob) {
-            saveAs(
-                  blob
-                , (filename)
-            );
-        }, "image/jpeg", 1);
-        }, false);
-
-    //blob data for image global variable so we can add a listener event
-    var imgBlob;
-    //random number generator for the filename
-    var randNum;
-    //create file object variable for use to reference image blog
-    var file;
-    var filename;
 
     // Calculate pixel ratio
     var actualPixelRatio = window.devicePixelRatio;
@@ -505,59 +497,57 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             'linestring');
     });
 
-    function createImage() {
-        try {
-            var canvas = renderMap.getCanvas();
-            var gl = canvas.getContext("webgl", {antialias: true});
-            var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
-            img.width = targetDims['width'];
-            img.height = targetDims['height'];
-            img.href = img.src;
-            img.id = 'snapshot_img';
-            var imgsrc = canvas.toDataURL("image/jpeg", 0.8);
-            var file;
-            img.class = "img-responsive center-block";
-            img.src = imgsrc;
-            //put the new image in the div
-            snapshot.innerHTML = '';
-            snapshot.appendChild(img);
-            $("#snapshot_img").addClass("img-responsive center-block");
-            //Now create the high rez image and upload it to the server
-            if (canvas.toBlob) {
-                canvas.toBlob(
-                    function (blob) {
-                        // Do something with the blob object,
-                        randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
-                        filename = "ADV_" + ath_name + "_" + randNum + ".jpg";
-                        console.log('creating file...');
-                        file = new File([blob], filename , {type: "image/jpeg"});
-                        console.log('getting file to server...');
-                        imgBlob = blob;
-                        get_signed_request(file);
+    renderMap.once('load', function createImage() {
+        console.log('waiting 1 second...');
+        setTimeout(function() { 
+            try {
+                var canvas = renderMap.getCanvas();
+                var gl = canvas.getContext("webgl", {antialias: true});
+                var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
+                img.width = targetDims['width'];
+                img.height = targetDims['height'];
+                img.href = img.src;
+                img.id = 'snapshot_img';
+                var imgsrc = canvas.toDataURL("image/jpeg", 0.8);
+                var file;
+                img.class = "img-responsive center-block";
+                img.src = imgsrc;
+                //put the new image in the div
+                snapshot.innerHTML = '';
+                snapshot.appendChild(img);
+                $("#snapshot_img").addClass("img-responsive center-block");
+                //Now create the high rez image and upload it to the server
+                if (canvas.toBlob) {
+                    canvas.toBlob(
+                        function (blob) {
+                            // Do something with the blob object,
+                            randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
+                            filename = "ADV_" + ath_name + "_" + randNum + ".jpg";
+                            console.log('creating file...');
+                            file = new File([blob], filename , {type: "image/jpeg"});
+                            console.log('getting file to server...');
+                            imgBlob = blob;
+                            get_signed_request(file);
 
-                    },
-                    'image/jpeg', 0.99
-                );
+                        },
+                        'image/jpeg', 0.99
+                    );
+                }
+                else {} 
+            } catch (err) {
+                console.log(err);
+                window.alert("Please try a different browser - only Chrome and Firefox are supported for design ordering and sharing!");
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('snap').classList.remove('disabled');
             }
-            else {}; 
-        } catch (err) {
-            console.log(err);
-            window.alert("Please try a different browser - only Chrome and Firefox are supported for design ordering and sharing!");
-            document.getElementById('spinner').style.display = 'none';
-            document.getElementById('snap').classList.remove('disabled');
-        }
-        renderMap.remove();
-        hidden.parentNode.removeChild(hidden);
-        Object.defineProperty(window, 'devicePixelRatio', {
-            get: function() {
-                return actualPixelRatio
-            }
-        });
-    }
-
-    renderMap.once('load', function()  {
-        console.log('YES!');
-        setTimeout(createImage, 2000);
+            renderMap.remove();
+            hidden.parentNode.removeChild(hidden);
+            Object.defineProperty(window, 'devicePixelRatio', {
+                get: function() {
+                    return actualPixelRatio
+                }
+            });
+        }, 1000);
     });
 
 }

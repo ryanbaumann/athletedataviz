@@ -17,6 +17,10 @@ function get_signed_request(file){
     xhr.send();
 }
 
+$("#img_share_url").click(function() {
+    copyToClipboard(imgurl);
+});
+
 //update links
 function updateLinks(url) {
     var fb_share = 'https://www.facebook.com/sharer/sharer.php?u=' + 
@@ -39,13 +43,10 @@ function upload_file(file, signed_request, url){
     xhr.setRequestHeader('x-amz-acl', 'public-read');
     xhr.onload = function() {
         if (xhr.status === 200) {
+            imgurl = url;
             updateLinks(url);
             //show new icons, activate download and share buttons, reactivate save design btn
             $('#social').show();
-            $("#img_share_url").click(function() {
-                copyToClipboard(url);
-            });
-            imgurl = url;
             document.getElementById('spinner').style.display = 'none';
             document.getElementById('snap').classList.remove('disabled');
             document.getElementById('download_viz').classList.remove('disabled');
