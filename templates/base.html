@@ -49,8 +49,10 @@
             <div class="navbar-header">
                 <div class="navbar-icon-container">
                     <a class="navbar-brand" href="https://athletedataviz.com">Athlete Data Viz </a>
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> {% if request.path=="/strava_mapbox" %}
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o">&nbsp;&nbsp;Toolbar </i></a> {% endif %}
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> 
+                    {% if ((request.path=="/strava_mapbox") or (request.path=="/demodesigner")): %}
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o">&nbsp;&nbsp;Toolbar </i></a> 
+                    {% endif %}
                 </div>
             </div>
             <div class="navbar-collapse collapse" id="myNavbar">
@@ -70,7 +72,7 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right social">
                     <!-- Toolbar for Map editor -->
-                    {% if request.path=="/strava_mapbox" %}
+                    {% if ((request.path=="/strava_mapbox") or (request.path=="/demodesigner")): %}
                     <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Toolbar</a> </li>
                     {% endif %}
                 </ul>
