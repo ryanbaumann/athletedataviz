@@ -33,7 +33,7 @@ class Config(object):
     CELERY_ACCEPT_CONTENT = ['json', 'pickle']
     #CELERY_IGNORE_RESULT = True
     #CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
-    CELERY_REDIS_MAX_CONNECTIONS = 39
+    CELERY_REDIS_MAX_CONNECTIONS = 19
     # Name and email addresses of recipients
     ADMINS = (
         ('test', 'test@gmail.com')
