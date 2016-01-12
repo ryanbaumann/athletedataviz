@@ -34,6 +34,7 @@ class Config(object):
     #CELERY_IGNORE_RESULT = True
     #CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
     CELERY_REDIS_MAX_CONNECTIONS = 19
+    BROKER_POOL_LIMIT=0
     # Name and email addresses of recipients
     ADMINS = (
         ('test', 'test@gmail.com')
