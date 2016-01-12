@@ -63,7 +63,7 @@
                     <li><a href="https://athletedataviz.com/pages/about">About</a></li>
                     <li><a href="https://athletedataviz.com/pages/contact">Contact</a></li>
                     {% if not session.access_token %}
-                    <li><a id="login-btn"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
+                    <li><a href="/"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
                     {% else %}
                     <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout </a></li>
                     {% endif %}

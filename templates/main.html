@@ -11,13 +11,19 @@
             <div id="greeting" class="text-center">
             {% if session.access_token %}
                 <h1>Welcome {{ athlete.firstname }}! </h1>
+            {% else %}
+                <h3> Please login to continue! </h3>
+                <a href="{{auth_url | safe}}">
+                <img class="img-responsive center-block" src="/static/img/ConnectWithStrava.png" alt="Connect with Strava" title="Connect with Strava"></a>
+                <br>
+                <h4> Don't have a Strava Account? </h4>
+                <a type="button" class="btn btn-primary" href="{{ url_for('demodesigner') }}" >Try a Demo!</a>
             {% endif %}
             </div>
             <div class="col-sm-6 text-center">
                  <h3> 1) Get you Activities </h3>
-                <form class="form-horizontal" id="dl_form" action="#">
-                    <br>
-                    <button id= 'dl_data_btn' type="submit" class="btn btn-primary" id="getData">Get Data</button>
+                  {% if session.access_token %}
+                <form class="form-inline" id="dl_form" action="#">
                 <!--<span class="help-block">Enter a Date Range.  Then click "Get Data"</span>-->
                     <div class="form-group">
                         <label for="startDate">Start Date</label>
@@ -27,12 +33,13 @@
                         <label for="endDate">End Date</label>
                         <input type="date" class="form-control" min="2005-00-00" max="2025-00-30" value="2016-01-01" id="endDate">
                     </div>
-                    <div class="form-group">
-                        <!--<label for="act_limit">Activity Limit</label>-->
-                        <!--<input type="input" class="form-control" value="50" id="act_limit">-->
-                    </div>
+                    <br> <br>
+                    <button id= 'dl_data_btn' type="submit" class="btn btn-primary text-center" id="getData">Get Data</button>
                 </form>
                 <div id="progress">&nbsp; </div>
+                {% else %}
+                <strong> Login to try the activity downloader! </strong>
+                {% endif %}
             </div>
             <div class="col-sm-6 text-center">
                 <h3> 2) Design your Viz! </h3>
@@ -49,6 +56,8 @@
         </div>
     </div>
     <br>
+    {% if session.access_token %}
+    <br>
     <div class="row">
         <div class="col-sm-6 text-center">
             <h3> View your available Activities </h3>
@@ -62,6 +71,7 @@
             <br>
         </div>
     </div>
+    {% endif %}
 </div>
 
 
@@ -101,13 +111,7 @@
         <img class="img-responsive center-block" src="/static/img/ConnectWithStrava.png" alt="Connect with Strava" title="Connect with Strava"></a>
         <br>
         <h4> Don't have a Strava Account? </h4>
-        <p> Demo coming soon </p>
-        </a>
-        <br>
-        
-      </div>
-      <div class="modal-footer text-center">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <a type="button" class="btn btn-primary" href="{{ url_for('demodesigner') }}" >Try a Demo!</a>
       </div>
     </div>
   </div>
