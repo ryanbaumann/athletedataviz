@@ -375,6 +375,8 @@ def strava_mapbox():
     and return the template for the user's vizualization (map)
     """
     # First get the map extents so we can draw a point at the center
+    if 'access_token' not in session:
+        return redirect(url_for('homepage'))
     try:
         avg_long, avg_lat = sp.get_acts_centroid(
             engine, int(session['ath_id']))
