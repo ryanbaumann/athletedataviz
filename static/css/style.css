@@ -10,7 +10,7 @@
   max-width: 1000px;
 }
 .bg-grey {
-    background-color: #FF0000 ;
+    background-color: #213236 ;
 }
 div.table{
   border: 1px solid black; 
@@ -44,10 +44,10 @@ input[type="radio"], input[type="checkbox"] {
   height: 100%;
   max-width: 100%;
   float: right;
-  overflow-y: scroll !important;
+  z-index: 11;
   -webkit-transition: all 0.5s ease-out;
-    -moz-transition: all 0.5s ease-out;
-    transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
 }
 #map {
   position: relative;
@@ -75,21 +75,7 @@ input[type="radio"], input[type="checkbox"] {
   -webkit-box-shadow: none;
     box-shadow: none;
 }
-#sidebar-hide-btn {
-  margin-top: -2px;
-}
-#sidebar-toggle-btn {
-  margin-top: -2px;
-  background-color: rgba(255, 255, 255, 0.9);
-  text-align: center;
-  /*position: relative;
-  top: 50px;
-  right: 50%;
-  float: right;
-  z-index:1000;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);*/
-}
+
 #aboutTabsContent {
   padding-top: 10px;
 }
@@ -102,6 +88,20 @@ input[type="radio"], input[type="checkbox"] {
 .feature-row {
   cursor: pointer;
 }
+#sidebar-hide-btn {
+  margin-top: -2px;
+}
+#sidebar-toggle-btn {
+  background-color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  /*position: relative;
+  top: 55px;
+  right: 1px;
+  z-index:1;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);*/
+}
+
 .sidebar-wrapper {
   width: 100%;
   height: 100%;
@@ -190,12 +190,19 @@ input[type="radio"], input[type="checkbox"] {
 .linkedin {
    background-color: #0077b5;
 }
+.navbar {
+  background-color: #213236;
+  font-family: "Roboto","HelveticaNeue","Helvetica Neue",sans-serif;
+  font-size: 1.07143em;
+  font-weight: 700;
+}
 
 .navbar .navbar-brand {
-  font-weight: bold;
+  font-weight: 700;
   font-size: 25px;
-  color: #FFFFFF;
+  color: #f7f7f7;
 }
+
 .navbar-collapse.in {
   overflow-y: hidden;
 }
@@ -210,7 +217,7 @@ input[type="radio"], input[type="checkbox"] {
   margin-left: 25px;
 }
 .typeahead {
-  background-color: #FFFFFF;
+  background-color: #213236;
 }
 .tt-dropdown-menu {
   background-color: #FFFFFF;
@@ -274,6 +281,11 @@ input[type="radio"], input[type="checkbox"] {
   }
 }
 
+@media (body, input, textarea, button, select) {
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+}
+
 /* Footer */
 @media (max-height:800px){
   footer { position: static; }
@@ -286,7 +298,7 @@ footer{
 }
 
 .footer-distributed{
-  background-color: #292c2f;
+  background-color: #213236;
   box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12);
   box-sizing: border-box;
   width: 100%;
@@ -330,7 +342,7 @@ footer{
   display: inline-block;
   width: 35px;
   height: 35px;
-  background-color:  #33383b;
+  background-color: #213236;
   border-radius: 2px;
 
   font-size: 20px;
@@ -372,7 +384,7 @@ footer{
   font-size: 18px;
   text-align: center;
   color: #fff;
-  background: #ee8a65;
+  background-color: #213236;
   }
   #snapshot {
   position:relative;
