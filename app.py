@@ -273,7 +273,11 @@ def sign_s3():
     AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     S3_BUCKET = os.environ.get('S3_BUCKET_IMAGES')
     # Folder to store images in
-    foldername = r'user/' + str(session['ath_id']) + r'/'
+    try: #set to logged in user
+        ath_id = str(session['ath_id'])
+    except: #Set to demo user if not logged in
+        ath_id = str(12904699)
+    foldername = r'user/' + str(ath_id) + r'/'
     # Get filename and filetype from request header in URL
     object_name = foldername + urllib.quote_plus(request.args.get('file_name'))
     mime_type = request.args.get('file_type')
@@ -294,7 +298,7 @@ def sign_s3():
         S3_BUCKET, object_name)
     # Store the image location in the database
     new_act_fact = Athlete_Fact(objecttypeid='user_image',
-                                ath_id=session['ath_id'],
+                                ath_id=int(ath_id),
                                 filename=request.args.get('file_name'),
                                 url=url,
                                 exp_datetime_utc=datetime.fromtimestamp(expires))
