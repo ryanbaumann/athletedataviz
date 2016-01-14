@@ -377,18 +377,11 @@ def strava_mapbox():
     # First get the map extents so we can draw a point at the center
     if 'access_token' not in session:
         return redirect(url_for('homepage'))
-    try:
-        avg_long, avg_lat = sp.get_acts_centroid(
-            engine, int(session['ath_id']))
-    except:
-        print "error retrieving map extents!"
 
     client = stravalib.client.Client(access_token=session['access_token'])
     athlete = client.get_athlete()
 
     return render_template('strava_mapbox_gl_v3.html',
-                           avg_lat=avg_lat,
-                           avg_long=avg_long,
                            mapbox_gl_accessToken=app.config[
                                'MAPBOX_GL_ACCESS_TOKEN'],
                            mapbox_accessToken=app.config[
@@ -433,18 +426,8 @@ def testmap():
 def demodesigner():
     """A demo map for those who want to try but dont have a Strava account"""
     # First get the map extents so we can draw a point at the center
-    try:
-        avg_long, avg_lat = sp.get_acts_centroid(
-            engine, int(12904699))
-    except:
-        print "error retrieving map extents!"
-
-    #client = stravalib.client.Client(access_token=session['access_token'])
-    #athlete = client.get_athlete()
 
     return render_template('strava_mapbox_gl_v3.html',
-                           avg_lat=avg_lat,
-                           avg_long=avg_long,
                            mapbox_gl_accessToken=app.config[
                                'MAPBOX_GL_ACCESS_TOKEN'],
                            mapbox_accessToken=app.config[

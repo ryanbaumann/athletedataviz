@@ -75,8 +75,8 @@ if (!mapboxgl.supported()) {
         container: 'map',
         style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
         center: mapboxgl.LngLat.convert(center_point),
-        zoom: 9,
-        minZoom: 3,
+        zoom: 11,
+        minZoom: 1,
         maxZoom: 17,
         attributionControl: true
         });
@@ -134,8 +134,7 @@ function addLayerLinestring() {
     linestring_src = new mapboxgl.GeoJSONSource({
         data: stravaLineGeoJson,
         maxzoom: 17,
-        buffer: 10,
-        tolerance: 0.5
+        buffer: 10
     });
     try {
         map.addSource('linestring', linestring_src);
@@ -153,11 +152,12 @@ function addLayerLinestring() {
 
 //Load the data asrchnoutsly from api, then add layers to map
 //getDataHeat().done(addLayerHeat);
-map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
-map.dragRotate.disable();
-map.touchZoomRotate.disableRotation();
+
 map.once('style.load', function() {
     getDataLinestring().done(addLayerLinestring);
+    map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
+    map.dragRotate.disable();
+    map.touchZoomRotate.disableRotation();
 });
 
 
