@@ -98,7 +98,6 @@ input[type="radio"], input[type="checkbox"] {
   top: 55px;
   right: 1px;
   z-index:1;
-  transform: translateZ(0);
   -webkit-transform: translateZ(0);*/
 }
 
