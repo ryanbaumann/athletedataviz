@@ -8,50 +8,9 @@ jQuery(document).ready(function($) {
     });
 });
 // API tokens 
-//L.mapbox.accessToken = mapbox_accessToken;
 mapboxgl.accessToken = mapboxgl_accessToken;
-//Global variables
-var heatColors1 = {
-    0.1: 'blue',
-    0.6: 'cyan',
-    0.7: 'lime',
-    0.8: 'yellow',
-    1.0: 'red'
-};
-var heatColors2 = {
-    0.1: 'purple',
-    0.6: 'pink',
-    0.7: 'blue',
-    0.8: 'yellow',
-    1.0: 'orange'
-};
-var heatColors3 = {
-    0.1: 'green',
-    0.6: 'aquamarine',
-    0.7: 'blanchedalmond',
-    0.8: 'coral',
-    1.0: 'red'
-};
 
-var lineHeatStyle = {
-    "id": "linestring",
-    "type": "line",
-    "source": "linestring",
-    "layout": {
-        "line-cap": "round",
-        "line-join": "round"
-    },
-    "paint": {
-        "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-        "line-width": parseFloat(document.getElementById("line_width").value),
-        "line-color": document.getElementById("line_color").value
-    },
-    "transition": {
-        "duration": 300,
-        "delay": 0
-    }
-
-};
+/////////////  Global variables  ////////////
 var draw_canvas;
 var heatPoints;
 var stravaLineGeoJson;
@@ -66,44 +25,47 @@ var randNum;
 //create file object variable for use to reference image blog
 var file;
 var filename;
-//var map = L.mapbox.map('map').setView(center_point, 10)
+var lineHeatStyle = {
+    "id": "linestring",
+    "type": "line",
+    "source": "linestring",
+    "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+    },
+    "paint": {
+        "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+        "line-width": parseFloat(document.getElementById("line_width").value),
+        "line-color": document.getElementById("line_color").value
+    }
+};
+
+//Load the map canvas
 if (!mapboxgl.supported()) {
-    alert('Your browser does not support Mapbox GL');
+    //stop and alert user map is not supported
+    alert('Your browser does not support Mapbox GL.  Please try Chrome or Firefox.');
 } else {
     try {
     var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
         center: mapboxgl.LngLat.convert(center_point),
-        zoom: 11,
+        zoom: 4,
         minZoom: 1,
-        maxZoom: 17,
+        maxZoom: 20,
         attributionControl: true
         });
     }
     catch (err) {
+        //Note that the user did not have any data to load
         console.log(err);
         $("#loading").hide();
         $('#DownloadModal').modal("show");
     }
 }
 
-function getDataHeat() {
-    var r = $.Deferred();
-    $.getJSON(heatpoint_url, function(data) {
-        heatPointsRaw = JSON.parse(data);
-        heatPoints = heatPointsRaw.map(function(p) {
-            maxScale = Math.max(p[document.getElementById('heattype').value])
-            return [p['lt'], p['lg'],
-                p[document.getElementById('heattype').value]
-            ];
-        });
-        r.resolve();
-    });
-    return r;
-};
-
 function getDataLinestring() {
+    //load linestring data via AJAX from the web server api
     var r = $.Deferred();
     $.getJSON(heatline_url, function(data) {
         stravaLineGeoJson = data;
@@ -112,29 +74,17 @@ function getDataLinestring() {
     return r;
 };
 
-function addLayerHeat() {
-    // Mapbox JS Api - import heatmap layer
-    var heatConfig = {
-        minOpacity: parseFloat(0.5),
-        radius: parseFloat(5),
-        blur: parseFloat(5),
-        max: parseFloat(maxScale),
-        gradient: heatColors1
-    };
-    heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
-    map.removeLayer(heat);
-};
-
 function fit() {
+    //fit gl map to a geojson file bounds
     map.fitBounds(geojsonExtent(stravaLineGeoJson));
 }
 
 function addLayerLinestring() {
-    //Create source for linestrings
+    //Create source for linestring data source
     linestring_src = new mapboxgl.GeoJSONSource({
         data: stravaLineGeoJson,
-        maxzoom: 17,
-        buffer: 10
+        maxzoom: 20,
+        buffer: 1
     });
     try {
         map.addSource('linestring', linestring_src);
@@ -146,7 +96,11 @@ function addLayerLinestring() {
     } catch (err) {
             console.log(err);
     }
-    render();
+    paintLayer(map,
+            document.getElementById("line_color").value,
+            parseFloat($('#line_width').slider('getValue')),
+            parseFloat($('#line_opacity').slider('getValue')),
+            'linestring');
     fit();
 };
 
@@ -158,12 +112,14 @@ map.once('style.load', function() {
     map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
+    //Stop the loading bar when map is fully loaded
+    $("#loading").hide();
 });
 
 
 //Stop the loading bar when ajax requests complete
 $(document).one("ajaxStop", function() {
-    $("#loading").hide();
+    //$("#loading").hide(); 
 });
 
 //////////////// SLIDERS AND BUTTON ACTIONS ////////////
@@ -244,7 +200,28 @@ function switchLayer() {
         map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
     }
     map.on('style.load', function() {
-        addLayerLinestring();
+        //addLayerLinestring();
+        linestring_src = new mapboxgl.GeoJSONSource({
+            data: stravaLineGeoJson,
+            maxzoom: 20,
+            buffer: 2,
+            tolerance: 2
+        });
+        try {
+            map.addSource('linestring', linestring_src);
+        } catch (err) {
+            console.log(err);
+        }
+        try {
+            map.addLayer(lineHeatStyle);
+        } catch (err) {
+            console.log(err);
+        }
+        paintLayer(map,
+            document.getElementById("line_color").value,
+            parseFloat($('#line_width').slider('getValue')),
+            parseFloat($('#line_opacity').slider('getValue')),
+            'linestring');
     });
 };
 
@@ -263,37 +240,14 @@ function paintLayer(mapid, color, width, opacity, layer) {
     mapid.setPaintProperty(layer, 'line-opacity', opacity);
 }
 
-function updateHeat() {
-    if (document.getElementById("heat_color").value == "heatColors2") {
-        heatColors = heatColors2
-    } else if (document.getElementById("heat_color").value == "heatColors3") {
-        heatColors = heatColors3
-    } else {
-        heatColors = heatColors1
-    }
-
-    heatPoints = heatPointsRaw.map(function(p) {
-        maxScale = Math.max(p[document.getElementById('heattype').value])
-        return [p['lt'], p['lg'],
-            p[document.getElementById('heattype').value]
-        ];
-    });
-
-    heatConfig = {
-        minOpacity: parseFloat($('#minOpacity').slider('getValue')),
-        radius: parseFloat($('#radius').slider('getValue')),
-        blur: parseFloat($('#blur').slider('getValue')),
-        max: parseFloat(maxScale),
-        gradient: heatColors
-    };
-}
-
 function switchMapStyle() {
+    $("#loading").show();
     //Check if the mapStyle changed - if so, change it here
     if (document.getElementById("mapStyle").value != map_style) {
         switchLayer();
         map_style = document.getElementById("mapStyle").value;
     }
+    $("#loading").hide();
 }
 
 function render() {
@@ -384,12 +338,6 @@ function toPixels(length) {
     return conversionFactor * length + 'px';
 }
 
-//Download link
-function download_img(link, img_src, filename) {
-    link.href = img_src;
-    link.download = filename;
-}
-
 document.getElementById('download_viz').addEventListener("click", function(event) {
     event.preventDefault();
     saveAs(imgBlob, filename);
@@ -397,7 +345,7 @@ document.getElementById('download_viz').addEventListener("click", function(event
 
 // High-res map rendering
 function generateMap() {
-    'use strict';
+
     //Disable buttons until objects are loaded
     document.getElementById('spinner').style.display = 'inline-block';
     $('#social').hide();
@@ -415,8 +363,8 @@ function generateMap() {
         style = 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn';
     }
     //Set image quality
-    var width = 8;
-    var height = 6;
+    var width = 10;
+    var height = 8;
     var dpi = 350;
     var format = 'png';
     var unit = 'in';
@@ -463,7 +411,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         h = h * 0.8;
     }
     img.width = 250;
-    img.height = 250;
+    img.height = 200;
     img.src = "/static/img/loading.gif";
     snapshot.appendChild(img);
     $("#snapshot_img").addClass("img-responsive center-block");
@@ -486,7 +434,9 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     renderMap.on('style.load', function addLayers() {
         linestring_src = new mapboxgl.GeoJSONSource({
             data: stravaLineGeoJson,
-            maxzoom: 20
+            maxzoom: 20,
+            buffer: 1,
+            tolerance: 1
         });
         renderMap.addSource('linestring', linestring_src);
         renderMap.addLayer(lineHeatStyle);
@@ -551,3 +501,82 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     });
 
 }
+
+//Get heat data function
+function getDataHeat() {
+    var r = $.Deferred();
+    $.getJSON(heatpoint_url, function(data) {
+        heatPointsRaw = JSON.parse(data);
+        heatPoints = heatPointsRaw.map(function(p) {
+            maxScale = Math.max(p[document.getElementById('heattype').value])
+            return [p['lt'], p['lg'],
+                p[document.getElementById('heattype').value]
+            ];
+        });
+        r.resolve();
+    });
+    return r;
+};
+
+//Add heat points function
+function addLayerHeat() {
+    // Mapbox JS Api - import heatmap layer
+    var heatConfig = {
+        minOpacity: parseFloat(0.5),
+        radius: parseFloat(5),
+        blur: parseFloat(5),
+        max: parseFloat(maxScale),
+        gradient: heatColors1
+    };
+    heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
+    map.removeLayer(heat);
+};
+
+//Update heat point function if needed
+function updateHeat() {
+    if (document.getElementById("heat_color").value == "heatColors2") {
+        heatColors = heatColors2
+    } else if (document.getElementById("heat_color").value == "heatColors3") {
+        heatColors = heatColors3
+    } else {
+        heatColors = heatColors1
+    }
+
+    heatPoints = heatPointsRaw.map(function(p) {
+        maxScale = Math.max(p[document.getElementById('heattype').value])
+        return [p['lt'], p['lg'],
+            p[document.getElementById('heattype').value]
+        ];
+    });
+
+    heatConfig = {
+        minOpacity: parseFloat($('#minOpacity').slider('getValue')),
+        radius: parseFloat($('#radius').slider('getValue')),
+        blur: parseFloat($('#blur').slider('getValue')),
+        max: parseFloat(maxScale),
+        gradient: heatColors
+    };
+}
+
+//Heat Point gradients
+var heatColors1 = {
+    0.1: 'blue',
+    0.6: 'cyan',
+    0.7: 'lime',
+    0.8: 'yellow',
+    1.0: 'red'
+};
+var heatColors2 = {
+    0.1: 'purple',
+    0.6: 'pink',
+    0.7: 'blue',
+    0.8: 'yellow',
+    1.0: 'orange'
+};
+var heatColors3 = {
+    0.1: 'green',
+    0.6: 'aquamarine',
+    0.7: 'blanchedalmond',
+    0.8: 'coral',
+    1.0: 'red'
+};
