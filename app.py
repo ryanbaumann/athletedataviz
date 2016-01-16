@@ -60,8 +60,6 @@ def output_html(data, code, headers=None):
 
 class Heat_Points(Resource):
 
-    #@cache.memoize(timeout=3600, make_cache_key=)
-
     def get(self, ath_id):
         heatpoints = json.loads(
             sp.get_heatmap_points(engine, int(ath_id)))['points']
@@ -71,8 +69,6 @@ class Heat_Points(Resource):
 
 class Heat_Lines(Resource):
 
-    #@cache.memoize(timeout=3600)
-
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
@@ -81,8 +77,6 @@ class Heat_Lines(Resource):
 
 class Heat_Lines2(Resource):
 
-    #@cache.memoize(timeout=3600)
-
     def get(self, ath_id):
         geojsonlines = sp.get_heatmap_lines(
             engine, int(ath_id))
@@ -90,8 +84,6 @@ class Heat_Lines2(Resource):
 
 
 class Current_Acts(Resource):
-
-    #@cache.memoize(timeout=3600)
 
     def get(self, ath_id):
         print "getting current activities..."
