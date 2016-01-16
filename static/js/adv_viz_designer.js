@@ -498,7 +498,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     });
 
     renderMap.once('load', function createImage() {
-        console.log('waiting 1 second...');
+        //Prevent map from grabbing image before lines are pained on new canvas by waiting 0.5 sec
         setTimeout(function() { 
             try {
                 var canvas = renderMap.getCanvas();
@@ -547,7 +547,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                     return actualPixelRatio
                 }
             });
-        }, 1000);
+        }, 500);
     });
 
 }

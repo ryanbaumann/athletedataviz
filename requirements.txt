@@ -31,3 +31,4 @@ flask-sslify
 Image
 flask-wtf
 ShopifyAPI
+eventlet
