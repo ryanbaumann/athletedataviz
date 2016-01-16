@@ -130,7 +130,13 @@ def homepage():
     # Render the homepage with the user's Strava access token
     if request.method == 'GET':
         client = stravalib.client.Client(access_token=session['access_token'])
-        athlete = client.get_athlete()
+
+        try:
+            athlete = client.get_athlete()
+        except:
+            print "rate limit exceeped for Strava api client!"
+            return render_template('500.html')
+
         # Add athlete ID to the session
         session['ath_id'] = athlete.id
         session['act_limit'] = int(session.get('act_limit', 10))
