@@ -102,6 +102,7 @@ function addLayerLinestring() {
             parseFloat($('#line_opacity').slider('getValue')),
             'linestring');
     fit();
+    $("#loading").hide();
 };
 
 //Load the data asrchnoutsly from api, then add layers to map
@@ -113,7 +114,6 @@ map.once('style.load', function() {
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
     //Stop the loading bar when map is fully loaded
-    $("#loading").hide();
 });
 
 
@@ -347,8 +347,8 @@ document.getElementById('download_viz').addEventListener("click", function(event
 function generateMap() {
 
     //Disable buttons until objects are loaded
-    document.getElementById('spinner').style.display = 'inline-block';
     $('#social').hide();
+    $('#loading_social').show();
     document.getElementById('snap').classList.add('disabled');
     document.getElementById('download_viz').classList.add('disabled');
     document.getElementById('img_share_url').classList.add('disabled');
@@ -414,7 +414,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     img.height = 200;
     img.src = "/static/img/loading.gif";
     snapshot.appendChild(img);
-    $("#snapshot_img").addClass("img-responsive center-block");
+    $("#snapshot_img").addClass("center-block");
     //hide the loading bar, and begin creating the image in the background
     $("#loading").hide();
     

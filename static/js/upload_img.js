@@ -46,6 +46,7 @@ function upload_file(file, signed_request, url){
             imgurl = url;
             updateLinks(url);
             //show new icons, activate download and share buttons, reactivate save design btn
+            $('#loading_social').hide();
             $('#social').show();
             document.getElementById('spinner').style.display = 'none';
             document.getElementById('snap').classList.remove('disabled');
