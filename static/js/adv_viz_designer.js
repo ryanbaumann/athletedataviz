@@ -262,11 +262,11 @@ function addPopup(mapid, layer) {
 }
 
 //Update heatpoints properties
-function paintCircleLayer(mapid, layer, opacity, radius, blur) {
+function paintCircleLayer(mapid, layer, opacity, radius, blur, color) {
         mapid.setPaintProperty(layer, 'circle-opacity', opacity);
         mapid.setPaintProperty(layer, 'circle-radius', radius);
         mapid.setPaintProperty(layer, 'circle-blur', blur);
-        mapid.setPaintProperty(layer, 'circle-color', document.getElementById("heat_color").value);
+        mapid.setPaintProperty(layer, 'circle-color', color);
 }
 
 function render() {
@@ -281,8 +281,8 @@ function render() {
             paintCircleLayer(map, 'heatpoints',
                 parseFloat($('#minOpacity').slider('getValue')),
                 parseFloat($('#radius').slider('getValue')),
-                parseFloat($('#blur').slider('getValue')));
-
+                parseFloat($('#blur').slider('getValue')),
+                document.getElementById("heat_color").value);
             //addPopup(map, 'heatpoints');
         } catch (err) {
             console.log(err);

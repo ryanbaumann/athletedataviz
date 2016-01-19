@@ -120,7 +120,11 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             });
             renderMap.addSource('linestring', linestring_src);
             renderMap.addLayer(lineHeatStyle);
-            render();
+            paintLayer(renderMap,
+                document.getElementById("line_color").value,
+                parseFloat($('#line_width').slider('getValue')),
+                parseFloat($('#line_opacity').slider('getValue')),
+                'linestring');
         }
         else if (document.getElementById("VizType").value == "heat-point") {
             heatpoint_src = new mapboxgl.GeoJSONSource({
@@ -131,7 +135,11 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             });
             renderMap.addSource('heatpoint', heatpoint_src);
             renderMap.addLayer(heatpoint_style);
-            render();
+            paintCircleLayer(renderMap, 'heatpoints',
+                parseFloat($('#minOpacity').slider('getValue')),
+                parseFloat($('#radius').slider('getValue')),
+                parseFloat($('#blur').slider('getValue')),
+                document.getElementById("heat_color").value);
         }
     });
 
