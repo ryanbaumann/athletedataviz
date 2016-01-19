@@ -1,0 +1,154 @@
+var hoverStyle = {
+  version: 8,
+  name: 'Basic',
+  sources: {
+        "mapbox": {
+            "url": "mapbox://mapbox.mapbox-streets-v6",
+            "type": "vector"
+        },
+        "mapbox://rsbaumann.79d32a93": {
+            "url": "mapbox://rsbaumann.79d32a93",
+            "type": "vector"
+        },
+        'heatpoint': {
+            'type': 'geojson',
+            'data': heatpoint_url,
+            "maxzoom": 15,
+        },
+        'linestring': {
+            'type': 'geojson',
+            'data': heatline_url,
+            "maxzoom": 15
+        }
+  },
+  sprite: "mapbox://sprites/rsbaumann/ciiia74pe00298ulxsin2emmn",
+  glyphs: "mapbox://fonts/rsbaumann/{fontstack}/{range}.pbf",
+  layers: [{
+            "id": "background",
+            "type": "background",
+            "paint": {
+                "background-color": "rgba(0,0,0,1)"
+            },
+            "interactive": true
+        },
+        {
+            "id": "waterway",
+            "type": "line",
+            "source": "mapbox",
+            "source-layer": "waterway",
+            "filter": [
+                "all",
+                [
+                    "==",
+                    "$type",
+                    "LineString"
+                ],
+                [
+                    "in",
+                    "class",
+                    "river",
+                    "canal"
+                ]
+            ],
+            "paint": {
+                "line-color": "#2c2c2c",
+                "line-width": {
+                    "base": 1,
+                    "stops": [
+                        [
+                            6,
+                            0.25
+                        ],
+                        [
+                            20,
+                            6
+                        ]
+                    ]
+                }
+            },
+            "metadata": {
+                "mapbox:group": "1444855857485.0151"
+            },
+            "interactive": true
+        },
+        {
+            "id": "waterway_stream",
+            "type": "line",
+            "source": "mapbox",
+            "source-layer": "waterway",
+            "filter": [
+                "all",
+                [
+                    "==",
+                    "$type",
+                    "LineString"
+                ],
+                [
+                    "==",
+                    "class",
+                    "stream"
+                ]
+            ],
+            "paint": {
+                "line-color": "#2c2c2c",
+                "line-width": {
+                    "base": 1,
+                    "stops": [
+                        [
+                            13,
+                            0.75
+                        ],
+                        [
+                            20,
+                            4
+                        ]
+                    ]
+                }
+            },
+            "metadata": {
+                "mapbox:group": "1444855857485.0151"
+            },
+            "interactive": true
+        },
+        {
+            "id": "water",
+            "type": "fill",
+            "source": "mapbox",
+            "source-layer": "water",
+            "paint": {
+                "fill-color": "#2c2c2c"
+            },
+            "metadata": {
+                "mapbox:group": "1444855857485.0151"
+            },
+            "interactive": true
+        },
+        {
+            "layout": {
+                "visibility": "visible"
+            },
+            "type": "fill",
+            "source": "mapbox",
+            "id": "landuse",
+            "paint": {
+                "fill-color": "rgba(13,13,13,1)"
+            },
+            "source-layer": "landuse",
+            "interactive": true
+        },
+        {
+            "layout": {
+                "visibility": "none",
+                "line-cap": "square",
+                "line-join": "round"
+            },
+            "type": "line",
+            "source": "mapbox",
+            "id": "road",
+            "paint": {
+                "line-color": "rgba(20,20,20,1)",
+                "line-opacity": 0.9
+            },
+            "source-layer": "road",
+            "interactive": true
+        },lineHeatStyle, heatpoint_style]

@@ -62,7 +62,7 @@ class Config(object):
     """
     COMPRESS_MIMETYPES = [
         'text/html', 'text/css', 'text/xml', 'application/json', 'application/javascript']
-    COMPRESS_LEVEL = 8
+    COMPRESS_LEVEL = 9
     COMPRESS_MIN_SIZE = 250
     CACHE_TYPE = 'redis'
     CACHE_REDIS_URL = os.environ['REDIS_URL']
@@ -90,7 +90,7 @@ class StagingConfig(Config):
 
 class DevelopmentConfig(Config):
     HOST_NAME = r'localhost:33507'
-    APP_NAME = r'webdev5'
+    APP_NAME = r'webdev6'
     HEADER = r'http://'
     DEVELOPMENT = True
     DEBUG = True

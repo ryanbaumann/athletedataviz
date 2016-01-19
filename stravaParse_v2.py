@@ -17,9 +17,9 @@ def GetActivities(client, startDate, endDate, limit):
     startDate = datetime.strptime(startDate, '%Y-%m-%d')
     endDate = datetime.strptime(endDate, '%Y-%m-%d')
     print "limit is: " + str(limit)
-    activities = client.get_activities(before = endDate,
-                                       after = startDate,
-                                       limit= limit)
+    activities = client.get_activities(before=endDate,
+                                       after=startDate,
+                                       limit=limit)
     return activities
 
 
@@ -406,20 +406,23 @@ def get_acts_html(engine, ath_id):
 
     return df
 
+
 def get_heatmap_lines(engine, ath_id):
     geojson_sql = """
-                 SELECT row_to_json(fc.*) AS row_to_json
-                   FROM ( SELECT 'FeatureCollection' AS type,
-                            array_to_json(array_agg(f.*)) AS features
-                           FROM ( SELECT 'Feature' AS type,
-                                    st_asgeojson(lg.point)::json AS geometry,
-                                    row_to_json(( SELECT l.*::record AS l
-                                           FROM ( SELECT lg.act_id,
-                                                    round(lg.density::numeric, 1) AS d,
-                                                    round(lg.speed::numeric, 1) AS s,
-                                                    round(lg.grade::numeric, 1) AS g) l)) AS properties
-                                   FROM "V_Act_Heat" lg WHERE lg.ath_id=%s) f) fc;
-                """ %(ath_id)
+                SELECT row_to_json(fc) 
+     FROM (SELECT 'FeatureCollection' As type, 
+                  array_to_json(array_agg(f)) As features
+           FROM (SELECT 'Feature' As type, 
+                  st_asgeojson(lg.point, 4)::json AS geometry,
+                  (
+                  select row_to_json(t) 
+                  FROM (SELECT round((lg.density)::numeric,1) as d,
+                                round((lg.speed)::numeric,1) as s,
+                                round((lg.grade)::numeric,1) as g) as t
+                                 ) as properties
+                            FROM "V_Point_Heatmap" as lg WHERE ath_id = %s
+                     ) as f) as fc"""  % (ath_id)
+
     result = engine.execute(geojson_sql)
     for row in result:
         data = row.values()

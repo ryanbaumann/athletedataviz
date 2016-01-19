@@ -1,44 +1,67 @@
-jQuery(document).ready(function($) {
-    $('.share').click(function() {
-        var NWin = window.open($(this).prop('href'), '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');
-        if (window.focus) {
-            NWin.focus();
-        }
-        return false;
-    });
-});
 // API tokens 
 mapboxgl.accessToken = mapboxgl_accessToken;
 
 /////////////  Global variables  ////////////
 var draw_canvas;
-var heatPoints;
+var heatpoint_data;
 var stravaLineGeoJson;
 var linestring_src;
-var heat;
-var maxScale;
-var imgurl;
-//blob data for image global variable so we can add a listener event
-var imgBlob;
-//random number generator for the filename
-var randNum;
-//create file object variable for use to reference image blog
-var file;
-var filename;
+var VizType = 'heat-point';
+var map_style = 'dark-nolabel';
+
 var lineHeatStyle = {
     "id": "linestring",
     "type": "line",
     "source": "linestring",
-    "layout": {
-        "line-cap": "round",
-        "line-join": "round"
-    },
+    "interactive": true,
     "paint": {
         "line-opacity": parseFloat(document.getElementById("line_opacity").value),
         "line-width": parseFloat(document.getElementById("line_width").value),
         "line-color": document.getElementById("line_color").value
     }
 };
+
+var heatpoint_style = {
+        "id": "heatpoints",
+        "type": "circle",
+        "source": 'heatpoint',
+        "interactive": true,
+        "layout": {},
+        "paint": {
+            "circle-color": document.getElementById("heat_color").value,
+            "circle-opacity" : 1,
+            "circle-radius" : 1,
+            "circle-blur" : 1
+        }
+};
+var breaks = [0, 15];
+var colors = ['#00FF00', '#FF0000'];
+
+var layers = [{
+                    "id": "heatpoints-" + colors[0],
+                    "type": "circle",
+                    "source": 'heatpoint',
+                    "paint": {
+                        "circle-color": colors[0],
+                        "circle-opacity" : 0.9,
+                        "circle-radius" : 5,
+                        "circle-blur" : 1
+                    },
+                    "filter": ['all', ['>=', 's', breaks[0]], ['<', 's', breaks[1]]]
+                },
+                {
+                    "id": "heatpoints-" + colors[1],
+                    "type": "circle",
+                    "source": 'heatpoint',
+                    "paint": {
+                        "circle-color": colors[1],
+                        "circle-opacity" : 0.9,
+                        "circle-radius" : 5,
+                        "circle-blur" : 1
+                    },
+                    "filter": ['all', ['>=', 's', breaks[1]]]
+                }
+            ];
 
 //Load the map canvas
 if (!mapboxgl.supported()) {
@@ -74,17 +97,45 @@ function getDataLinestring() {
     return r;
 };
 
-function fit() {
-    //fit gl map to a geojson file bounds
-    map.fitBounds(geojsonExtent(stravaLineGeoJson));
-}
+//Get heat data function
+function getDataHeat() {
+    var r = $.Deferred();
+    $.getJSON(heatpoint_url, function(data) {
+        heatpoint_data = data;
+        r.resolve();
+    });
+    return r;
+};
+
+//Add heat points function
+function addLayerHeat() {
+    // Mapbox JS Api - import heatmap layer
+    heatpoint_src = new mapboxgl.GeoJSONSource({
+        data: heatpoint_data,
+        maxzoom: 20,
+        buffer: 2
+    });
+    try {
+        map.addSource('heatpoint', heatpoint_src);
+    } catch (err) {
+            console.log(err);
+    }
+    try{
+        map.addLayer(heatpoint_style);
+    } catch (err) {
+        console.log(err);
+    }
+    addPopup(map, 'heatpoints');
+    fit();
+    $("#loading").hide();
+};
 
 function addLayerLinestring() {
     //Create source for linestring data source
     linestring_src = new mapboxgl.GeoJSONSource({
         data: stravaLineGeoJson,
         maxzoom: 20,
-        buffer: 1
+        buffer: 2
     });
     try {
         map.addSource('linestring', linestring_src);
@@ -96,19 +147,17 @@ function addLayerLinestring() {
     } catch (err) {
             console.log(err);
     }
+    set_visibility(map, 'linestring', 'off');
     paintLayer(map,
             document.getElementById("line_color").value,
             parseFloat($('#line_width').slider('getValue')),
             parseFloat($('#line_opacity').slider('getValue')),
             'linestring');
-    fit();
-    $("#loading").hide();
+    addPopup(map, 'heatpoints');
 };
 
-//Load the data asrchnoutsly from api, then add layers to map
-//getDataHeat().done(addLayerHeat);
-
-map.once('style.load', function() {
+map.once('load', function() {
+    getDataHeat().done(addLayerHeat);
     getDataLinestring().done(addLayerLinestring);
     map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
     map.dragRotate.disable();
@@ -116,11 +165,146 @@ map.once('style.load', function() {
     //Stop the loading bar when map is fully loaded
 });
 
+function fit() {
+    //fit gl map to a geojson file bounds
+    map.fitBounds(geojsonExtent(heatpoint_data));
+}
 
 //Stop the loading bar when ajax requests complete
 $(document).one("ajaxStop", function() {
     //$("#loading").hide(); 
 });
+
+function switchLayer() {
+    layer = document.getElementById("mapStyle").value;
+    if (layer != 'dark-nolabel') {
+        map.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
+    } else {
+        map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
+    }
+    map.on('style.load', function() {
+        linestring_src = new mapboxgl.GeoJSONSource({
+            data: stravaLineGeoJson,
+            maxzoom: 20
+        });
+        heatpoint_src = new mapboxgl.GeoJSONSource({
+            data: heatpoint_data,
+            maxzoom: 20
+        });
+        try {
+            map.addSource('linestring', linestring_src);
+            map.addSource('heatpoint', heatpoint_src);
+        } catch (err) {
+            console.log(err);
+        }
+        try {
+            map.addLayer(lineHeatStyle);
+            map.addLayer(heatpoint_style);
+        } catch (err) {
+            console.log(err);
+        }
+        render();
+    });
+};
+
+function set_visibility(mapid, id, onoff) {
+    var visibility = mapid.getLayoutProperty(id, 'visibility');
+    if (onoff == 'off') {
+        mapid.setLayoutProperty(id, 'visibility', 'none');
+    } else if (onoff == 'on') {
+        mapid.setLayoutProperty(id, 'visibility', 'visible');
+    }
+};
+
+function paintLayer(mapid, color, width, opacity, layer) {
+    mapid.setPaintProperty(layer, 'line-color', color);
+    mapid.setPaintProperty(layer, 'line-width', width);
+    mapid.setPaintProperty(layer, 'line-opacity', opacity);
+}
+
+function switchMapStyle() {
+    $("#loading").show();
+    //Check if the mapStyle changed - if so, change it here
+    if (document.getElementById("mapStyle").value != map_style) {
+        switchLayer();
+        map_style = document.getElementById("mapStyle").value;
+    }
+    $("#loading").hide();
+}
+
+function addPopup(mapid, layer) {
+    mapid.on('click', function (e) {
+    mapid.featuresAt(e.point, 
+                    {layer: 'heatpoints', 
+                    radius: 15, 
+                    includeGeometry: true
+    }, function (err, features) {
+        if (err || !features.length)
+            return;
+        var feature = features[0];
+        new mapboxgl.Popup()
+            .setLngLat(feature.geometry.coordinates)
+            .setHTML('<h5> Coords: ' + Math.round(feature.geometry.coordinates[1]*1000)/1000 + "," +
+                                       Math.round(feature.geometry.coordinates[0]*1000)/1000 + '</h5>' +
+                     '<ul class="list-group">' +
+                     '<li class="list-group-item"> Freq: ' + feature.properties.d + " visits </li>" +
+                     '<li class="list-group-item"> Speed: ' + feature.properties.s + " mph </li>" +
+                     '<li class="list-group-item"> Grade: ' + feature.properties.g + " % </li>" +
+                     '</ul>')
+            .addTo(map);
+        });
+    });
+    map.on('mousemove', function (e) {
+    map.featuresAt(e.point, {layer: 'heatpoints', radius: 15}, function (err, features) {
+        map.getCanvas().style.cursor = (!err && features.length) ? 'pointer' : '';
+    });
+});
+}
+
+//Update heatpoints properties
+function paintCircleLayer(mapid, layer, opacity, radius, blur) {
+        mapid.setPaintProperty(layer, 'circle-opacity', opacity);
+        mapid.setPaintProperty(layer, 'circle-radius', radius);
+        mapid.setPaintProperty(layer, 'circle-blur', blur);
+        mapid.setPaintProperty(layer, 'circle-color', document.getElementById("heat_color").value);
+}
+
+function render() {
+    if (document.getElementById("VizType").value == "heat-point") {
+        try {
+            set_visibility(map, 'linestring', 'off');
+        } catch (err) {
+            console.log(err);
+        }
+        try {
+            set_visibility(map, 'heatpoints', 'on');
+            paintCircleLayer(map, 'heatpoints',
+                parseFloat($('#minOpacity').slider('getValue')),
+                parseFloat($('#radius').slider('getValue')),
+                parseFloat($('#blur').slider('getValue')));
+
+            //addPopup(map, 'heatpoints');
+        } catch (err) {
+            console.log(err);
+        }
+    } else if (document.getElementById("VizType").value == "heat-line") {
+        try {
+            set_visibility(map, 'heatpoints', 'off');
+        } catch (err) {
+            console.log(err);
+        }
+        try {
+            set_visibility(map, 'linestring', 'on');
+            paintLayer(map,
+                document.getElementById("line_color").value,
+                parseFloat($('#line_width').slider('getValue')),
+                parseFloat($('#line_opacity').slider('getValue')),
+                'linestring');
+        } catch (err) {
+            console.log(err);
+        }
+    }
+}
 
 //////////////// SLIDERS AND BUTTON ACTIONS ////////////
 
@@ -188,375 +372,6 @@ $('#heattype').change(render);
 $('#heat_color').change(render);
 $('#line_color').change(render);
 $('#snap').on('click touch tap', generateMap);
-
-var VizType = 'heat-line'
-var map_style = 'dark-nolabel'
-
-function switchLayer() {
-    layer = document.getElementById("mapStyle").value
-    if (layer != 'dark-nolabel') {
-        map.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
-    } else {
-        map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
-    }
-    map.on('style.load', function() {
-        //addLayerLinestring();
-        linestring_src = new mapboxgl.GeoJSONSource({
-            data: stravaLineGeoJson,
-            maxzoom: 20,
-            buffer: 2,
-            tolerance: 2
-        });
-        try {
-            map.addSource('linestring', linestring_src);
-        } catch (err) {
-            console.log(err);
-        }
-        try {
-            map.addLayer(lineHeatStyle);
-        } catch (err) {
-            console.log(err);
-        }
-        paintLayer(map,
-            document.getElementById("line_color").value,
-            parseFloat($('#line_width').slider('getValue')),
-            parseFloat($('#line_opacity').slider('getValue')),
-            'linestring');
-    });
-};
-
-function set_visibility(mapid, id, onoff) {
-    var visibility = mapid.getLayoutProperty(id, 'visibility');
-    if (onoff == 'off') {
-        mapid.setLayoutProperty(id, 'visibility', 'none');
-    } else if (onoff == 'on') {
-        mapid.setLayoutProperty(id, 'visibility', 'visible');
-    }
-};
-
-function paintLayer(mapid, color, width, opacity, layer) {
-    mapid.setPaintProperty(layer, 'line-color', color);
-    mapid.setPaintProperty(layer, 'line-width', width);
-    mapid.setPaintProperty(layer, 'line-opacity', opacity);
-}
-
-function switchMapStyle() {
-    $("#loading").show();
-    //Check if the mapStyle changed - if so, change it here
-    if (document.getElementById("mapStyle").value != map_style) {
-        switchLayer();
-        map_style = document.getElementById("mapStyle").value;
-    }
-    $("#loading").hide();
-}
-
-function render() {
-    //Check if the viz type changed - if so, change it here  
-    if (document.getElementById("VizType").value != VizType) {
-        if (document.getElementById("VizType").value == "heat-point") {
-            try {
-                set_visibility(map, 'linestring', 'off')
-            } catch (err) {
-                console.log(err);
-            }
-            try {
-                heat.addTo(map)
-            } catch (err) {
-                console.log(err);
-            }
-            VizType = 'heat-point'
-        } else if (document.getElementById("VizType").value == "heat-line") {
-            try {
-                map.removeLayer(heat);
-            } catch (err) {
-                console.log(err);
-            }
-            try {
-                set_visibility(map, 'linestring', 'on');
-                paintLayer(gl,
-                    document.getElementById("line_color").value,
-                    parseFloat($('#line_width').slider('getValue')),
-                    parseFloat($('#line_opacity').slider('getValue')),
-                    'linestring');
-            } catch (err) {
-                console.log(err);
-            }
-            VizType = 'heat-line'
-        }
-        //Check if the viz type did not change - if so, update values and render here
-    } else if (document.getElementById("VizType").value == VizType) {
-        if (VizType == 'heat-point') {
-            //update the heatmap
-            try {
-                updateHeat();
-                heat.setOptions(heatConfig);
-            } catch (err) {
-                console.log(err);
-            }
-        } else if (VizType == 'heat-line') {
-            //Update the linestring layer
-            try {
-                paintLayer(map,
-                    document.getElementById("line_color").value,
-                    parseFloat($('#line_width').slider('getValue')),
-                    parseFloat($('#line_opacity').slider('getValue')),
-                    'linestring');
-            } catch (err) {
-                console.log(err);
-            }
-        }
-    }
-}
-
-function log(msg) {
-    setTimeout(function() {
-        throw new Error(msg);
-    }, 0);
-}
-
-/**
- * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
- * images to fit into a certain area.
- */
-function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
-
-    var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
-    return {
-        width: srcWidth * ratio,
-        height: srcHeight * ratio
-    };
-}
-
-// Helper functions
-function toPixels(length) {
-    'use strict';
-    var unit = 'in';
-    var conversionFactor = 96;
-    if (unit == 'mm') {
-        conversionFactor /= 25.4;
-    }
-    return conversionFactor * length + 'px';
-}
-
-document.getElementById('download_viz').addEventListener("click", function(event) {
-    event.preventDefault();
-    saveAs(imgBlob, filename);
-});
-
-// High-res map rendering
-function generateMap() {
-
-    //Disable buttons until objects are loaded
-    $('#social').hide();
-    $('#loading_social').show();
-    document.getElementById('snap').classList.add('disabled');
-    document.getElementById('download_viz').classList.add('disabled');
-    document.getElementById('img_share_url').classList.add('disabled');
-    //document.getElementById('order_viz').classList.add('disabled');
-    $("#loading").show();
-    //Get the current map style
-    var style;
-    var layer = document.getElementById("mapStyle").value
-    if (layer != 'dark-nolabel') {
-        style = 'mapbox://styles/mapbox/' + layer + '-v8';
-    } else {
-        style = 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn';
-    }
-    //Set image quality
-    var width = 10;
-    var height = 8;
-    var dpi = 350;
-    var format = 'png';
-    var unit = 'in';
-    //get current map settings to recreate in backcanvas for image
-    var zoom = map.getZoom();
-    var center = map.getCenter();
-    var bearing = map.getBearing();
-    //function to create the map
-    createPrintMap(width, height, dpi, format, unit, zoom, center,
-        bearing, style);
-}
-
-
-function createPrintMap(width, height, dpi, format, unit, zoom, center,
-    bearing, style, source) {
-
-    // Calculate pixel ratio
-    var actualPixelRatio = window.devicePixelRatio;
-    Object.defineProperty(window, 'devicePixelRatio', {
-        get: function() {
-            return dpi / 96
-        }
-    });
-
-    // Create map container
-    var hidden = document.createElement('div');
-    hidden.className = 'hidden-map';
-    document.body.appendChild(hidden);
-    var container = document.createElement('div');
-    container.style.width = toPixels(width);
-    container.style.height = toPixels(height);
-    hidden.appendChild(container);
-    //remove any existing image elements
-    snapshot.innerHTML = '';
-    var img = document.createElement('img');
-    //Show loading image
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    if (w > 640) {
-        w = 640;
-        h = 480;
-    } else {
-        w = w * 0.8;
-        h = h * 0.8;
-    }
-    img.width = 250;
-    img.height = 200;
-    img.src = "/static/img/loading.gif";
-    snapshot.appendChild(img);
-    $("#snapshot_img").addClass("center-block");
-    //hide the loading bar, and begin creating the image in the background
-    $("#loading").hide();
-    
-
-    // Create backcanvas map for high-rez image
-    var renderMap = new mapboxgl.Map({
-        container: container,
-        center: center,
-        zoom: zoom,
-        style: style,
-        bearing: bearing,
-        interactive: false,
-        attributionControl: true,
-        preserveDrawingBuffer: true
-    });
-
-    renderMap.on('style.load', function addLayers() {
-        linestring_src = new mapboxgl.GeoJSONSource({
-            data: stravaLineGeoJson,
-            maxzoom: 20,
-            buffer: 1,
-            tolerance: 1
-        });
-        renderMap.addSource('linestring', linestring_src);
-        renderMap.addLayer(lineHeatStyle);
-        paintLayer(renderMap,
-            document.getElementById("line_color").value,
-            parseFloat($('#line_width').slider('getValue')),
-            parseFloat($('#line_opacity').slider('getValue')),
-            'linestring');
-    });
-
-    renderMap.once('load', function createImage() {
-        //Prevent map from grabbing image before lines are pained on new canvas by waiting 0.5 sec
-        setTimeout(function() { 
-            try {
-                var canvas = renderMap.getCanvas();
-                var gl = canvas.getContext("webgl", {antialias: true});
-                var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
-                img.width = targetDims['width'];
-                img.height = targetDims['height'];
-                img.href = img.src;
-                img.id = 'snapshot_img';
-                var imgsrc = canvas.toDataURL("image/jpeg", 0.8);
-                var file;
-                img.class = "img-responsive center-block";
-                img.src = imgsrc;
-                //put the new image in the div
-                snapshot.innerHTML = '';
-                snapshot.appendChild(img);
-                $("#snapshot_img").addClass("img-responsive center-block");
-                //Now create the high rez image and upload it to the server
-                if (canvas.toBlob) {
-                    canvas.toBlob(
-                        function (blob) {
-                            // Do something with the blob object,
-                            randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
-                            filename = "ADV_" + ath_name + "_" + randNum + ".jpg";
-                            console.log('creating file...');
-                            file = new File([blob], filename , {type: "image/jpeg"});
-                            console.log('getting file to server...');
-                            imgBlob = blob;
-                            get_signed_request(file);
-
-                        },
-                        'image/jpeg', 0.99
-                    );
-                }
-                else {} 
-            } catch (err) {
-                console.log(err);
-                window.alert("Please try a different browser - only Chrome and Firefox are supported for design ordering and sharing!");
-                document.getElementById('spinner').style.display = 'none';
-                document.getElementById('snap').classList.remove('disabled');
-            }
-            renderMap.remove();
-            hidden.parentNode.removeChild(hidden);
-            Object.defineProperty(window, 'devicePixelRatio', {
-                get: function() {
-                    return actualPixelRatio
-                }
-            });
-        }, 500);
-    });
-
-}
-
-//Get heat data function
-function getDataHeat() {
-    var r = $.Deferred();
-    $.getJSON(heatpoint_url, function(data) {
-        heatPointsRaw = JSON.parse(data);
-        heatPoints = heatPointsRaw.map(function(p) {
-            maxScale = Math.max(p[document.getElementById('heattype').value])
-            return [p['lt'], p['lg'],
-                p[document.getElementById('heattype').value]
-            ];
-        });
-        r.resolve();
-    });
-    return r;
-};
-
-//Add heat points function
-function addLayerHeat() {
-    // Mapbox JS Api - import heatmap layer
-    var heatConfig = {
-        minOpacity: parseFloat(0.5),
-        radius: parseFloat(5),
-        blur: parseFloat(5),
-        max: parseFloat(maxScale),
-        gradient: heatColors1
-    };
-    heat = L.heatLayer(heatPoints, heatConfig).addTo(map);
-    map.removeLayer(heat);
-};
-
-//Update heat point function if needed
-function updateHeat() {
-    if (document.getElementById("heat_color").value == "heatColors2") {
-        heatColors = heatColors2
-    } else if (document.getElementById("heat_color").value == "heatColors3") {
-        heatColors = heatColors3
-    } else {
-        heatColors = heatColors1
-    }
-
-    heatPoints = heatPointsRaw.map(function(p) {
-        maxScale = Math.max(p[document.getElementById('heattype').value])
-        return [p['lt'], p['lg'],
-            p[document.getElementById('heattype').value]
-        ];
-    });
-
-    heatConfig = {
-        minOpacity: parseFloat($('#minOpacity').slider('getValue')),
-        radius: parseFloat($('#radius').slider('getValue')),
-        blur: parseFloat($('#blur').slider('getValue')),
-        max: parseFloat(maxScale),
-        gradient: heatColors
-    };
-}
 
 //Heat Point gradients
 var heatColors1 = {

@@ -21,6 +21,11 @@ $("#img_share_url").click(function() {
     copyToClipboard(imgurl);
 });
 
+document.getElementById('download_viz').addEventListener("click", function(event) {
+    event.preventDefault();
+    saveAs(imgBlob, filename);
+});
+
 //update links
 function updateLinks(url) {
     var fb_share = 'https://www.facebook.com/sharer/sharer.php?u=' + 

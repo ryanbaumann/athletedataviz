@@ -1,96 +1,42 @@
-{% extends "base.html" %}
-{% block import_script %}
+{% extends "base.html" %} {% block import_script %}
 <!-- Mapbox GL -->
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.js' ></script>
-<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.2/mapbox-gl.css' rel='stylesheet'>
-<!-- Mapbox JS -->
-<script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js' ></script>
-<link rel='stylesheet' href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' />
-<!-- Leaflet Heat !-->
-<script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js" ></script>
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.3/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.3/mapbox-gl.css' rel='stylesheet'>
 <!-- Bootstrap Slider -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css">
-<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js' ></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.15/jquery.touchSwipe.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js"></script>
-
 {% endblock %} {% block content %}
 <div id="container">
-<div id="map">
-<div id="loading">
-        <div class="loading-indicator">
-            <div class="progress progress-striped active">
-                <div class="progress-bar progress-bar-info progress-bar-full"></div>
+    <div id="map">
+        <div id="loading">
+            <div class="loading-indicator">
+                <div class="progress progress-striped active">
+                    <div class="progress-bar progress-bar-info progress-bar-full"></div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-</div>
 <script>
 //initialize variables from server
-
+var heatpoint_src;
+var heatpoint_data;
 var center_point = [{{avg_long | safe}}, {{avg_lat | safe}}];
-var heatpoint_url = '{{ heatpoint_url | safe}}';
-var heatline2_url = '{{ heatline2_url | safe}}';
-console.log(heatline2_url);
+var heatpoint_url = '{{ heatline2_url | safe}}';
 var mapbox_accessToken = '{{ mapbox_accessToken|safe }}';
 var mapboxgl_accessToken = '{{ mapbox_gl_accessToken|safe }}';
-var ath_name = '{{ath_name}}'
+var ath_name = '{{ath_name}}';
 mapboxgl.accessToken = mapboxgl_accessToken;
 
-var mapStyle = {
-  version: 8,
-  name: 'Basic',
-  sources: {
-    'us-counties': {
-      'type': 'vector',
-      'url': 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn'
-    }
-  },
-  sprite: '',
-  glyphs: '',
-  layers: [{
-    "id": "linestring2",
-    "type": "circle",
-    "source": "linestring",
-    "layout": {},
-    "paint": {"circle-color": "red"}
-    }]
-};
-
-//circle heatmap styling for Mapbox GL JS
-/*
-var breaks = [0, 4, 8,12,16,20,24,28]
-for (var p = 0; p < breaks.length; p++) {
-  var filters
-  if (p < breaks.length - 1) {
-    filters = [ 'all',
-      [ '>=', 's', breaks[p] ],
-      [ '<', 's', breaks[p + 1] ]
-    ]
-  } else {
-    filters = [ 'all',
-      [ '>=', 's', breaks[p] ]
-    ]
-  }
-  mapStyle.layers.push({
-    "id": "linestring2",
-    "type": "circle",
-    "source": "linestring",
-    "layout": {},
-    "paint": {"circle-color": "red",
-              "circle-opacity": (p + 1) / breaks.length},
-    "filter": filters
-  });
-}
-*/
 try {
     var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
         center: mapboxgl.LngLat.convert(center_point),
-        zoom: 9,
-        minZoom: 3,
+        zoom: 6,
+        minZoom: 1,
         maxZoom: 20,
         attributionControl: true
     });
@@ -102,15 +48,76 @@ try {
         ' to support it. Sorry.');
 }
 
-map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
+map.addControl(new mapboxgl.Navigation({
+    position: 'top-left'
+}));
 map.dragRotate.disable();
 map.touchZoomRotate.disableRotation();
-map.once('style.load', function() {
-    getDataLinestring().done(addLayerLinestring);
+
+map.on('style.load', function() {
+    addLayerLinestring();
 });
 
+function addLayerLinestring() {
+    heatpoint_src = new mapboxgl.GeoJSONSource({
+        data: heatpoint_url,
+        maxzoom: 17,
+        buffer: 10,
+        tolerance: 0.5
+    });
+    console.log('source created!');
+    try {
+        map.addSource('heatpoint', heatpoint_src);
+    } catch (err) {
+        console.log(err);
+    }
+    console.log('source added to map!');
+    try {
+        var heatpoint_style = {
+            "id": "heatpoints",
+            "type": "circle",
+            "source": 'heatpoint',
+            "interactive": true,
+            "layout": {},
+            "paint": {
+                "circle-color": "red"
+            }
+        }
+        
+        map.addLayer(heatpoint_style);
+    } catch (err) {
+        console.log(err);
+    }
+    //paintLayer(map, "#FF0000", 2, 1, 'linestring2');
+    console.log('layer added!');
 
+    $("#loading").hide();
+    //map.setStyle(mapStyle);
+};
 
+map.on('click', function (e) {
+    map.featuresAt(e.point, {layer: 'heatpoints', radius: 10, includeGeometry: true}, function (err, features) {
+        if (err || !features.length)
+            return;
+
+        var feature = features[0];
+
+        new mapboxgl.Popup()
+            .setLngLat(feature.geometry.coordinates)
+            .setHTML('<h5> Coords: ' + Math.round(feature.geometry.coordinates[1]*1000)/1000 + "," +
+                                       Math.round(feature.geometry.coordinates[0]*1000)/1000 + '</h5>' +
+                     '<ul class="list-group">' +
+                     '<li class="list-group-item"> Freq: ' + feature.properties.d + " visits </li>" +
+                     '<li class="list-group-item"> Speed: ' + feature.properties.s + " mph </li>" +
+                     '<li class="list-group-item"> Grade: ' + feature.properties.g + " % </li>" +
+                     '</ul>')
+            .addTo(map);
+    });
+});
+
+//circle heatmap styling for Mapbox GL JS
+
+console.log(mapStyle)
 function set_visibility(mapid, id, onoff) {
     var visibility = mapid.getLayoutProperty(id, 'visibility');
     if (onoff == 'off') {
@@ -118,71 +125,6 @@ function set_visibility(mapid, id, onoff) {
     } else if (onoff == 'on') {
         mapid.setLayoutProperty(id, 'visibility', 'visible');
     }
-};
-
-function addLayerLinestring() {
-    linestring_src = new mapboxgl.GeoJSONSource({
-        data: stravaLineGeoJson,
-        maxzoom: 17,
-        buffer: 10,
-        tolerance: 0.5
-    });
-    console.log('here!')
-    try {
-        map.addSource('linestring', linestring_src);
-    } catch (err) {
-            console.log(err);
-    }
-    console.log('here!')
-    try {
-        map.addLayer(lineHeatStyle);
-    } catch (err) {
-            console.log(err);
-    }
-    //paintLayer(map, "#FF0000", 2, 1, 'linestring2');
-    console.log('here!')
-    map.addLayer({
-        "id": "route-hover",
-        "type": "symbol",
-        "source": "linestring",
-        "layout": {
-            "text-field": "{s}",
-            "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-            "text-offset": [0, 0.0],
-            "text-anchor": "top"
-        },
-    "paint": {
-        "text-size": 10,
-        "text-color":"blue"},
-    });
-    console.log('here!')
-    map.setStyle(mapStyle);
-/*
-    map.on("mousemove", function(e) {
-    map.featuresAt(e.point, {
-        radius: 20,
-        layers: ["linestring2"]
-    }, function (err, features) {
-        for (var p = 0; p < features.length; p++) {
-            console.log(features[p].properties);
-        }
-        
-        if (!err && features.length) {
-            map.setFilter("route-hover", ["==", "s", features[0].properties.s]);
-        } else {
-            map.setFilter("route-hover", ["==", "s", ""]);
-        }
-        });
-    });*/
-};
-
-function getDataLinestring() {
-    var r = $.Deferred();
-    $.getJSON(heatline2_url, function(data) {
-        stravaLineGeoJson = data;
-        r.resolve();
-    });
-    return r;
 };
 
 function paintLayer(mapid, color, width, opacity, layer) {
@@ -195,23 +137,5 @@ function paintLayer(mapid, color, width, opacity, layer) {
 $(document).one("ajaxStop", function() {
     $("#loading").hide();
 });
-
-var lineHeatStyle = {
-    "id": "linestring",
-    "type": "line",
-    "source": "linestring",
-    "layout": {
-        "line-cap": "round",
-        "line-join": "round"
-    },
-    "paint": {
-        "line-color": "red"
-    },
-    "transition": {
-        "duration": 300,
-        "delay": 0
-    }
-}
-
 </script>
- {% endblock %}
+{% endblock %}

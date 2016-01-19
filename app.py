@@ -7,7 +7,7 @@ import stravalib
 from hashlib import sha1
 from datetime import datetime
 from flask import Flask, request, flash, url_for, redirect, \
-    render_template, session,  jsonify, Response, json
+    render_template, session,  jsonify, Response, json, send_from_directory
 from flask_restful import Resource, Api
 from flask.ext.sqlalchemy import SQLAlchemy
 import stravaParse_v2 as sp
@@ -51,7 +51,6 @@ shop = shopify.Shop.current()
 #  API   #
 ##########
 
-
 def output_html(data, code, headers=None):
     resp = Response(data, mimetype='text/html', headers=headers)
     resp.status_code = code
@@ -59,16 +58,13 @@ def output_html(data, code, headers=None):
 
 
 class Heat_Points(Resource):
-
     def get(self, ath_id):
-        heatpoints = json.loads(
-            sp.get_heatmap_points(engine, int(ath_id)))['points']
-        heatpoints = json.dumps(heatpoints)
-        return heatpoints
+        geojsonlines = sp.get_heatmap_lines(
+            engine, int(ath_id))
+        return output_html(geojsonlines, 200)
 
 
 class Heat_Lines(Resource):
-
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
@@ -76,7 +72,6 @@ class Heat_Lines(Resource):
 
 
 class Heat_Lines2(Resource):
-
     def get(self, ath_id):
         geojsonlines = sp.get_heatmap_lines(
             engine, int(ath_id))
@@ -84,9 +79,9 @@ class Heat_Lines2(Resource):
 
 
 class Current_Acts(Resource):
-
+    """Get list of current activities from database for user"""
+    
     def get(self, ath_id):
-        print "getting current activities..."
         try:
             act_data = sp.get_acts_html(engine, int(ath_id)).to_html(
                 classes=["table table-striped",
@@ -262,6 +257,7 @@ def newproduct():
     success = new_product.save() #returns false if the record is invalid
     return('posted product!')
 
+
 @app.route('/sign_s3')
 def sign_s3():
     # how long to keep the file on AWS S3 storage
@@ -390,8 +386,7 @@ def strava_mapbox():
                            'heat_lines/' + str(session['ath_id']),
                            ath_name=athlete.firstname + "_" + athlete.lastname + '_' + datetime.utcnow().strftime('%y%m%d'))
 
-
-@app.route('/testmap')
+#@app.route('/testmap2')
 def testmap():
     """
     A function to get the data for vizualization from the database,
@@ -419,6 +414,7 @@ def testmap():
                            heatline2_url=BASEPATH +
                            'heat_lines2/' + str(session['ath_id']),
                            ath_name=athlete.firstname + "_" + athlete.lastname + '_' + datetime.utcnow().strftime('%y%m%d'))
+
 
 @app.route('/demodesigner')
 def demodesigner():
