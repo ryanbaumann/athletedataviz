@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block import_script %}
 <!-- Mapbox GL -->
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.3/mapbox-gl.js' ></script>
-<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.3/mapbox-gl.css' rel='stylesheet'>
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.4/mapbox-gl.js' ></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.4/mapbox-gl.css' rel='stylesheet'>
 <!-- Bootstrap Slider -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css">
 <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js' ></script>
@@ -72,42 +72,36 @@
                                 <input type="text" class="slider" id="line_opacity" data-slider-min="0.1" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.1" onclick="render()">
                             </div>
                             <div id="VizType_hide_heat-point" class="collapse in">
-                                <!--<b>Heat Type</b>
+                                <b>Heat Parameter</b>
                                 <select id='heattype' name="line_color" style="font-size: 18px;">
                                     <option value="d">Density</option>
                                     <option value="s">Speed</option>
                                     <option value="g">Grade</option>
                                 </select>
                                 <br>
-                                <br>-->
+                                <br>
                                 <b>Heat Color</b>
                                 <select id='heat_color' name="heat_color" style="font-size: 18px;">
-                                    <option value="#FF0000">Dark Red</option>
-                                    <option value="#00FFFF">Teal</option>     
-                                    <option value="#33FF00">Lime</option>
-                                    <option value="#FFFF00">Dark Yellow</option>
-                                    <option value="#0000FF">Dark Blue</option>
-                                    <option value="#9900FF">Dark Purple</option>
-                                    <option value="#FF0099">Light Pink</option>
-                                    <option value="#00CCFF">Light Blue</option>
-                                    <option value="#33FF00">Light Green</option>
-                                    <option value="#FF9900">Light Orange</option>
-                                    <!--<option value="heatColors1">Green-Yel-Red</option>
-                                    <option value="heatColors2">Intense</option>
-                                    <option value="heatColors3">Xmas</option>-->
+                                    <option value="0">Blu-Gre-Yel-Red</option>
+                                    <option value="1">Pur-Blu-Yel-Ora</option>
+                                    <option value="2">Gre-Red</option>
                                 </select>
                                 <br>
                                 <br>
+                                <b>Max Heat Scale</b>
+                                <input type="text" id="scale" class="slider" data-slider-min="5" data-slider-value="15" data-slider-max="20" data-slider-step="2.5">
+                                <br>
+                                <br>
                                 <b>Heat Blur</b>
-                                <input type="text" id="blur" class="slider" data-slider-min="1" data-slider-value="1" data-slider-max="10" data-slider-step="1">
+                                <input type="text" id="blur" class="slider" data-slider-min="0" data-slider-value="2" data-slider-max="10" data-slider-step="2">
                                 <br>
                                 <br>
                                 <b>Heat Radius</b>
-                                <input type="text" id="radius" class="slider" data-slider-min="1" data-slider-value="1" data-slider-max="20" data-slider-step="1">
+                                <input type="text" id="radius" class="slider" data-slider-min="2" data-slider-value="6" data-slider-max="20" data-slider-step="2">
                                 <br>
                                 <br>
                                 <b>Heat Opacity</b>
-                                <input type="text" id="minOpacity" class="slider" data-slider-min="0.1" data-slider-value="1" data-slider-max="1" data-slider-step="0.25">
+                                <input type="text" id="minOpacity" class="slider" data-slider-min="0.25" data-slider-value="1" data-slider-max="1" data-slider-step="0.25">
                                 <br>
                                 <br>
                             </div>

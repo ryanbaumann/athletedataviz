@@ -134,12 +134,13 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                 tolerance: 1
             });
             renderMap.addSource('heatpoint', heatpoint_src);
-            renderMap.addLayer(heatpoint_style);
+            for (var p = 0; p < layers.length; p++) {
+                renderMap.addLayer(layers[p]);
+            }
             paintCircleLayer(renderMap, 'heatpoints',
                 parseFloat($('#minOpacity').slider('getValue')),
                 parseFloat($('#radius').slider('getValue')),
-                parseFloat($('#blur').slider('getValue')),
-                document.getElementById("heat_color").value);
+                parseFloat($('#blur').slider('getValue')));
         }
     });
 

@@ -9,6 +9,11 @@ var linestring_src;
 var VizType = 'heat-point';
 var map_style = 'dark-nolabel';
 
+//Heat Point gradients
+var color_list = [['blue','cyan','lime','yellow','red'],
+                    ['purple','pink','blue','yellow','orange'],
+                    ['green','aquamarine','blanchedalmond','coral','red']]
+
 var lineHeatStyle = {
     "id": "linestring",
     "type": "line",
@@ -34,34 +39,60 @@ var heatpoint_style = {
             "circle-blur" : 1
         }
 };
-var breaks = [0, 15];
-var colors = ['#00FF00', '#FF0000'];
 
-var layers = [{
-                    "id": "heatpoints-" + colors[0],
-                    "type": "circle",
-                    "source": 'heatpoint',
-                    "paint": {
-                        "circle-color": colors[0],
-                        "circle-opacity" : 0.9,
-                        "circle-radius" : 5,
-                        "circle-blur" : 1
-                    },
-                    "filter": ['all', ['>=', 's', breaks[0]], ['<', 's', breaks[1]]]
-                },
-                {
-                    "id": "heatpoints-" + colors[1],
-                    "type": "circle",
-                    "source": 'heatpoint',
-                    "paint": {
-                        "circle-color": colors[1],
-                        "circle-opacity" : 0.9,
-                        "circle-radius" : 5,
-                        "circle-blur" : 1
-                    },
-                    "filter": ['all', ['>=', 's', breaks[1]]]
-                }
-            ];
+var breaks = [4, 8, 12, 16, 20];
+var colors = color_list[0];
+var layers = [];
+var filters = [];
+
+function calcBreaks(maxval, numbins) {
+    //calculate breaks based on a selected bin size and number of bins
+    breaks = [];
+    var binSize = maxval/numbins;
+    for (p=1; p<=numbins; p++) {
+        breaks.push(binSize*p);
+    }
+}
+
+function calcHeatFilters(breaks, param) {
+    //calculate filters to apply to sheet (first run only)
+    filters = [];
+    for (var p = 0; p < breaks.length; p++) {
+      if (p<=0) {
+        filters.push([ 'all',
+          [ '<', param, breaks[p + 1] ]
+        ])
+      }
+      else if (p < breaks.length - 1) {
+        filters.push([ 'all',
+          [ '>=', param, breaks[p] ],
+          [ '<', param, breaks[p + 1] ]
+        ])
+      } else {
+        filters.push([ 'all',
+          [ '>=', param, breaks[p] ]
+        ])
+      }
+  }
+}
+
+function calcHeatLayers(filters, colors) {
+    //create layers with filters
+    layers = [];
+    for (var p = 0; p < breaks.length; p++) {
+    layers.push({
+        id: 'heatpoints-' + p,
+        type: 'circle',
+        source: 'heatpoint',
+        paint: {"circle-color": colors[p],
+                "circle-opacity" : 0.9,
+                "circle-radius" : 5,
+                "circle-blur" : 1
+        },
+        filter: filters[p]
+      })
+    }
+}
 
 //Load the map canvas
 if (!mapboxgl.supported()) {
@@ -121,11 +152,14 @@ function addLayerHeat() {
             console.log(err);
     }
     try{
-        map.addLayer(heatpoint_style);
+        calcHeatFilters(breaks, 'd');
+        calcHeatLayers(filters, colors);
+        for (var p = 0; p < layers.length; p++) {
+            map.addLayer(layers[p]);
+        } 
     } catch (err) {
         console.log(err);
     }
-    addPopup(map, 'heatpoints');
     fit();
     $("#loading").hide();
 };
@@ -199,7 +233,9 @@ function switchLayer() {
         }
         try {
             map.addLayer(lineHeatStyle);
-            map.addLayer(heatpoint_style);
+            for (var p = 0; p < layers.length; p++) {
+                map.addLayer(layers[p]);
+            } 
         } catch (err) {
             console.log(err);
         }
@@ -233,40 +269,50 @@ function switchMapStyle() {
 }
 
 function addPopup(mapid, layer) {
-    mapid.on('click', function (e) {
-    mapid.featuresAt(e.point, 
-                    {layer: 'heatpoints', 
-                    radius: 15, 
-                    includeGeometry: true
-    }, function (err, features) {
-        if (err || !features.length)
-            return;
-        var feature = features[0];
-        new mapboxgl.Popup()
-            .setLngLat(feature.geometry.coordinates)
-            .setHTML('<h5> Coords: ' + Math.round(feature.geometry.coordinates[1]*1000)/1000 + "," +
-                                       Math.round(feature.geometry.coordinates[0]*1000)/1000 + '</h5>' +
-                     '<ul class="list-group">' +
-                     '<li class="list-group-item"> Freq: ' + feature.properties.d + " visits </li>" +
-                     '<li class="list-group-item"> Speed: ' + feature.properties.s + " mph </li>" +
-                     '<li class="list-group-item"> Grade: ' + feature.properties.g + " % </li>" +
-                     '</ul>')
-            .addTo(map);
+    for (var p = 0; p < layers.length; p++) {
+        mapid.on('click', function (e) {
+        mapid.featuresAt(e.point, 
+                        {layer: 'heatpoints-' + p, 
+                        radius: 15, 
+                        includeGeometry: true
+        }, function (err, features) {
+            if (err || !features.length)
+                return;
+            var feature = features[0];
+            new mapboxgl.Popup()
+                .setLngLat(feature.geometry.coordinates)
+                .setHTML('<h5> Coords: ' + Math.round(feature.geometry.coordinates[1]*1000)/1000 + "," +
+                                           Math.round(feature.geometry.coordinates[0]*1000)/1000 + '</h5>' +
+                         '<ul class="list-group">' +
+                         '<li class="list-group-item"> Freq: ' + feature.properties.d + " visits </li>" +
+                         '<li class="list-group-item"> Speed: ' + feature.properties.s + " mph </li>" +
+                         '<li class="list-group-item"> Grade: ' + feature.properties.g + " % </li>" +
+                         '</ul>')
+                .addTo(map);
+            });
         });
-    });
-    map.on('mousemove', function (e) {
-    map.featuresAt(e.point, {layer: 'heatpoints', radius: 15}, function (err, features) {
-        map.getCanvas().style.cursor = (!err && features.length) ? 'pointer' : '';
-    });
-});
+        map.on('mousemove', function (e) {
+        map.featuresAt(e.point, {layer: 'heatpoints-' + p, radius: 15}, function (err, features) {
+            map.getCanvas().style.cursor = (!err && features.length) ? 'pointer' : '';
+        });
+        });
+    }
 }
 
 //Update heatpoints properties
-function paintCircleLayer(mapid, layer, opacity, radius, blur, color) {
-        mapid.setPaintProperty(layer, 'circle-opacity', opacity);
-        mapid.setPaintProperty(layer, 'circle-radius', radius);
-        mapid.setPaintProperty(layer, 'circle-blur', blur);
-        mapid.setPaintProperty(layer, 'circle-color', color);
+function paintCircleLayer(mapid, layer, opacity, radius, blur) {
+    //Update the break and filter settings
+    colors = color_list[parseFloat(document.getElementById('heat_color').value)];
+    calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);
+    calcHeatFilters(breaks, document.getElementById('heattype').value);
+    //apply settings to each layer
+    for (var p = 0; p < layers.length; p++) {
+        mapid.setPaintProperty(layer+ '-'+ p, 'circle-opacity', opacity);
+        mapid.setPaintProperty(layer+ '-'+ p, 'circle-radius', radius);
+        mapid.setPaintProperty(layer+ '-'+ p, 'circle-blur', blur);
+        mapid.setPaintProperty(layer+ '-'+ p, 'circle-color', colors[p]);
+        mapid.setFilter(layer+ '-'+ p, filters[p]);
+    }
 }
 
 function render() {
@@ -277,19 +323,22 @@ function render() {
             console.log(err);
         }
         try {
-            set_visibility(map, 'heatpoints', 'on');
+            for (var p = 0; p < layers.length; p++) {
+                set_visibility(map, 'heatpoints-'+p, 'on');
+            }
             paintCircleLayer(map, 'heatpoints',
                 parseFloat($('#minOpacity').slider('getValue')),
                 parseFloat($('#radius').slider('getValue')),
-                parseFloat($('#blur').slider('getValue')),
-                document.getElementById("heat_color").value);
-            //addPopup(map, 'heatpoints');
+                parseFloat($('#blur').slider('getValue')));
+
         } catch (err) {
             console.log(err);
         }
     } else if (document.getElementById("VizType").value == "heat-line") {
         try {
-            set_visibility(map, 'heatpoints', 'off');
+            for (var p = 0; p < layers.length; p++) {
+                set_visibility(map, 'heatpoints-'+p, 'off');
+            }
         } catch (err) {
             console.log(err);
         }
@@ -354,6 +403,15 @@ $('#radius').slider().on('slide', function(ev) {
     $('#radius').slider('setValue', ev.value);
     render();
 });
+$('#scale').slider({
+    formatter: function(value) {
+        return 'Value: ' + value;
+    }
+});
+$('#scale').slider().on('slide', function(ev) {
+    $('#scale').slider('setValue', ev.value);
+    render();
+});
 $('#minOpacity').slider({
     formatter: function(value) {
         return 'Value: ' + value;
@@ -373,25 +431,4 @@ $('#heat_color').change(render);
 $('#line_color').change(render);
 $('#snap').on('click touch tap', generateMap);
 
-//Heat Point gradients
-var heatColors1 = {
-    0.1: 'blue',
-    0.6: 'cyan',
-    0.7: 'lime',
-    0.8: 'yellow',
-    1.0: 'red'
-};
-var heatColors2 = {
-    0.1: 'purple',
-    0.6: 'pink',
-    0.7: 'blue',
-    0.8: 'yellow',
-    1.0: 'orange'
-};
-var heatColors3 = {
-    0.1: 'green',
-    0.6: 'aquamarine',
-    0.7: 'blanchedalmond',
-    0.8: 'coral',
-    1.0: 'red'
-};
+
