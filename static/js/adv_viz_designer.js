@@ -40,7 +40,7 @@ var heatpoint_style = {
         }
 };
 
-var breaks = [4, 8, 12, 16, 20];
+var breaks = [3, 6, 9, 12, 16];
 var colors = color_list[0];
 var layers = [];
 var filters = [];
@@ -85,9 +85,9 @@ function calcHeatLayers(filters, colors) {
         type: 'circle',
         source: 'heatpoint',
         paint: {"circle-color": colors[p],
-                "circle-opacity" : 0.9,
-                "circle-radius" : 5,
-                "circle-blur" : 1
+                "circle-opacity" : 1,
+                "circle-radius" : 2,
+                "circle-blur" : 0
         },
         filter: filters[p]
       })
@@ -152,7 +152,7 @@ function addLayerHeat() {
             console.log(err);
     }
     try{
-        calcHeatFilters(breaks, 'd');
+        calcHeatFilters(breaks, 's');
         calcHeatLayers(filters, colors);
         for (var p = 0; p < layers.length; p++) {
             map.addLayer(layers[p]);
