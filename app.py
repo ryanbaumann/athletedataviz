@@ -301,7 +301,8 @@ def sign_s3():
     db.session.close()
     # return json to the browser to finish use the image link in the browser
     content = json.dumps({
-        'signed_request': '%s?AWSAccessKeyId=%s&Expires=%s&Signature=%s' % (url, AWS_ACCESS_KEY, expires, signature),
+        'signed_request': '%s?AWSAccessKeyId=%s&Expires=%s&cache-control=%s&Signature=%s' % (url, 
+                           AWS_ACCESS_KEY, expires, 'max-age=2592000,public', signature),
         'url': url,
     })
 
