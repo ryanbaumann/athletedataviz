@@ -19,9 +19,9 @@ requests
 gunicorn
 psycopg2
 flask-debugtoolbar
-celery==3.1.19
-kombu==3.0.32
-redis==2.10.5
+celery
+kombu
+redis
 healthgraph-api
 flask-restful
 markdown

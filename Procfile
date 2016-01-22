@@ -1,2 +1,2 @@
 web: gunicorn app:app --max-requests 800 --preload --timeout 29 --worker-class eventlet
-worker: celery worker -A app.celery -C
+worker: celery worker -A app.celery --loglevel=INFO -P eventlet --concurrency=2 --autoscale=6,2
