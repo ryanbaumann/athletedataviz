@@ -114,7 +114,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         if (document.getElementById("VizType").value == "heat-line") {
             linestring_src = new mapboxgl.GeoJSONSource({
                 data: stravaLineGeoJson,
-                maxzoom: 15,
+                maxzoom: 20,
                 buffer: 2,
                 tolerance: 1
             });
@@ -129,14 +129,16 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         else if (document.getElementById("VizType").value == "heat-point") {
             heatpoint_src = new mapboxgl.GeoJSONSource({
                 data: heatpoint_data,
-                maxzoom: 15,
-                buffer: 2,
-                tolerance: 1
+                maxzoom: 16,
+                buffer: 20,
+                tolerance: 20
             });
             renderMap.addSource('heatpoint', heatpoint_src);
-            for (var p = 0; p < layers.length; p++) {
-                renderMap.addLayer(layers[p]);
-            }
+            renderMap.batch(function (batch) {
+                for (var p = 0; p < layers.length; p++) {
+                    batch.addLayer(layers[p]);
+                }
+            });
             paintCircleLayer(renderMap, 'heatpoints',
                 parseFloat($('#minOpacity').slider('getValue')),
                 parseFloat($('#radius').slider('getValue')),
