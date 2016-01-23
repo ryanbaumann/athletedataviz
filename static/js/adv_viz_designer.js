@@ -205,7 +205,15 @@ map.once('load', function() {
 
 function fit() {
     //fit gl map to a geojson file bounds
-    map.fitBounds(geojsonExtent(heatpoint_data));
+    try {
+        map.fitBounds(geojsonExtent(heatpoint_data));
+    }
+    catch (err) {
+        //Note that the user did not have any data to load
+        console.log(err);
+        $("#loading").hide();
+        $('#DownloadModal').modal("show");
+    }
 }
 
 //Stop the loading bar when ajax requests complete
