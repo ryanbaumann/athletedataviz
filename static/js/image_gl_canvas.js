@@ -115,7 +115,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
             linestring_src = new mapboxgl.GeoJSONSource({
                 data: stravaLineGeoJson,
                 maxzoom: 20,
-                buffer: 2,
+                buffer: 1000,
                 tolerance: 1
             });
             renderMap.addSource('linestring', linestring_src);
@@ -129,9 +129,9 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         else if (document.getElementById("VizType").value == "heat-point") {
             heatpoint_src = new mapboxgl.GeoJSONSource({
                 data: heatpoint_data,
-                maxzoom: 16,
-                buffer: 20,
-                tolerance: 20
+                maxzoom: 20,
+                buffer: 1000,
+                tolerance: 1
             });
             renderMap.addSource('heatpoint', heatpoint_src);
             renderMap.batch(function (batch) {

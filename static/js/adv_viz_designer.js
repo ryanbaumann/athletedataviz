@@ -37,7 +37,7 @@ var heatpoint_style = {
             "circle-color": document.getElementById("heat_color").value,
             "circle-opacity" : 0.8,
             "circle-radius" : 2,
-            "circle-blur" : 1
+            "circle-blur" : 0.5
         }
 };
 
@@ -88,7 +88,7 @@ function calcHeatLayers(filters, colors) {
         paint: {"circle-color": colors[p],
                 "circle-opacity" : 0.8,
                 "circle-radius" : 2,
-                "circle-blur" : 1
+                "circle-blur" : 0.5
         },
         filter: filters[p]
       })
@@ -144,9 +144,9 @@ function addLayerHeat() {
     // Mapbox JS Api - import heatmap layer
     heatpoint_src = new mapboxgl.GeoJSONSource({
         data: heatpoint_data,
-        maxzoom: 16,
-        buffer: 10,
-        tolerance: 10
+        maxzoom: 20,
+        buffer: 1000,
+        tolerance: 1
     });
     try {
         map.addSource('heatpoint', heatpoint_src);
@@ -173,7 +173,8 @@ function addLayerLinestring() {
     linestring_src = new mapboxgl.GeoJSONSource({
         data: stravaLineGeoJson,
         maxzoom: 20,
-        buffer: 2
+        buffer: 1000,
+        tolerance: 1
     });
     try {
         map.addSource('linestring', linestring_src);
@@ -231,13 +232,15 @@ function switchLayer() {
     map.on('style.load', function() {
         linestring_src = new mapboxgl.GeoJSONSource({
             data: stravaLineGeoJson,
-            maxzoom: 20
+            maxzoom: 20,
+            buffer: 1000,
+            tolerance: 1
         });
         heatpoint_src = new mapboxgl.GeoJSONSource({
             data: heatpoint_data,
-            maxzoom: 16,
-            buffer: 2,
-            tolerance: 10
+            maxzoom: 20,
+            buffer: 1000,
+            tolerance: 1
         });
         try {
             map.addSource('linestring', linestring_src);
