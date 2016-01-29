@@ -29,7 +29,7 @@ var lineHeatStyle = {
         "line-opacity": parseFloat(document.getElementById("line_opacity").value),
         "line-width": parseFloat(document.getElementById("line_width").value),
         "line-color": document.getElementById("line_color").value,
-        "line-gap-width": document.getElementById("line_offset").value
+        "line-gap-width": 0
     }
 };
 
