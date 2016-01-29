@@ -296,8 +296,6 @@ function set_visibility(mapid, id, onoff) {
 };
 
 function paintLayer(mapid, color, width, opacity, layer) {
-
-
     mapid.batch(function(batch) {
         batch.setPaintProperty(layer, 'line-color', color);
         batch.setPaintProperty(layer, 'line-width', width);
@@ -308,8 +306,8 @@ function paintLayer(mapid, color, width, opacity, layer) {
 
 function switchMapStyle() {
     $("#loading").show();
-    switchLayer().done($("#loading").hide());
-    //$("#loading").hide();
+    switchLayer();
+    $("#loading").hide();
 }
 
 function addPopup(mapid, layer) {
