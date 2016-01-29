@@ -27,15 +27,7 @@ var lineHeatStyle = {
     },
     "paint": {
         "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-        //"line-width": parseFloat(document.getElementById("line_width").value),
-        "line-width": {
-            "base": 10,
-            "stops": [
-                [5, 1],
-                [7, 2],
-                [11, 3]
-            ]
-        },
+        "line-width": parseFloat(document.getElementById("line_width").value),
         "line-color": document.getElementById("line_color").value,
         "line-gap-width": document.getElementById("line_offset").value
     }
@@ -176,7 +168,6 @@ function addLayerHeat() {
         console.log(err);
     }
     fit();
-    $("#loading").hide();
 };
 
 function addLayerLinestring() {
@@ -203,7 +194,7 @@ function addLayerLinestring() {
         parseFloat($('#line_width').slider('getValue')),
         parseFloat($('#line_opacity').slider('getValue')),
         'linestring');
-    addPopup(map, 'heatpoints');
+    $("#loading").hide();
 };
 
 map.once('load', function() {
