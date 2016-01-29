@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block import_script %}
 <!-- Mapbox GL -->
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.4/mapbox-gl.js' ></script>
-<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.4/mapbox-gl.css' rel='stylesheet'>
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.13.1/mapbox-gl.js' ></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.13.1/mapbox-gl.css' rel='stylesheet'>
 <!-- Bootstrap Slider -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css">
 <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js' ></script>
@@ -70,6 +70,10 @@
                                 <br>
                                 <b>Line Opacity</b>
                                 <input type="text" class="slider" id="line_opacity" data-slider-min="0.1" data-slider-value="0.5" data-slider-max="1" data-slider-step="0.1" onclick="render()">
+                                <br>
+                                <br>
+                                <b>Line Offset</b>
+                                <input type="text" class="slider" id="line_offset" data-slider-min="0" data-slider-value="0" data-slider-max="10" data-slider-step="1" onclick="render()">
                             </div>
                             <div id="VizType_hide_heat-point" class="collapse in">
                                 <b>Heat Parameter</b>

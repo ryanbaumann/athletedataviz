@@ -19,11 +19,19 @@ var lineHeatStyle = {
     "id": "linestring",
     "type": "line",
     "source": "linestring",
-    "interactive": true,
+    //"interactive": true,
+    "layout" : {
+        "line-join" : "round"
+    },
     "paint": {
         "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-        "line-width": parseFloat(document.getElementById("line_width").value),
-        "line-color": document.getElementById("line_color").value
+        //"line-width": parseFloat(document.getElementById("line_width").value),
+        "line-width":{
+            "base": 10,
+            "stops": [[5, 1], [7, 2], [11, 3]]
+        },
+        "line-color": document.getElementById("line_color").value,
+        "line-gap-width" : document.getElementById("line_offset").value
     }
 };
 
@@ -31,7 +39,7 @@ var heatpoint_style = {
         "id": "heatpoints",
         "type": "circle",
         "source": 'heatpoint',
-        "interactive": true,
+        //"interactive": true,
         "layout": {},
         "paint": {
             "circle-color": document.getElementById("heat_color").value,
@@ -144,6 +152,9 @@ function addLayerHeat() {
     // Mapbox JS Api - import heatmap layer
     heatpoint_src = new mapboxgl.GeoJSONSource({
         data: heatpoint_data,
+        //cluster: true,
+        //clusterRadius: 200,
+        //clusterMaxZoom: 16,
         maxzoom: 20,
         buffer: 1000,
         tolerance: 1
@@ -285,19 +296,20 @@ function set_visibility(mapid, id, onoff) {
 };
 
 function paintLayer(mapid, color, width, opacity, layer) {
-    mapid.setPaintProperty(layer, 'line-color', color);
-    mapid.setPaintProperty(layer, 'line-width', width);
-    mapid.setPaintProperty(layer, 'line-opacity', opacity);
+
+
+    mapid.batch(function(batch) {
+        batch.setPaintProperty(layer, 'line-color', color);
+        batch.setPaintProperty(layer, 'line-width', width);
+        batch.setPaintProperty(layer, 'line-opacity', opacity);
+        batch.setPaintProperty(layer, 'line-gap-width', document.getElementById("line_offset").value);
+    });
 }
 
 function switchMapStyle() {
     $("#loading").show();
-    //Check if the mapStyle changed - if so, change it here
-    if (document.getElementById("mapStyle").value != map_style) {
-        switchLayer();
-        map_style = document.getElementById("mapStyle").value;
-    }
-    $("#loading").hide();
+    switchLayer().done($("#loading").hide());
+    //$("#loading").hide();
 }
 
 function addPopup(mapid, layer) {
@@ -340,11 +352,11 @@ function paintCircleLayer(mapid, layer, opacity, radius, blur) {
     //apply settings to each layer
     mapid.batch(function (batch) {
         for (var p = 0; p < layers.length; p++) {
+            batch.setFilter(layer+ '-'+ p, filters[p]);
             batch.setPaintProperty(layer+ '-'+ p, 'circle-opacity', opacity);
             batch.setPaintProperty(layer+ '-'+ p, 'circle-radius', radius);
             batch.setPaintProperty(layer+ '-'+ p, 'circle-blur', blur);
             batch.setPaintProperty(layer+ '-'+ p, 'circle-color', colors[p]);
-            batch.setFilter(layer+ '-'+ p, filters[p]);
         }
     });
 }
@@ -404,11 +416,7 @@ $('#line_width').slider({
 });
 $('#line_width').slider().on('slide', function(ev) {
     $('#line_width').slider('setValue', ev.value);
-    paintLayer(map,
-                document.getElementById("line_color").value,
-                parseFloat($('#line_width').slider('getValue')),
-                parseFloat($('#line_opacity').slider('getValue')),
-                'linestring');;
+    render();
 });
 $('#line_opacity').slider({
     formatter: function(value) {
@@ -417,11 +425,16 @@ $('#line_opacity').slider({
 });
 $('#line_opacity').slider().on('slide', function(ev) {
     $('#line_opacity').slider('setValue', ev.value);
-    paintLayer(map,
-                document.getElementById("line_color").value,
-                parseFloat($('#line_width').slider('getValue')),
-                parseFloat($('#line_opacity').slider('getValue')),
-                'linestring');
+    render();
+});
+$('#line_offset').slider({
+    formatter: function(value) {
+        return 'Value: ' + value;
+    }
+});
+$('#line_offset').slider().on('slide', function(ev) {
+    $('#line_offset').slider('setValue', ev.value);
+    render();
 });
 $('#blur').slider({
     formatter: function(value) {
@@ -430,10 +443,7 @@ $('#blur').slider({
 });
 $('#blur').slider().on('slide', function(ev) {
     $('#blur').slider('setValue', ev.value);
-    paintCircleLayer(map, 'heatpoints',
-                parseFloat($('#minOpacity').slider('getValue')),
-                parseFloat($('#radius').slider('getValue')),
-                parseFloat($('#blur').slider('getValue')));;
+    render();
 });
 $('#radius').slider({
     formatter: function(value) {
@@ -442,10 +452,7 @@ $('#radius').slider({
 });
 $('#radius').slider().on('slide', function(ev) {
     $('#radius').slider('setValue', ev.value);
-    paintCircleLayer(map, 'heatpoints',
-                parseFloat($('#minOpacity').slider('getValue')),
-                parseFloat($('#radius').slider('getValue')),
-                parseFloat($('#blur').slider('getValue')));;
+    render();
 });
 $('#scale').slider({
     formatter: function(value) {
@@ -463,10 +470,7 @@ $('#minOpacity').slider({
 });
 $('#minOpacity').slider().on('slide', function(ev) {
     $('#minOpacity').slider('setValue', ev.value);
-    paintCircleLayer(map, 'heatpoints',
-                parseFloat($('#minOpacity').slider('getValue')),
-                parseFloat($('#radius').slider('getValue')),
-                parseFloat($('#blur').slider('getValue')));;
+    render();
 });
 $('#Refresh').on('click touch tap', switchMapStyle);
 $('#Refresh').on('click touch tap', render);
