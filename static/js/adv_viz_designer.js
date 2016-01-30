@@ -21,7 +21,6 @@ var lineHeatStyle = {
     "id": "linestring",
     "type": "line",
     "source": "linestring",
-    //"interactive": true,
     "layout": {
         "line-join": "round"
     },
@@ -37,7 +36,6 @@ var heatpoint_style = {
     "id": "heatpoints",
     "type": "circle",
     "source": 'heatpoint',
-    //"interactive": true,
     "layout": {},
     "paint": {
         "circle-color": document.getElementById("heat_color").value,
@@ -52,12 +50,37 @@ var colors = color_list[0];
 var layers = [];
 var filters = [];
 
+function updateLegend() {
+    document.getElementById('legend-param').textContent = $("#heattype option:selected").text();
+}
+
+function calcLegends(p) {
+    // Build out legends
+    var item = document.createElement('div');
+    var key = document.createElement('span');
+    key.id = 'legend-id-' + p;
+    key.className = 'legend-key';
+    key.style.backgroundColor = colors[p];
+    var value = document.createElement('span');
+    value.id = 'legend-value-' + p;
+    item.appendChild(key);
+    item.appendChild(value);
+    legend.appendChild(item);
+    document.getElementById('legend-value-' + p).textContent = breaks[p];
+}
+
 function calcBreaks(maxval, numbins) {
     //calculate breaks based on a selected bin size and number of bins
-    breaks = [];
+    breaks = [];  //empty the breaks array
+
     var binSize = maxval / numbins;
     for (p = 1; p <= numbins; p++) {
         breaks.push(binSize * p);
+    }
+    updateLegend();
+    for (p = 0; p < layers.length; p++) {
+        document.getElementById('legend-value-' + p).textContent = breaks[p];
+        document.getElementById('legend-id-' + p).style.backgroundColor = colors[p];
     }
 }
 
@@ -75,6 +98,7 @@ function calcHeatFilters(breaks, param) {
             filters.push(['all', ['>=', param, breaks[p]]])
         }
     }
+
 }
 
 function calcHeatLayers(filters, colors) {
@@ -85,6 +109,7 @@ function calcHeatLayers(filters, colors) {
             id: 'heatpoints-' + p,
             type: 'circle',
             source: 'heatpoint',
+            interactive: true,
             paint: {
                 "circle-color": colors[p],
                 "circle-opacity": 0.8,
@@ -92,7 +117,8 @@ function calcHeatLayers(filters, colors) {
                 "circle-blur": 0.5
             },
             filter: filters[p]
-        })
+        });
+        
     }
 }
 
@@ -162,7 +188,9 @@ function addLayerHeat() {
         map.batch(function(batch) {
             for (var p = 0; p < layers.length; p++) {
                 batch.addLayer(layers[p]);
-            }
+                calcLegends(p);
+                //addPopup(map, layers[p]);
+                }
         });
     } catch (err) {
         console.log(err);
@@ -205,6 +233,9 @@ map.once('load', function() {
     }));
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
+    var popup = new mapboxgl.Popup({
+        closeButton: false
+    });
     //Stop the loading bar when map is fully loaded
 });
 
@@ -306,7 +337,7 @@ function switchMapStyle() {
 
 function addPopup(mapid, layer) {
     for (var p = 0; p < layers.length; p++) {
-        mapid.on('click', function(e) {
+        mapid.on('mousemove', function(e) {
             mapid.featuresAt(e.point, {
                 layer: 'heatpoints-' + p,
                 radius: 15,
@@ -327,8 +358,8 @@ function addPopup(mapid, layer) {
                     .addTo(map);
             });
         });
-        map.on('mousemove', function(e) {
-            map.featuresAt(e.point, {
+        mapid.on('mousemove', function(e) {
+            mapid.featuresAt(e.point, {
                 layer: 'heatpoints-' + p,
                 radius: 15
             }, function(err, features) {
@@ -369,6 +400,7 @@ function render() {
                 parseFloat($('#minOpacity').slider('getValue')),
                 parseFloat($('#radius').slider('getValue')),
                 parseFloat($('#blur').slider('getValue')));
+            $('#legend').show();
 
         } catch (err) {
             console.log(err);
@@ -386,6 +418,7 @@ function render() {
                 parseFloat($('#line_width').slider('getValue')),
                 parseFloat($('#line_opacity').slider('getValue')),
                 'linestring');
+            $('#legend').hide();
         } catch (err) {
             console.log(err);
         }

@@ -78,9 +78,9 @@
                             <div id="VizType_hide_heat-point" class="collapse in">
                                 <b>Heat Parameter</b>
                                 <select id='heattype' name="line_color" style="font-size: 18px;">
-                                    <option value="s">Speed</option>
-                                    <option value="d">Density</option>
-                                    <option value="g">Grade</option>
+                                    <option value="s">Speed (mph)</option>
+                                    <option value="d">Density (freq)</option>
+                                    <option value="g">Grade (%)</option>
                                 </select>
                                 <br>
                                 <br>
@@ -116,6 +116,12 @@
         </div>
     </div>
     <div id='map'></div>
+    <div class='legend-container'>
+      <div id='legend' class='legend'>
+        <h3>Legend</h3>
+        <span id='legend-param' class='text-center'>Speed (mph)</span>
+      </div>
+    </div>
     <div id="loading">
         <div class="loading-indicator">
             <div class="progress progress-striped active">
