@@ -520,7 +520,7 @@ form input#submit:hover{
 .mapboxgl-ctrl-group {
     height: 90pt;
     width: 30pt;
-    margin: 0 10pt 20pt 0 !important;
+    margin: 10 10pt 20pt 0 !important;
 }
 
 .mapboxgl-ctrl-group > .mapboxgl-ctrl-icon {
@@ -534,7 +534,7 @@ form input#submit:hover{
 }
 .legend-container {
     position: absolute;
-    bottom: 0;
+    top: 200px;
     left: 0;
     padding: 0 10px;
     margin-bottom: 30px;
