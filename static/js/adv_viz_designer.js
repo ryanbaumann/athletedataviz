@@ -3,12 +3,12 @@ mapboxgl.accessToken = mapboxgl_accessToken;
 
 /////////////  Global variables  ////////////
 var draw_canvas;
-var heatpoint_data;
-var stravaLineGeoJson;
+//var heatpoint_data;
+//var stravaLineGeoJson;
 var linestring_src;
+var heatpoint_src;
 var VizType = 'heat-point';
 var map_style = 'dark-nolabel';
-
 //Heat Point gradients
 
 var color_list = [
@@ -150,6 +150,7 @@ function getDataLinestring() {
     var r = $.Deferred();
     $.getJSON(heatline_url, function(data) {
         stravaLineGeoJson = data;
+        $.ajaxSetup({ cache: true });
         r.resolve();
     });
     return r;
@@ -160,6 +161,7 @@ function getDataHeat() {
     var r = $.Deferred();
     $.getJSON(heatpoint_url, function(data) {
         heatpoint_data = data;
+        $.ajaxSetup({ cache: true });
         r.resolve();
     });
     return r;
@@ -169,10 +171,7 @@ function getDataHeat() {
 function addLayerHeat() {
     // Mapbox JS Api - import heatmap layer
     heatpoint_src = new mapboxgl.GeoJSONSource({
-        data: heatpoint_data,
-        //cluster: true,
-        //clusterRadius: 200,
-        //clusterMaxZoom: 16,
+        data: heatpoint_url,
         maxzoom: 20,
         buffer: 1000,
         tolerance: 1
@@ -195,15 +194,15 @@ function addLayerHeat() {
     } catch (err) {
         console.log(err);
     }
-    fit();
+    //fit();
 };
 
 function addLayerLinestring() {
     //Create source for linestring data source
     linestring_src = new mapboxgl.GeoJSONSource({
-        data: stravaLineGeoJson,
-        maxzoom: 20,
-        buffer: 1000,
+        data: heatline_url,
+        maxzoom: 18,
+        buffer: 500,
         tolerance: 1
     });
     try {
@@ -226,8 +225,9 @@ function addLayerLinestring() {
 };
 
 map.once('load', function() {
-    getDataHeat().done(addLayerHeat);
-    getDataLinestring().done(addLayerLinestring);
+    //imgCanvas.init(map); //initialize the image_gl_canvas module based on the created map
+    addLayerHeat();
+    addLayerLinestring();
     map.addControl(new mapboxgl.Navigation({
         position: 'top-left'
     }));
@@ -264,14 +264,16 @@ function switchLayer() {
         map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
     }
     map.on('style.load', function() {
+        //getDataHeat().done(addLayerHeat);
+        //getDataLinestring().done(addLayerLinestring);
         linestring_src = new mapboxgl.GeoJSONSource({
-            data: stravaLineGeoJson,
+            data: heatline_url,
             maxzoom: 20,
             buffer: 1000,
             tolerance: 1
         });
         heatpoint_src = new mapboxgl.GeoJSONSource({
-            data: heatpoint_data,
+            data: heatpoint_url,
             maxzoom: 20,
             buffer: 1000,
             tolerance: 1
@@ -294,7 +296,7 @@ function switchLayer() {
         }
         render();
     });
-};
+}
 
 function set_visibility(mapid, id, onoff) {
     if (id == 'heatpoints') {

@@ -51,38 +51,55 @@ shop = shopify.Shop.current()
 #  API   #
 ##########
 
+@cache.memoize(timeout=600)
 def output_html(data, code, headers=None):
     resp = Response(data, mimetype='text/html', headers=headers)
     resp.status_code = code
+    resp.cache_control.max_age = 600
+    return resp
+
+@cache.memoize(timeout=600)
+def output_json(data, code, headers=None):
+    resp = Response(data, mimetype='application/json', headers=headers)
+    resp.status_code = code
+    resp.cache_control.max_age = 600
     return resp
 
 
 class Heat_Points(Resource):
-    #@cache.memoize(timeout=600)
+    @cache.memoize(timeout=600)
     def get(self, ath_id):
-        geojsonlines = sp.get_heatmap_lines(
+        geojsonPoints = sp.get_heatmap_lines(
             engine, int(ath_id))
-        return output_html(geojsonlines, 200)
+        return output_json(geojsonPoints, 200)
 
 
 class Heat_Lines(Resource):
-    #@cache.memoize(timeout=600)
+    @cache.memoize(timeout=600)
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
-        return output_html(geojsonlines, 200)
+        return output_json(geojsonlines, 200)
 
 
 class Heat_Lines2(Resource):
+    @cache.memoize(timeout=600)
     def get(self, ath_id):
         geojsonlines = sp.get_heatmap_lines(
             engine, int(ath_id))
-        return output_html(geojsonlines, 200)
+        return output_json(geojsonlines, 200)
+
+
+class stream_data(Resource):
+    @cache.memoize(timeout=600)
+    def get(self, ath_id):
+        geojsonlines = sp.get_heatmap_lines(
+            engine, int(ath_id))
+        return output_json(geojsonlines, 200)
 
 
 class Current_Acts(Resource):
-    """Get list of current activities from database for user"""
-    #@cache.memoize(timeout=600)
+    @cache.memoize(timeout=600)
     def get(self, ath_id):
         try:
             act_data = sp.get_acts_html(engine, int(ath_id)).to_html(
@@ -90,7 +107,7 @@ class Current_Acts(Resource):
                          "table table-condensed"])
         except:
             print "error getting current activity list from DB!"
-        return act_data
+        return output_html(act_data, 200)
 
 api.add_resource(Heat_Points, '/heat_points/<int:ath_id>')
 api.add_resource(Heat_Lines, '/heat_lines/<int:ath_id>')

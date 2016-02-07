@@ -1,4 +1,5 @@
 
+
 /**
  * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
  * images to fit into a certain area.
@@ -113,7 +114,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     renderMap.on('style.load', function addLayers() {
         if (document.getElementById("VizType").value == "heat-line") {
             linestring_src = new mapboxgl.GeoJSONSource({
-                data: stravaLineGeoJson,
+                data: heatline_url,
                 maxzoom: 20,
                 buffer: 1000,
                 tolerance: 1
@@ -128,7 +129,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         }
         else if (document.getElementById("VizType").value == "heat-point") {
             heatpoint_src = new mapboxgl.GeoJSONSource({
-                data: heatpoint_data,
+                data: heatpoint_url,
                 maxzoom: 20,
                 buffer: 1000,
                 tolerance: 1
