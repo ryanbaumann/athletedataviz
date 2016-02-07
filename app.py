@@ -55,7 +55,6 @@ shop = shopify.Shop.current()
 def output_html(data, code, headers=None):
     resp = Response(data, mimetype='text/html', headers=headers)
     resp.status_code = code
-    resp.cache_control.max_age = 600
     return resp
 
 @cache.memoize(timeout=600)
@@ -99,7 +98,6 @@ class stream_data(Resource):
 
 
 class Current_Acts(Resource):
-    @cache.memoize(timeout=600)
     def get(self, ath_id):
         try:
             act_data = sp.get_acts_html(engine, int(ath_id)).to_html(

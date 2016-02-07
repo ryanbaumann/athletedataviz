@@ -252,8 +252,11 @@ function fit() {
 }
 
 //Stop the loading bar when ajax requests complete
-$(document).one("ajaxStop", function() {
-    //$("#loading").hide(); 
+$(document).on("ajaxStart", function() {
+    $("#loading").show(); 
+});
+$(document).on("ajaxStop", function() {
+    $("#loading").hide(); 
 });
 
 function switchLayer() {
