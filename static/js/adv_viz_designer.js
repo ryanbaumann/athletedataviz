@@ -221,7 +221,6 @@ function addLayerLinestring() {
         parseFloat($('#line_width').slider('getValue')),
         parseFloat($('#line_opacity').slider('getValue')),
         'linestring');
-    $("#loading").hide();
 };
 
 map.once('load', function() {
@@ -331,13 +330,11 @@ function paintLayer(mapid, color, width, opacity, layer) {
 }
 
 function switchMapStyle() {
-    $("#loading").show();
     //Check if the mapStyle changed - if so, change it here
     if (document.getElementById("mapStyle").value != map_style) {
         switchLayer();
         map_style = document.getElementById("mapStyle").value;
     }
-    $("#loading").hide();
 }
 
 function addPopup(mapid, layer) {
