@@ -45,39 +45,94 @@ var heatpoint_style = {
     }
 };
 
+//Global variables for heat-lines
+var lineBreaks = ['Ride', 'Run', 'Nordic Ski', 'Hike', 'Other'];
+var lineColors = ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"];
+var lineFilters = [];
+var lineLayers = [];
+//Global variables for heat-points
 var breaks = [3, 6, 9, 12, 16];
 var colors = color_list[0];
 var layers = [];
 var filters = [];
 
-function updateLegend() {
+function updateHeatLegend() {
     document.getElementById('legend-param').textContent = $("#heattype option:selected").text();
 }
 
-function calcLegends(p) {
+function updateLineLegend() {
+    document.getElementById('legend-param').textContent = 'Activity Types';
+}
+
+function calcLegends(p, id) {
     // Build out legends
-    var item = document.createElement('div');
-    var key = document.createElement('span');
-    key.id = 'legend-id-' + p;
-    key.className = 'legend-key';
-    key.style.backgroundColor = colors[p];
-    var value = document.createElement('span');
-    value.id = 'legend-value-' + p;
-    item.appendChild(key);
-    item.appendChild(value);
-    legend.appendChild(item);
-    document.getElementById('legend-value-' + p).textContent = breaks[p];
+    if (id == "heat-point") {
+        var item = document.createElement('div');
+        var key = document.createElement('span');
+        key.id = 'legend-id-' + p;
+        key.className = 'legend-key';
+        key.style.backgroundColor = colors[p];
+        var value = document.createElement('span');
+        value.id = 'legend-value-' + p;
+        item.appendChild(key);
+        item.appendChild(value);
+        legend.appendChild(item);
+        document.getElementById('legend-value-' + p).textContent = breaks[p];
+    }
+    else {
+        var item = document.createElement('div');
+        var key = document.createElement('span');
+        key.id = 'legend-id-' + p;
+        key.className = 'legend-key';
+        key.style.backgroundColor = lineColors[p];
+        var value = document.createElement('span');
+        value.id = 'legend-value-' + p;
+        item.appendChild(key);
+        item.appendChild(value);
+        legend.appendChild(item);
+        document.getElementById('legend-value-' + p).textContent = lineBreaks[p];
+    }
+}
+
+function calcLineFilters(breaks, param) {
+    //calculate line filters to apply
+    lineFilters = [];
+    for (var p = 0; p < lineBreaks.length - 1; p++) {
+        lineFilters.push(['==', param, lineBreaks[p]])
+        updateLineLegend();
+        document.getElementById('legend-value-' + p).textContent = lineBreaks[p];
+        document.getElementById('legend-id-' + p).style.backgroundColor = lineColors[p];
+    }
+}
+
+function calcLineLayers() {
+    //calculate line layers to create
+    lineLayers = [];
+    for (var p = 0; p < lineFilters.length; p++) {
+        lineLayers.push({
+            id: 'linestring-' + p,
+            type: 'line',
+            source: 'linestring',
+            interactive: true,
+            paint: {
+                "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+                "line-width": parseFloat(document.getElementById("line_width").value),
+                "line-color": lineColors[p],
+                "line-gap-width": 0
+            },
+            filter: lineFilters[p]
+        });
+    }
 }
 
 function calcBreaks(maxval, numbins) {
     //calculate breaks based on a selected bin size and number of bins
     breaks = [];  //empty the breaks array
-
     var binSize = maxval / numbins;
     for (p = 1; p <= numbins; p++) {
         breaks.push(binSize * p);
     }
-    updateLegend();
+    updateHeatLegend();
     for (p = 0; p < layers.length; p++) {
         document.getElementById('legend-value-' + p).textContent = breaks[p];
         document.getElementById('legend-id-' + p).style.backgroundColor = colors[p];
@@ -98,7 +153,6 @@ function calcHeatFilters(breaks, param) {
             filters.push(['all', ['>=', param, breaks[p]]])
         }
     }
-
 }
 
 function calcHeatLayers(filters, colors) {
@@ -118,7 +172,6 @@ function calcHeatLayers(filters, colors) {
             },
             filter: filters[p]
         });
-        
     }
 }
 
@@ -145,60 +198,41 @@ if (!mapboxgl.supported()) {
     }
 }
 
-function getDataLinestring() {
-    //load linestring data via AJAX from the web server api
-    var r = $.Deferred();
-    $.getJSON(heatline_url, function(data) {
-        stravaLineGeoJson = data;
-        $.ajaxSetup({ cache: true });
-        r.resolve();
-    });
-    return r;
-};
-
-//Get heat data function
-function getDataHeat() {
-    var r = $.Deferred();
-    $.getJSON(heatpoint_url, function(data) {
-        heatpoint_data = data;
-        $.ajaxSetup({ cache: true });
-        r.resolve();
-    });
-    return r;
-};
-
 //Add heat points function
-function addLayerHeat() {
+function addLayerHeat(mapid) {
     // Mapbox JS Api - import heatmap layer
+    $("#loading").show();
     heatpoint_src = new mapboxgl.GeoJSONSource({
         data: heatpoint_url,
-        maxzoom: 20,
-        buffer: 1000,
+        maxzoom: 18,
+        buffer: 500,
         tolerance: 1
     });
     try {
-        map.addSource('heatpoint', heatpoint_src);
+        mapid.addSource('heatpoint', heatpoint_src);
     } catch (err) {
         console.log(err);
     }
     try {
         calcHeatFilters(breaks, 's');
         calcHeatLayers(filters, colors);
-        map.batch(function(batch) {
+        mapid.batch(function(batch) {
             for (var p = 0; p < layers.length; p++) {
                 batch.addLayer(layers[p]);
-                calcLegends(p);
+                calcLegends(p, 'heat-point');
                 //addPopup(map, layers[p]);
                 }
         });
     } catch (err) {
         console.log(err);
     }
+    $("#loading").hide();
     //fit();
 };
 
-function addLayerLinestring() {
+function addLayerLinestring(mapid) {
     //Create source for linestring data source
+    $("#loading").show();
     linestring_src = new mapboxgl.GeoJSONSource({
         data: heatline_url,
         maxzoom: 18,
@@ -206,27 +240,28 @@ function addLayerLinestring() {
         tolerance: 1
     });
     try {
-        map.addSource('linestring', linestring_src);
+        mapid.addSource('linestring', linestring_src);
     } catch (err) {
         console.log(err);
     }
     try {
-        map.addLayer(lineHeatStyle);
+        calcLineFilters(lineBreaks, 'ty');
+        calcLineLayers();
+        mapid.batch(function(batch) {
+            for (var p = 0; p < lineLayers.length; p++) {
+                batch.addLayer(lineLayers[p]);
+            }
+        });
     } catch (err) {
         console.log(err);
     }
-    set_visibility(map, 'linestring', 'off');
-    paintLayer(map,
-        document.getElementById("line_color").value,
-        parseFloat($('#line_width').slider('getValue')),
-        parseFloat($('#line_opacity').slider('getValue')),
-        'linestring');
+    $("#loading").hide();
 };
 
 map.once('load', function() {
-    //imgCanvas.init(map); //initialize the image_gl_canvas module based on the created map
-    addLayerHeat();
-    addLayerLinestring();
+    addLayerHeat(map);
+    addLayerLinestring(map);
+    render();
     map.addControl(new mapboxgl.Navigation({
         position: 'top-left'
     }));
@@ -235,11 +270,10 @@ map.once('load', function() {
     var popup = new mapboxgl.Popup({
         closeButton: false
     });
-    //Stop the loading bar when map is fully loaded
 });
 
 function fit() {
-    //fit gl map to a geojson file bounds
+    //fit gl map to a geojson file bounds - depricated for now!
     try {
         map.fitBounds(geojsonExtent(heatpoint_data));
     } catch (err) {
@@ -265,37 +299,9 @@ function switchLayer() {
     } else {
         map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
     }
-    map.on('style.load', function() {
-        //getDataHeat().done(addLayerHeat);
-        //getDataLinestring().done(addLayerLinestring);
-        linestring_src = new mapboxgl.GeoJSONSource({
-            data: heatline_url,
-            maxzoom: 20,
-            buffer: 1000,
-            tolerance: 1
-        });
-        heatpoint_src = new mapboxgl.GeoJSONSource({
-            data: heatpoint_url,
-            maxzoom: 20,
-            buffer: 1000,
-            tolerance: 1
-        });
-        try {
-            map.addSource('linestring', linestring_src);
-            map.addSource('heatpoint', heatpoint_src);
-        } catch (err) {
-            console.log(err);
-        }
-        try {
-            map.addLayer(lineHeatStyle);
-            map.batch(function(batch) {
-                for (var p = 0; p < layers.length; p++) {
-                    batch.addLayer(layers[p]);
-                }
-            });
-        } catch (err) {
-            console.log(err);
-        }
+    map.once('style.load', function() {
+        addLayerHeat(map);
+        addLayerLinestring(map);
         render();
     });
 }
@@ -312,20 +318,26 @@ function set_visibility(mapid, id, onoff) {
             }
         });
     } else {
-        if (onoff == 'off') {
-            mapid.setLayoutProperty(id, 'visibility', 'none');
-        } else if (onoff == 'on') {
-            mapid.setLayoutProperty(id, 'visibility', 'visible');
-        }
+        mapid.batch(function(batch) {
+            for (var p = 0; p < lineLayers.length; p++) {
+                if (onoff == 'off') {
+                    batch.setLayoutProperty("linestring" + "-" + p, 'visibility', 'none');
+                } else if (onoff == 'on') {
+                    batch.setLayoutProperty("linestring" + "-" + p, 'visibility', 'visible');
+                }
+            }
+        });
     }
 };
 
 function paintLayer(mapid, color, width, opacity, layer) {
     mapid.batch(function(batch) {
-        batch.setPaintProperty(layer, 'line-color', color);
-        batch.setPaintProperty(layer, 'line-width', width);
-        batch.setPaintProperty(layer, 'line-opacity', opacity);
-        batch.setPaintProperty(layer, 'line-gap-width', document.getElementById("line_offset").value);
+        for (var p = 0; p < lineLayers.length; p++) {
+            batch.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
+            batch.setPaintProperty(layer + '-' + p, 'line-width', width);
+            batch.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
+            batch.setPaintProperty(layer + '-' + p, 'line-gap-width', document.getElementById("line_offset").value);
+        }
     });
 }
 
@@ -337,39 +349,6 @@ function switchMapStyle() {
     }
 }
 
-function addPopup(mapid, layer) {
-    for (var p = 0; p < layers.length; p++) {
-        mapid.on('mousemove', function(e) {
-            mapid.featuresAt(e.point, {
-                layer: 'heatpoints-' + p,
-                radius: 15,
-                includeGeometry: true
-            }, function(err, features) {
-                if (err || !features.length)
-                    return;
-                var feature = features[0];
-                new mapboxgl.Popup()
-                    .setLngLat(feature.geometry.coordinates)
-                    .setHTML('<h5> Coords: ' + Math.round(feature.geometry.coordinates[1] * 1000) / 1000 + "," +
-                        Math.round(feature.geometry.coordinates[0] * 1000) / 1000 + '</h5>' +
-                        '<ul class="list-group">' +
-                        '<li class="list-group-item"> Freq: ' + feature.properties.d + " visits </li>" +
-                        '<li class="list-group-item"> Speed: ' + feature.properties.s + " mph </li>" +
-                        '<li class="list-group-item"> Grade: ' + feature.properties.g + " % </li>" +
-                        '</ul>')
-                    .addTo(map);
-            });
-        });
-        mapid.on('mousemove', function(e) {
-            mapid.featuresAt(e.point, {
-                layer: 'heatpoints-' + p,
-                radius: 15
-            }, function(err, features) {
-                map.getCanvas().style.cursor = (!err && features.length) ? 'pointer' : '';
-            });
-        });
-    }
-}
 
 //Update heatpoints properties
 function paintCircleLayer(mapid, layer, opacity, radius, blur) {
@@ -414,18 +393,76 @@ function render() {
             console.log(err);
         }
         try {
-            set_visibility(map, 'linestring', 'on');
+            set_visibility(map, 'linestring', 'on');;
             paintLayer(map,
                 document.getElementById("line_color").value,
                 parseFloat($('#line_width').slider('getValue')),
                 parseFloat($('#line_opacity').slider('getValue')),
                 'linestring');
-            $('#legend').hide();
+            //$('#legend').hide();
         } catch (err) {
             console.log(err);
         }
     }
 }
+
+function addPopup(mapid, layer) {
+    for (var p = 0; p < layers.length; p++) {
+        mapid.on('mousemove', function(e) {
+            mapid.featuresAt(e.point, {
+                layer: 'heatpoints-' + p,
+                radius: 15,
+                includeGeometry: true
+            }, function(err, features) {
+                if (err || !features.length)
+                    return;
+                var feature = features[0];
+                new mapboxgl.Popup()
+                    .setLngLat(feature.geometry.coordinates)
+                    .setHTML('<h5> Coords: ' + Math.round(feature.geometry.coordinates[1] * 1000) / 1000 + "," +
+                        Math.round(feature.geometry.coordinates[0] * 1000) / 1000 + '</h5>' +
+                        '<ul class="list-group">' +
+                        '<li class="list-group-item"> Freq: ' + feature.properties.d + " visits </li>" +
+                        '<li class="list-group-item"> Speed: ' + feature.properties.s + " mph </li>" +
+                        '<li class="list-group-item"> Grade: ' + feature.properties.g + " % </li>" +
+                        '</ul>')
+                    .addTo(map);
+            });
+        });
+        mapid.on('mousemove', function(e) {
+            mapid.featuresAt(e.point, {
+                layer: 'heatpoints-' + p,
+                radius: 15
+            }, function(err, features) {
+                map.getCanvas().style.cursor = (!err && features.length) ? 'pointer' : '';
+            });
+        });
+    }
+}
+
+/*
+function getDataLinestring() {
+    //load linestring data via AJAX from the web server api
+    var r = $.Deferred();
+    $.getJSON(heatline_url, function(data) {
+        stravaLineGeoJson = data;
+        $.ajaxSetup({ cache: true });
+        r.resolve();
+    });
+    return r;
+};
+
+//Get heat data function
+function getDataHeat() {
+    var r = $.Deferred();
+    $.getJSON(heatpoint_url, function(data) {
+        heatpoint_data = data;
+        $.ajaxSetup({ cache: true });
+        r.resolve();
+    });
+    return r;
+};
+*/
 
 //////////////// SLIDERS AND BUTTON ACTIONS ////////////
 

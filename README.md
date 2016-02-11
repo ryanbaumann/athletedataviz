@@ -35,12 +35,13 @@ Obtain an application ID, then set environment variables
 
 ## Credits
 
-* [Matthew Petroff](http://mpetroff.net/), Original Author
+* [Matthew Petroff](http://mpetroff.net/), (Print Maps)
 * [Mapbox GL JS](https://github.com/mapbox/mapbox-gl-js)
 * [FileSaver.js](https://github.com/eligrey/FileSaver.js/)
 * [canvas-toBlob.js](https://github.com/eligrey/canvas-toBlob.js)
 * [jsPDF](https://github.com/MrRio/jsPDF)
 * [Bootstrap](http://getbootstrap.com/)
+* [Ryan Baumann] (https://ryanbaumann.com) (Author of ADV) 
 
 ## License
 The MIT License (MIT)

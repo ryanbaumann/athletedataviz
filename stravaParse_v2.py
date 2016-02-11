@@ -313,9 +313,9 @@ def to_geojson_data(engine, view_name, ath_id):
                    FROM (SELECT 'FeatureCollection' As type, \
                         array_to_json(array_agg(f)) As features \
                         FROM (SELECT 'Feature' As type, \
-                                ST_AsGeoJSON(linestring,6,0)::json As geometry, \
+                                ST_AsGeoJSON(linestring,6)::json As geometry, \
                                 row_to_json((SELECT l \
-                                    FROM (SELECT act_id, act_name) As l)) \
+                                    FROM (SELECT act_id as id, act_name as na, act_type as ty) As l)) \
                                 As properties \
                             FROM %s As lg \
                             WHERE lg.ath_id=%s) \
@@ -373,8 +373,8 @@ def get_heatmap_points(engine, ath_id):
             SELECT array_to_json(array_agg(f))::json as points
             FROM(
                 SELECT 
-                round(st_y(point)::numeric,6) as lt, 
-                round(st_x(point)::numeric,6) as lg, 
+                round(st_y(point)::numeric,3) as lt, 
+                round(st_x(point)::numeric,3) as lg, 
                 round((density)::numeric,1) as d,
                 round((speed)::numeric,1) as s,
                 round((grade)::numeric,1) as g
@@ -413,7 +413,7 @@ def get_heatmap_lines(engine, ath_id):
      FROM (SELECT 'FeatureCollection' As type, 
                   array_to_json(array_agg(f)) As features
            FROM (SELECT 'Feature' As type, 
-                  st_asgeojson(lg.point, 8)::json AS geometry,
+                  st_asgeojson(lg.point, 4)::json AS geometry,
                   (
                   select row_to_json(t) 
                   FROM (SELECT round((lg.density)::numeric,1) as d,
