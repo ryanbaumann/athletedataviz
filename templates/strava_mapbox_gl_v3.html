@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block import_script %}
 <!-- Mapbox GL -->
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.2/mapbox-gl.js' ></script>
-<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.2/mapbox-gl.css' rel='stylesheet' >
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.1/mapbox-gl.js' ></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.1/mapbox-gl.css' rel='stylesheet' >
 <!-- Bootstrap Slider -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js' async defer></script>
@@ -48,12 +48,18 @@
                             </select>
                             <br>
                             <br>
+                            <b>Map Pitch</b>
+                                <input type="text" id="pitch" class="slider" data-slider-min="0" data-slider-value="0" data-slider-max="50" data-slider-step="5">
+                            <br>
+                            <br>
                             <div id="VizType_hide_heat-line" class="collapse">
                                 <b>Line Color</b>
                                 <select id='line_color' name="line_color" style="font-size: 18px;">
-                                    <option value="#00FFFF">Teal</option>
-                                    <option value="#FF0000">Dark Red</option>
-                                    <option value="#33FF00">Lime</option>
+                                    <option value=0>Teal-Pink-Green</option>
+                                    <option value=1>Red-Ora-Blu</option>
+                                    <option value=2>Yellows</option>
+                                    <option value=3>Greens</option>
+                                    <!--
                                     <option value="#FFFF00">Dark Yellow</option>
                                     <option value="#0000FF">Dark Blue</option>
                                     <option value="#9900FF">Dark Purple</option>
@@ -61,6 +67,7 @@
                                     <option value="#00CCFF">Light Blue</option>
                                     <option value="#33FF00">Light Green</option>
                                     <option value="#FF9900">Light Orange</option>
+                                    -->
                                 </select>
                                 <br>
                                 <br>
@@ -92,7 +99,7 @@
                                 </select>
                                 <br>
                                 <br>
-                                <b>Max Heat Scale</b>
+                                <b>Heat Scale</b>
                                 <input type="text" id="scale" class="slider" data-slider-min="2.5" data-slider-value="15" data-slider-max="20" data-slider-step="2.5">
                                 <br>
                                 <br>
@@ -119,11 +126,11 @@
     <div class='legend-container'>
       <div id='legend-points' class='legend'>
         <h3>Legend</h3>
-        <span id='legend-points-param' class='text-center'>Speed (mph)</span>
+        <span id='legend-points-param' class='text-center'><b>Speed (mph)</b></span>
       </div>
       <div id='legend-lines' class='legend'>
         <h3>Legend</h3>
-        <span id='legend-lines-param' class='text-center'>Act Type</span>
+        <span id='legend-lines-param' class='text-center' hidden="true"><b>Activity Type</b></span>
       </div>
     </div>
     <div id="loading">

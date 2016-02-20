@@ -46,14 +46,15 @@ function generateMap() {
     var zoom = map.getZoom();
     var center = map.getCenter();
     var bearing = map.getBearing();
+    var pitch = map.getPitch();
     //function to create the map
     createPrintMap(width, height, dpi, format, unit, zoom, center,
-        bearing, style);
+        bearing, pitch, style);
 }
 
 
 function createPrintMap(width, height, dpi, format, unit, zoom, center,
-    bearing, style, source) {
+    bearing, pitch, style) {
 
     // Calculate pixel ratio
     var actualPixelRatio = window.devicePixelRatio;
@@ -100,6 +101,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         zoom: zoom,
         style: style,
         bearing: bearing,
+        pitch: pitch,
         interactive: false,
         attributionControl: true,
         preserveDrawingBuffer: true

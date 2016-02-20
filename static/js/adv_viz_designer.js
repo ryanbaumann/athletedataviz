@@ -18,6 +18,13 @@ var color_list = [
     ['green', 'aquamarine', 'blanchedalmond', 'coral', 'red']
 ]
 
+var line_color_list = [
+    ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"],
+    ['#ff0000', '#ff751a', '#6699ff', '#ff66ff', '#ffff66'],
+    ['#ffff00', '#808000', '#ffff99', '#808000', '#ffffe6'],
+    ['#00ff00', '#008000', '#80ff80', '#00cc66', '#339933']
+]
+
 var lineHeatStyle = {
     "id": "linestring",
     "type": "line",
@@ -28,7 +35,7 @@ var lineHeatStyle = {
     "paint": {
         "line-opacity": parseFloat(document.getElementById("line_opacity").value),
         "line-width": parseFloat(document.getElementById("line_width").value),
-        "line-color": document.getElementById("line_color").value,
+        "line-color": parseFloat(document.getElementById("line_color").value),
         "line-gap-width": 0
     }
 };
@@ -48,7 +55,7 @@ var heatpoint_style = {
 
 //Global variables for heat-lines
 var lineBreaks = ['Ride', 'Run', 'Nordic Ski', 'Hike', 'Other'];
-var lineColors = ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"];
+var lineColors = line_color_list[0];
 var lineFilters = [];
 var lineLayers = [];
 //Global variables for heat-points
@@ -67,35 +74,44 @@ function updateLineLegend() {
 
 function calcLegends(p, id) {
     // Build out legends
+    var item = document.createElement('div');
+    var key = document.createElement('span');
+    key.className = 'legend-key';
+    var value = document.createElement('span');
+
     if (id == "heat-point") {
-        legend = document.getElementById('legend-points');
-        var item = document.createElement('div');
-        var key = document.createElement('span');
-        key.id = 'legend-points-id-' + p;
-        key.className = 'legend-key';
-        key.style.backgroundColor = colors[p];
-        var value = document.createElement('span');
-        value.id = 'legend-points-value-' + p;
-        item.appendChild(key);
-        item.appendChild(value);
-        legend.appendChild(item);
-        data = document.getElementById('legend-points-value-' + p)
-        data.textContent = breaks[p];
+        if ($('#legend-points-value-' + p).length > 0) {
+            document.getElementById('legend-points-value-' + p).textContent = breaks[p];
+            document.getElementById('legend-points-id-' + p).style.backgroundColor = colors[p];
+        }
+        else {
+            legend = document.getElementById('legend-points');      
+            key.id = 'legend-points-id-' + p;
+            key.style.backgroundColor = colors[p];
+            value.id = 'legend-points-value-' + p;
+            item.appendChild(key);
+            item.appendChild(value);
+            legend.appendChild(item);
+            data = document.getElementById('legend-points-value-' + p)
+            data.textContent = breaks[p];
+        }
     }
     else {
-        legend = document.getElementById('legend-lines');
-        var item = document.createElement('div');
-        var key = document.createElement('span');
-        key.id = 'legend-lines-id-' + p;
-        key.className = 'legend-key';
-        key.style.backgroundColor = lineColors[p];
-        var value = document.createElement('span');
-        value.id = 'legend-lines-value-' + p;
-        item.appendChild(key);
-        item.appendChild(value);
-        legend.appendChild(item);
-        data = document.getElementById('legend-lines-value-' + p)
-        data.textContent = lineBreaks[p];
+        if ($('#legend-lines-value-' + p).length > 0) {
+            document.getElementById('legend-lines-value-' + p).textContent = lineBreaks[p];
+            document.getElementById('legend-lines-id-' + p).style.backgroundColor = lineColors[p];
+        }
+        else {
+            legend = document.getElementById('legend-lines');
+            key.id = 'legend-lines-id-' + p;
+            key.style.backgroundColor = lineColors[p];
+            value.id = 'legend-lines-value-' + p;
+            item.appendChild(key);
+            item.appendChild(value);
+            legend.appendChild(item);
+            data = document.getElementById('legend-lines-value-' + p)
+            data.textContent = lineBreaks[p];
+        }
     }
 }
 
@@ -125,11 +141,6 @@ function calcLineLayers() {
             filter: lineFilters[p]
         });
     }
-    /*
-    for (p = 0; p < lineLayers.length; p++) {
-        document.getElementById('legend-lines-value-' + p).textContent = lineBreaks[p];
-        document.getElementById('legend-lines-id-' + p).style.backgroundColor = lineColors[p];
-    }*/
 }
 
 function calcBreaks(maxval, numbins) {
@@ -141,8 +152,7 @@ function calcBreaks(maxval, numbins) {
     }
     updateHeatLegend();
     for (p = 0; p < layers.length; p++) {
-        document.getElementById('legend-points-value-' + p).textContent = breaks[p];
-        document.getElementById('legend-points-id-' + p).style.backgroundColor = colors[p];
+        calcLegends(p, 'heat-point')
     }
 }
 
@@ -275,6 +285,7 @@ map.once('load', function() {
     }));
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
+    map.boxZoom.enable();
     var popup = new mapboxgl.Popup({
         closeButton: false
     });
@@ -331,9 +342,12 @@ function set_visibility(mapid, id, onoff) {
     }
 };
 
-function paintLayer(mapid, color, width, opacity, layer) {
+function paintLayer(mapid, color, width, opacity, pitch, layer) {
+    lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)]
+    map.setPitch(pitch);
     mapid.batch(function(batch) {
         for (var p = 0; p < lineLayers.length; p++) {
+            calcLegends(p, 'heat-line');
             batch.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
             batch.setPaintProperty(layer + '-' + p, 'line-width', width);
             batch.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
@@ -353,8 +367,9 @@ function switchMapStyle() {
 
 
 //Update heatpoints properties
-function paintCircleLayer(mapid, layer, opacity, radius, blur) {
+function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
     //Update the break and filter settings
+    map.setPitch(pitch);
     colors = color_list[parseFloat(document.getElementById('heat_color').value)];
     calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);
     calcHeatFilters(breaks, document.getElementById('heattype').value);
@@ -383,7 +398,8 @@ function render() {
             paintCircleLayer(map, 'heatpoints',
                 parseFloat($('#minOpacity').slider('getValue')),
                 parseFloat($('#radius').slider('getValue')),
-                parseFloat($('#blur').slider('getValue')));
+                parseFloat($('#blur').slider('getValue')),
+                parseFloat($('#pitch').slider('getValue')));
             $('#legend-points').show();
 
         } catch (err) {
@@ -402,6 +418,7 @@ function render() {
                 document.getElementById("line_color").value,
                 parseFloat($('#line_width').slider('getValue')),
                 parseFloat($('#line_opacity').slider('getValue')),
+                parseFloat($('#pitch').slider('getValue')),
                 'linestring');
             $('#legend-lines').show();
         } catch (err) {
@@ -457,6 +474,15 @@ $('#VizType').change(function() {
     $(selector).collapse('show');
 });
 
+$('#pitch').slider({
+    formatter: function(value) {
+        return 'Value: ' + value;
+    }
+});
+$('#pitch').slider().on('slide', function(ev) {
+    $('#pitch').slider('setValue', ev.value);
+    render();
+});
 $('#line_width').slider({
     formatter: function(value) {
         return 'Value: ' + value;
