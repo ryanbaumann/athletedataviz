@@ -66,6 +66,7 @@ class Config(object):
     COMPRESS_MIN_SIZE = 250
     CACHE_TYPE = 'redis'
     CACHE_REDIS_URL = os.environ['REDIS_URL']
+    CACHE_KEY_PREFIX = 'fcache'
 
     #Shopify API
     SHOPIFY_API_KEY = os.environ['SHOPIFY_API_KEY']

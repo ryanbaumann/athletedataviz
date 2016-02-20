@@ -51,13 +51,11 @@ shop = shopify.Shop.current()
 #  API   #
 ##########
 
-@cache.memoize(timeout=600)
 def output_html(data, code, headers=None):
     resp = Response(data, mimetype='text/html', headers=headers)
     resp.status_code = code
     return resp
 
-@cache.memoize(timeout=600)
 def output_json(data, code, headers=None):
     resp = Response(data, mimetype='application/json', headers=headers)
     resp.status_code = code
@@ -66,35 +64,54 @@ def output_json(data, code, headers=None):
 
 
 class Heat_Points(Resource):
-    @cache.memoize(timeout=600)
+    #@cache.memoize(timeout=600)
     def get(self, ath_id):
         geojsonPoints = sp.get_heatmap_lines(
             engine, int(ath_id))
         return output_json(geojsonPoints, 200)
 
+    def removeCache(self, ath_id):
+        cache.delete_memoized(get, ath_id)
+        return 'removed heat_points cache for %s' %(ath_id)
+
+    def __repr__(self):
+        return "%s" % (self.__class__.__name__)
+
 
 class Heat_Lines(Resource):
-    @cache.memoize(timeout=600)
+    #@cache.memoize(timeout=600)
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
         return output_json(geojsonlines, 200)
 
+    def removeCache(self, ath_id):
+        cache.delete_memoized(get, ath_id)
+        return 'removed heat_lines cache for %s' %(ath_id)
+
+    def __repr__(self):
+        return "%s" % (self.__class__.__name__)
+
 
 class Heat_Lines2(Resource):
-    @cache.memoize(timeout=600)
+    #@cache.memoize(timeout=600)
     def get(self, ath_id):
         geojsonlines = sp.get_heatmap_lines(
             engine, int(ath_id))
         return output_json(geojsonlines, 200)
 
+    def __repr__(self):
+        return "%s" % (self.__class__.__name__)
 
-class stream_data(Resource):
-    @cache.memoize(timeout=600)
+class Stream_Data(Resource):
+    #@cache.memoize(timeout=600)
     def get(self, ath_id):
         geojsonlines = sp.get_heatmap_lines(
             engine, int(ath_id))
         return output_json(geojsonlines, 200)
+
+    def __repr__(self):
+        return "%s" % (self.__class__.__name__)
 
 
 class Current_Acts(Resource):
@@ -107,10 +124,27 @@ class Current_Acts(Resource):
             print "error getting current activity list from DB!"
         return output_html(act_data, 200)
 
+    def __repr__(self):
+        return "%s_%s" % (self.__class__.__name__, self.id)
+
 api.add_resource(Heat_Points, '/heat_points/<int:ath_id>')
 api.add_resource(Heat_Lines, '/heat_lines/<int:ath_id>')
 api.add_resource(Heat_Lines2, '/heat_lines2/<int:ath_id>')
 api.add_resource(Current_Acts, '/current_acts/<int:ath_id>')
+
+##########
+# helper #
+##########
+
+def clearCache(ath_id):
+    """ Remove Data from Cache for user """
+    try:
+        Heat_Points.removeCache(ath_id)
+        Heat_Lines.removeCache(ath_id)
+    except:
+        print 'error clearing cache!'
+
+    return 'cleared cache!'
 
 ##########
 # routes #
@@ -150,7 +184,7 @@ def homepage():
             return render_template('500.html')
 
         # Add athlete ID to the session
-        session['ath_id'] = athlete.id
+        session['ath_id'] = int(athlete.id)
         session['act_limit'] = int(session.get('act_limit', 10))
         # Save the results to the database
         try:
@@ -222,8 +256,10 @@ def login():
 @app.route('/logout')
 def logout():
     """ End a users session and return them to the homepage """
+    clearCache(session['ath_id'])
     session.pop('access_token')
-    cache.clear()
+    #Clear cache???
+
     return redirect(url_for('homepage'))
 
 
@@ -454,8 +490,10 @@ def demodesigner():
 def delete_acts():
     """Delete all activities from the user currently logged in"""
     if request.method == 'POST':
+
+        clearCache(session['ath_id'])
+
         try:
-            cache.clear()
             acts_dl_list = []
             for act in Activity.query.filter_by(
                     ath_id=int(session['ath_id'])).with_entities(
@@ -569,8 +607,7 @@ def longtask():
     Begin the long task of downloading data from strava.  Accepts params from the form of 
     startDate, endDate, and activity limit from the page. 
     """
-    # Clear cache because we are importing new data
-    cache.clear()
+    clearCache(session['ath_id'])
 
     # Get the post data from the form via AJAX
     try:
@@ -633,3 +670,4 @@ def taskstatus(task_id):
 
 if __name__ == '__main__':
     app.run(port=int(app.config['PORT']))
+

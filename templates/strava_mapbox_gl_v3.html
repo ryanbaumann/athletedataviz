@@ -1,14 +1,14 @@
 {% extends "base.html" %} {% block import_script %}
 <!-- Mapbox GL -->
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.13.1/mapbox-gl.js' ></script>
-<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.13.1/mapbox-gl.css' rel='stylesheet'>
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.2/mapbox-gl.js' ></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.2/mapbox-gl.css' rel='stylesheet' >
 <!-- Bootstrap Slider -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css">
-<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js' ></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.15/jquery.touchSwipe.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js"></script>
-<script src='https://api.mapbox.com/mapbox.js/plugins/geojson-extent/v0.0.1/geojson-extent.js'></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/filesaver.js/0.2/FileSaver.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js' async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.15/jquery.touchSwipe.min.js" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js" async defer></script>
+<script src='https://api.mapbox.com/mapbox.js/plugins/geojson-extent/v0.0.1/geojson-extent.js' async defer></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/filesaver.js/0.2/FileSaver.min.js" async defer></script>
 
 
 {% endblock %} {% block content %}
@@ -117,9 +117,13 @@
     </div>
     <div id='map'></div>
     <div class='legend-container'>
-      <div id='legend' class='legend'>
+      <div id='legend-points' class='legend'>
         <h3>Legend</h3>
-        <span id='legend-param' class='text-center'>Speed (mph)</span>
+        <span id='legend-points-param' class='text-center'>Speed (mph)</span>
+      </div>
+      <div id='legend-lines' class='legend'>
+        <h3>Legend</h3>
+        <span id='legend-lines-param' class='text-center'>Act Type</span>
       </div>
     </div>
     <div id="loading">

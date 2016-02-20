@@ -9,6 +9,7 @@ var linestring_src;
 var heatpoint_src;
 var VizType = 'heat-point';
 var map_style = 'dark-nolabel';
+var curStyle;
 //Heat Point gradients
 
 var color_list = [
@@ -57,40 +58,44 @@ var layers = [];
 var filters = [];
 
 function updateHeatLegend() {
-    document.getElementById('legend-param').textContent = $("#heattype option:selected").text();
+    document.getElementById('legend-points-param').textContent = $("#heattype option:selected").text();
 }
 
 function updateLineLegend() {
-    document.getElementById('legend-param').textContent = 'Activity Types';
+    //document.getElementById('legend-lines-param').textContent = 'Activity Types';
 }
 
 function calcLegends(p, id) {
     // Build out legends
     if (id == "heat-point") {
+        legend = document.getElementById('legend-points');
         var item = document.createElement('div');
         var key = document.createElement('span');
-        key.id = 'legend-id-' + p;
+        key.id = 'legend-points-id-' + p;
         key.className = 'legend-key';
         key.style.backgroundColor = colors[p];
         var value = document.createElement('span');
-        value.id = 'legend-value-' + p;
+        value.id = 'legend-points-value-' + p;
         item.appendChild(key);
         item.appendChild(value);
         legend.appendChild(item);
-        document.getElementById('legend-value-' + p).textContent = breaks[p];
+        data = document.getElementById('legend-points-value-' + p)
+        data.textContent = breaks[p];
     }
     else {
+        legend = document.getElementById('legend-lines');
         var item = document.createElement('div');
         var key = document.createElement('span');
-        key.id = 'legend-id-' + p;
+        key.id = 'legend-lines-id-' + p;
         key.className = 'legend-key';
         key.style.backgroundColor = lineColors[p];
         var value = document.createElement('span');
-        value.id = 'legend-value-' + p;
+        value.id = 'legend-lines-value-' + p;
         item.appendChild(key);
         item.appendChild(value);
         legend.appendChild(item);
-        document.getElementById('legend-value-' + p).textContent = lineBreaks[p];
+        data = document.getElementById('legend-lines-value-' + p)
+        data.textContent = lineBreaks[p];
     }
 }
 
@@ -99,9 +104,6 @@ function calcLineFilters(breaks, param) {
     lineFilters = [];
     for (var p = 0; p < lineBreaks.length - 1; p++) {
         lineFilters.push(['==', param, lineBreaks[p]])
-        updateLineLegend();
-        document.getElementById('legend-value-' + p).textContent = lineBreaks[p];
-        document.getElementById('legend-id-' + p).style.backgroundColor = lineColors[p];
     }
 }
 
@@ -123,6 +125,11 @@ function calcLineLayers() {
             filter: lineFilters[p]
         });
     }
+    /*
+    for (p = 0; p < lineLayers.length; p++) {
+        document.getElementById('legend-lines-value-' + p).textContent = lineBreaks[p];
+        document.getElementById('legend-lines-id-' + p).style.backgroundColor = lineColors[p];
+    }*/
 }
 
 function calcBreaks(maxval, numbins) {
@@ -134,8 +141,8 @@ function calcBreaks(maxval, numbins) {
     }
     updateHeatLegend();
     for (p = 0; p < layers.length; p++) {
-        document.getElementById('legend-value-' + p).textContent = breaks[p];
-        document.getElementById('legend-id-' + p).style.backgroundColor = colors[p];
+        document.getElementById('legend-points-value-' + p).textContent = breaks[p];
+        document.getElementById('legend-points-id-' + p).style.backgroundColor = colors[p];
     }
 }
 
@@ -205,7 +212,7 @@ function addLayerHeat(mapid) {
     heatpoint_src = new mapboxgl.GeoJSONSource({
         data: heatpoint_url,
         maxzoom: 18,
-        buffer: 500,
+        buffer: 250,
         tolerance: 1
     });
     try {
@@ -226,7 +233,7 @@ function addLayerHeat(mapid) {
     } catch (err) {
         console.log(err);
     }
-    $("#loading").hide();
+    $("#loading").hide()
     //fit();
 };
 
@@ -250,12 +257,13 @@ function addLayerLinestring(mapid) {
         mapid.batch(function(batch) {
             for (var p = 0; p < lineLayers.length; p++) {
                 batch.addLayer(lineLayers[p]);
+                calcLegends(p, 'heat-lines');
             }
         });
     } catch (err) {
         console.log(err);
     }
-    $("#loading").hide();
+    $("#loading").hide()
 };
 
 map.once('load', function() {
@@ -284,16 +292,9 @@ function fit() {
     }
 }
 
-//Stop the loading bar when ajax requests complete
-$(document).on("ajaxStart", function() {
-    $("#loading").show(); 
-});
-$(document).on("ajaxStop", function() {
-    $("#loading").hide(); 
-});
-
 function switchLayer() {
     layer = document.getElementById("mapStyle").value;
+    
     if (layer != 'dark-nolabel') {
         map.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
     } else {
@@ -336,7 +337,8 @@ function paintLayer(mapid, color, width, opacity, layer) {
             batch.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
             batch.setPaintProperty(layer + '-' + p, 'line-width', width);
             batch.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
-            batch.setPaintProperty(layer + '-' + p, 'line-gap-width', document.getElementById("line_offset").value);
+            batch.setPaintProperty(layer + '-' + p, 'line-gap-width', 
+                parseFloat(document.getElementById("line_offset").value));
         }
     });
 }
@@ -372,6 +374,7 @@ function render() {
     if (document.getElementById("VizType").value == "heat-point") {
         try {
             set_visibility(map, 'linestring', 'off');
+            $('#legend-lines').hide();
         } catch (err) {
             console.log(err);
         }
@@ -381,7 +384,7 @@ function render() {
                 parseFloat($('#minOpacity').slider('getValue')),
                 parseFloat($('#radius').slider('getValue')),
                 parseFloat($('#blur').slider('getValue')));
-            $('#legend').show();
+            $('#legend-points').show();
 
         } catch (err) {
             console.log(err);
@@ -389,6 +392,7 @@ function render() {
     } else if (document.getElementById("VizType").value == "heat-line") {
         try {
             set_visibility(map, 'heatpoints', 'off');
+            $('#legend-points').hide();
         } catch (err) {
             console.log(err);
         }
@@ -399,7 +403,7 @@ function render() {
                 parseFloat($('#line_width').slider('getValue')),
                 parseFloat($('#line_opacity').slider('getValue')),
                 'linestring');
-            //$('#legend').hide();
+            $('#legend-lines').show();
         } catch (err) {
             console.log(err);
         }
@@ -440,29 +444,6 @@ function addPopup(mapid, layer) {
     }
 }
 
-/*
-function getDataLinestring() {
-    //load linestring data via AJAX from the web server api
-    var r = $.Deferred();
-    $.getJSON(heatline_url, function(data) {
-        stravaLineGeoJson = data;
-        $.ajaxSetup({ cache: true });
-        r.resolve();
-    });
-    return r;
-};
-
-//Get heat data function
-function getDataHeat() {
-    var r = $.Deferred();
-    $.getJSON(heatpoint_url, function(data) {
-        heatpoint_data = data;
-        $.ajaxSetup({ cache: true });
-        r.resolve();
-    });
-    return r;
-};
-*/
 
 //////////////// SLIDERS AND BUTTON ACTIONS ////////////
 

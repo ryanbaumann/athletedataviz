@@ -35,13 +35,7 @@ function generateMap() {
     //document.getElementById('order_viz').classList.add('disabled');
     $("#loading").show();
     //Get the current map style
-    var style;
-    var layer = document.getElementById("mapStyle").value
-    if (layer != 'dark-nolabel') {
-        style = 'mapbox://styles/mapbox/' + layer + '-v8';
-    } else {
-        style = 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn';
-    }
+    var style = map.getStyle();
     //Set image quality
     var width = 10;
     var height = 8;
@@ -111,35 +105,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         preserveDrawingBuffer: true
     });
 
-    renderMap.on('style.load', function addLayers() {
-        if (document.getElementById("VizType").value == "heat-line") {
-            addLayerLinestring(renderMap);
-            try {
-                set_visibility(renderMap, 'heatpoints', 'on');
-                paintCircleLayer(renderMap, 'heatpoints',
-                    parseFloat($('#minOpacity').slider('getValue')),
-                    parseFloat($('#radius').slider('getValue')),
-                    parseFloat($('#blur').slider('getValue')));
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        else if (document.getElementById("VizType").value == "heat-point") {
-            addLayerHeat(renderMap);
-            try {
-                set_visibility(renderMap, 'linestring', 'on');;
-                paintLayer(renderMap,
-                    document.getElementById("line_color").value,
-                    parseFloat($('#line_width').slider('getValue')),
-                    parseFloat($('#line_opacity').slider('getValue')),
-                    'linestring');
-            } catch (err) {
-                console.log(err);
-            }
-        }
-    });
-
-    renderMap.once('load', function createImage() {
+    renderMap.on('load', function createImage() {
         //Prevent map from grabbing image before lines are pained on new canvas by waiting 0.5 sec
         setTimeout(function() { 
             try {
