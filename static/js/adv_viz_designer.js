@@ -397,7 +397,7 @@ function render() {
             console.log(err);
         }
         try {
-            set_visibility(map, 'linestring', 'on');;
+            set_visibility(map, 'linestring', 'on');
             paintLayer(map,
                 document.getElementById("line_color").value,
                 parseFloat($('#line_width').slider('getValue')),
