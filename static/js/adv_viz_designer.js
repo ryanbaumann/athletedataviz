@@ -68,10 +68,6 @@ function updateHeatLegend() {
     document.getElementById('legend-points-param').textContent = $("#heattype option:selected").text();
 }
 
-function updateLineLegend() {
-    //document.getElementById('legend-lines-param').textContent = 'Activity Types';
-}
-
 function calcLegends(p, id) {
     // Build out legends
     var item = document.createElement('div');
@@ -123,6 +119,18 @@ function calcLineFilters(breaks, param) {
     }
 }
 
+function isMapLoaded(mapid, retry_interval) {
+    //check if map is loaded every retry_interval seconds and display or hide loading bar
+    setTimeout(function() {
+        console.log('checking')
+        if (mapid.loaded) {
+            $("#loading").hide();
+        }
+        else
+            $("#loading").show();
+        }, retry_interval);
+}
+
 function calcLineLayers() {
     //calculate line layers to create
     lineLayers = [];
@@ -131,7 +139,6 @@ function calcLineLayers() {
             id: 'linestring-' + p,
             type: 'line',
             source: 'linestring',
-            interactive: true,
             paint: {
                 "line-opacity": parseFloat(document.getElementById("line_opacity").value),
                 "line-width": parseFloat(document.getElementById("line_width").value),
@@ -180,7 +187,6 @@ function calcHeatLayers(filters, colors) {
             id: 'heatpoints-' + p,
             type: 'circle',
             source: 'heatpoint',
-            interactive: true,
             paint: {
                 "circle-color": colors[p],
                 "circle-opacity": 0.8,
@@ -192,18 +198,18 @@ function calcHeatLayers(filters, colors) {
     }
 }
 
-
 //Load the map canvas
 if (!mapboxgl.supported()) {
     //stop and alert user map is not supported
     alert('Your browser does not support Mapbox GL.  Please try Chrome or Firefox.');
 } else {
     try {
+        $('#legend-lines').hide();
         var map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
             center: mapboxgl.LngLat.convert(center_point),
-            zoom: 4,
+            zoom: 2,
             minZoom: 1,
             maxZoom: 20,
             attributionControl: true
@@ -217,10 +223,9 @@ if (!mapboxgl.supported()) {
 }
 
 map.once('style.load', function() {
-    $('#legend-lines').hide();
     addLayerHeat(map);
     addLayerLinestring(map);
-    render(), $("#loading").hide();
+    render();
     map.addControl(new mapboxgl.Navigation({
         position: 'top-left'
     }));
@@ -229,6 +234,10 @@ map.once('style.load', function() {
     var popup = new mapboxgl.Popup({
         closeButton: false
     });
+});
+
+map.on('style.load', function() {
+    isMapLoaded(map, 500);
 });
 
 
@@ -314,7 +323,7 @@ function switchLayer() {
     map.once('style.load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
-        render(), $("#loading").hide();
+        render();
     });
 }
 
@@ -429,7 +438,7 @@ function render() {
 
 function addPopup(mapid, layer) {
     for (var p = 0; p < layers.length; p++) {
-        mapid.on('mousemove', function(e) {
+        mapid.on('click', function(e) {
             mapid.featuresAt(e.point, {
                 layer: 'heatpoints-' + p,
                 radius: 15,
@@ -450,7 +459,7 @@ function addPopup(mapid, layer) {
                     .addTo(map);
             });
         });
-        mapid.on('mousemove', function(e) {
+        mapid.on('click', function(e) {
             mapid.featuresAt(e.point, {
                 layer: 'heatpoints-' + p,
                 radius: 15
