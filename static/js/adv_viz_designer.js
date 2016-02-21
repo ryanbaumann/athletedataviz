@@ -243,7 +243,6 @@ function addLayerHeat(mapid) {
     } catch (err) {
         console.log(err);
     }
-    $("#loading").hide()
     //fit();
 };
 
@@ -273,19 +272,18 @@ function addLayerLinestring(mapid) {
     } catch (err) {
         console.log(err);
     }
-    $("#loading").hide()
 };
 
-map.once('load', function() {
+map.once('style.load', function() {
+    $('#legend-lines').hide();
     addLayerHeat(map);
     addLayerLinestring(map);
-    render();
+    render(), $("#loading").hide();
     map.addControl(new mapboxgl.Navigation({
         position: 'top-left'
     }));
-    map.dragRotate.disable();
+    //map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
-    map.boxZoom.enable();
     var popup = new mapboxgl.Popup({
         closeButton: false
     });
@@ -314,7 +312,7 @@ function switchLayer() {
     map.once('style.load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
-        render();
+        render(), $("#loading").hide();
     });
 }
 

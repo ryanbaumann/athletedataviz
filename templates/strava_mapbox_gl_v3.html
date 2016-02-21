@@ -4,12 +4,6 @@
 <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.1/mapbox-gl.css' rel='stylesheet' >
 <!-- Bootstrap Slider -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js' async defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.15/jquery.touchSwipe.min.js" async></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js" async defer></script>
-<script src='https://api.mapbox.com/mapbox.js/plugins/geojson-extent/v0.0.1/geojson-extent.js' async defer></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/filesaver.js/0.2/FileSaver.min.js" async defer></script>
-
 
 {% endblock %} {% block content %}
 <!-- Sidebar -->
@@ -239,8 +233,13 @@
     }
     
     </script>
-    <script type="text/javascript" src="/static/js/upload_img.js"></script>
-    <script type="text/javascript" src="/static/js/image_gl_canvas.js"></script>
-    <script type="text/javascript" src="/static/js/adv_viz_designer.js"></script>
+    <script type="text/javascript" src="/static/js/upload_img.js" async defer></script>
+    <script type="text/javascript" src="/static/js/image_gl_canvas.js" async defer></script>
+    <script type="text/javascript" src="/static/js/adv_viz_designer.js" async defer></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.15/jquery.touchSwipe.min.js" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js" async defer></script>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/geojson-extent/v0.0.1/geojson-extent.js' async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js" async defer></script>
     
     {% endblock %}
