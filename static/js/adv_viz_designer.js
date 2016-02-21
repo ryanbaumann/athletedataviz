@@ -119,16 +119,25 @@ function calcLineFilters(breaks, param) {
     }
 }
 
-function isMapLoaded(mapid, retry_interval) {
+function isMapLoaded(mapid, interval) {
     //check if map is loaded every retry_interval seconds and display or hide loading bar
-    setTimeout(function() {
-        console.log('checking')
-        if (mapid.loaded) {
-            $("#loading").hide();
-        }
-        else
+    var stop = 0
+    var timer = setInterval(function() {
+        console.log(mapid.loaded())
+        if (mapid.loaded() === false) {
+            console.log('map not yet loaded')
             $("#loading").show();
-        }, retry_interval);
+        }
+        else {
+            console.log('map loaded')
+            $("#loading").hide();
+            stop = 1
+        }
+    }, interval);
+    if (stop==1) {
+        clearInterval(interval);
+    }
+
 }
 
 function calcLineLayers() {
@@ -236,8 +245,8 @@ map.once('style.load', function() {
     });
 });
 
-map.on('style.load', function() {
-    isMapLoaded(map, 500);
+map.on('load', function() {
+    $("#loading").hide();
 });
 
 
@@ -324,6 +333,7 @@ function switchLayer() {
         addLayerHeat(map);
         addLayerLinestring(map);
         render();
+        $("#loading").hide();
     });
 }
 
