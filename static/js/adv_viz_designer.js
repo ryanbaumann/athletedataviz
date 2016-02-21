@@ -257,7 +257,7 @@ function addLayerHeat(mapid) {
     heatpoint_src = new mapboxgl.GeoJSONSource({
         data: heatpoint_url,
         maxzoom: 18,
-        buffer: 10,
+        buffer: 1,
         tolerance: 1
     });
     try {
@@ -287,7 +287,7 @@ function addLayerLinestring(mapid) {
     linestring_src = new mapboxgl.GeoJSONSource({
         data: heatline_url,
         maxzoom: 18,
-        buffer: 10,
+        buffer: 1,
         tolerance: 1
     });
     try {
