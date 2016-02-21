@@ -1,9 +1,8 @@
 {% extends "base.html" %} {% block import_script %}
-<!-- Mapbox GL -->
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.1/mapbox-gl.js' ></script>
-<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.1/mapbox-gl.css' rel='stylesheet' >
-<!-- Bootstrap Slider -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
+    <!-- Mapbox GL -->
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.1/mapbox-gl.css' rel='stylesheet'>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
 
 {% endblock %} {% block content %}
 <!-- Sidebar -->
@@ -124,7 +123,7 @@
       </div>
       <div id='legend-lines' class='legend'>
         <h3>Legend</h3>
-        <span id='legend-lines-param' class='text-center' hidden="true"><b>Activity Type</b></span>
+        <span id='legend-lines-param' class='text-center'><b>Activity Type</b></span>
       </div>
     </div>
     <div id="loading">
@@ -199,45 +198,30 @@
         $('#DownloadModal').modal("show");
     }
 
-    $(document).ready(function() {
-        $('#sidebar').swipe({
-            swipeLeft:function() {
-                $('#sidebar').toggle();
-                map.resize();
-                return false;
-            }
+    $(function() {
+    
+        $("#sidebar-toggle-btn").click(function() {
+            $("#sidebar").toggle();
+            map.resize();
+            return false;
         });
-        $('#sidebar').swipe({
-            swipeRight:function() {
-                $('#sidebar').hide();
-                map.resize();
-                return false;
-            }
+
+        $("#sidebar-hide-btn").click(function() {
+            $('#sidebar').hide();
+            map.resize();
+            return false;
         });
     });
-
-    $("#sidebar-toggle-btn").click(function() {
-        $("#sidebar").toggle();
-        map.resize();
-        return false;
-    });
-
-    $("#sidebar-hide-btn").click(function() {
-        $('#sidebar').hide();
-        map.resize();
-        return false;
-    });
-
     function copyToClipboard(text) {
         window.prompt("A link to your AthleteDataViz design:", text);
     }
     
     </script>
+    <!-- Bootstrap Slider -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
     <script type="text/javascript" src="/static/js/upload_img.js" async defer></script>
     <script type="text/javascript" src="/static/js/image_gl_canvas.js" async defer></script>
     <script type="text/javascript" src="/static/js/adv_viz_designer.js" async defer></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.touchswipe/1.6.15/jquery.touchSwipe.min.js" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js" async defer></script>
     <script src='https://api.mapbox.com/mapbox.js/plugins/geojson-extent/v0.0.1/geojson-extent.js' async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js" async defer></script>

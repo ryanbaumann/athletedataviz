@@ -201,8 +201,7 @@ function get_acts() {
 }
 
 
-
-$( document ).ready(function() {
+$(function() {
     {% if session.access_token %}
     $('#act_table').on('load', get_acts());
     var today = moment().format('YYYY-MM-DD');

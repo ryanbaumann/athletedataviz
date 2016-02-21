@@ -192,6 +192,7 @@ function calcHeatLayers(filters, colors) {
     }
 }
 
+
 //Load the map canvas
 if (!mapboxgl.supported()) {
     //stop and alert user map is not supported
@@ -215,6 +216,22 @@ if (!mapboxgl.supported()) {
     }
 }
 
+map.once('style.load', function() {
+    $('#legend-lines').hide();
+    addLayerHeat(map);
+    addLayerLinestring(map);
+    render(), $("#loading").hide();
+    map.addControl(new mapboxgl.Navigation({
+        position: 'top-left'
+    }));
+    //map.dragRotate.disable();
+    map.touchZoomRotate.disableRotation();
+    var popup = new mapboxgl.Popup({
+        closeButton: false
+    });
+});
+
+
 //Add heat points function
 function addLayerHeat(mapid) {
     // Mapbox JS Api - import heatmap layer
@@ -222,7 +239,7 @@ function addLayerHeat(mapid) {
     heatpoint_src = new mapboxgl.GeoJSONSource({
         data: heatpoint_url,
         maxzoom: 18,
-        buffer: 250,
+        buffer: 10,
         tolerance: 1
     });
     try {
@@ -252,7 +269,7 @@ function addLayerLinestring(mapid) {
     linestring_src = new mapboxgl.GeoJSONSource({
         data: heatline_url,
         maxzoom: 18,
-        buffer: 500,
+        buffer: 10,
         tolerance: 1
     });
     try {
@@ -273,21 +290,6 @@ function addLayerLinestring(mapid) {
         console.log(err);
     }
 };
-
-map.once('style.load', function() {
-    $('#legend-lines').hide();
-    addLayerHeat(map);
-    addLayerLinestring(map);
-    render(), $("#loading").hide();
-    map.addControl(new mapboxgl.Navigation({
-        position: 'top-left'
-    }));
-    //map.dragRotate.disable();
-    map.touchZoomRotate.disableRotation();
-    var popup = new mapboxgl.Popup({
-        closeButton: false
-    });
-});
 
 function fit() {
     //fit gl map to a geojson file bounds - depricated for now!

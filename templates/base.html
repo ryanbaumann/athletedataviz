@@ -13,19 +13,15 @@
     <meta name="author" content="RyanBaumann" />
     <meta name="keywords" content="athlete, data, viz, athletedataviz, heatmap, map, cycling, running, hiking, triathalon, vizualization, mapbox" />
     <meta name="p:domain_verify" content="2518dde61dca1f34a95baa06a75883a0" />
-    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" />
+    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" / async defer>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" async defer>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" async defer>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" async defer>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/stylesheets/jquery.sidr.light.css" async defer>
     <link rel="stylesheet" href="static/css/style.css" type="text/css" async defer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js" ></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" async defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js" async defer></script>
-    <script src="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/jquery.sidr.js" async defer></script>
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" async defer></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
     {% block import_script %} {% endblock %}
 </head>
 
@@ -108,37 +104,41 @@
 {% block content %} {% endblock %}
 
 <script>
+$(function() {
+    $("#full-extent-btn").click(function() {
+        map.fitBounds(boroughs.getBounds());
+        $(".navbar-collapse.in").collapse("hide");
+        return false;
+    });
 
-$("#full-extent-btn").click(function() {
-    map.fitBounds(boroughs.getBounds());
-    $(".navbar-collapse.in").collapse("hide");
-    return false;
-});
-
-$("#legend-btn").click(function() {
-    $("#legendModal").modal("show");
-    $(".navbar-collapse.in").collapse("hide");
-    return false;
-});
+    $("#legend-btn").click(function() {
+        $("#legendModal").modal("show");
+        $(".navbar-collapse.in").collapse("hide");
+        return false;
+    });
 
 
-$('#login-btn').on('click', function() {
-    $("#loginModal").modal("show");
-    $(".navbar-collapse.in").collapse("hide");
-    return false;
-});
+    $('#login-btn').on('click', function() {
+        $("#loginModal").modal("show");
+        $(".navbar-collapse.in").collapse("hide");
+        return false;
+    });
 
-$("#nav-btn").click(function() {
-    $(".navbar-collapse").collapse("toggle");
-    return false;
-});
-$("#list-btn").click(function() {
-    $('#sidebar').toggle();
-    map.resize();
-    return false;
+    $("#nav-btn").click(function() {
+        $(".navbar-collapse").collapse("toggle");
+        return false;
+    });
+    $("#list-btn").click(function() {
+        $('#sidebar').toggle();
+        map.resize();
+        return false;
+    });
 });
 </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js" async defer></script>
+<script src="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/jquery.sidr.js" async defer></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" async defer></script>
 </body>
 
 
