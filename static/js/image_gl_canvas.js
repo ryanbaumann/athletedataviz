@@ -146,7 +146,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                 else {} 
             } catch (err) {
                 console.log(err);
-                window.alert("Please try a different browser - only Chrome and Firefox are supported for design ordering and sharing!");
+                window.alert("Please try a different browser - Chrome, Firefox, and Opera are supported for design ordering and sharing!");
                 document.getElementById('spinner').style.display = 'none';
                 document.getElementById('snap').classList.remove('disabled');
             }

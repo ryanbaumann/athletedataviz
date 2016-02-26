@@ -30,6 +30,7 @@ html {
 }
 body {
   padding-top: 50px;
+  perspective:1200;
 }
 .scrollable {
   height: 100%;
@@ -43,6 +44,7 @@ input[type="radio"], input[type="checkbox"] {
   width: 200px;
   height: 100%;
   max-width: 100%;
+  overflow: scroll;
   float: right;
   z-index: 11;
   -webkit-transition: all 0.5s ease-out;
@@ -53,7 +55,13 @@ input[type="radio"], input[type="checkbox"] {
   position: relative;
   width: auto;
   height: 100%;
+  overflow:visible;
 }
+
+.leaflet-container {
+  background:none;
+}
+
 #btn.btn-primary.savedesign {
   position: absolute;
   left: 50%;
