@@ -97,7 +97,7 @@ map.once('style.load', function() {
         position: 'top-left'
     }));
     //map.dragRotate.disable();
-    map.touchZoomRotate.disableRotation();
+    //map.touchZoomRotate.disableRotation();
     var popup = new mapboxgl.Popup({
         closeButton: false
     });
