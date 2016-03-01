@@ -10,6 +10,7 @@ var heatpoint_src;
 var VizType = 'heat-point';
 var map_style = 'dark-nolabel';
 var curStyle;
+var map;
 //Heat Point gradients
 
 var color_list = [
@@ -65,47 +66,45 @@ var layers = [];
 var filters = [];
 
 /////  Main Function  ///////
-
-if (!mapboxgl.supported()) {
-    //stop and alert user map is not supported
-    alert('Your browser does not support Mapbox GL.  Please try Chrome or Firefox.');
-} else {
-    try {
-        $('#legend-lines').hide();
-        var map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
-            center: mapboxgl.LngLat.convert(center_point),
-            zoom: 2,
-            minZoom: 1,
-            maxZoom: 20,
-            attributionControl: true
-        });
-    } catch (err) {
-        //Note that the user did not have any data to load
-        console.log(err);
-        $("#loading").hide();
-        $('#DownloadModal').modal("show");
+function initVizMap() {
+    if (!mapboxgl.supported()) {
+        //stop and alert user map is not supported
+        alert('Your browser does not support Mapbox GL.  Please try Chrome or Firefox.');
+    } else {
+        try {
+            $('#legend-lines').hide();
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
+                center: mapboxgl.LngLat.convert(center_point),
+                zoom: 2,
+                minZoom: 1,
+                maxZoom: 20,
+                attributionControl: true
+            });
+        } catch (err) {
+            //Note that the user did not have any data to load
+            console.log(err);
+            $("#loading").hide();
+            $('#DownloadModal').modal("show");
+        }
     }
-}
 
-map.once('style.load', function() {
-    addLayerHeat(map);
-    addLayerLinestring(map);
-    render();
-    map.addControl(new mapboxgl.Navigation({
-        position: 'top-left'
-    }));
-    //map.dragRotate.disable();
-    //map.touchZoomRotate.disableRotation();
-    var popup = new mapboxgl.Popup({
-        closeButton: false
+    map.once('style.load', function() {
+        addLayerHeat(map);
+        addLayerLinestring(map);
+        render();
+        map.addControl(new mapboxgl.Navigation({
+            position: 'top-left'
+        }));
+        //map.dragRotate.disable();
+        //map.touchZoomRotate.disableRotation();
     });
-});
 
-map.on('load', function() {
-    $("#loading").hide();
-});
+    map.on('load', function() {
+        $("#loading").hide();
+    });
+}
 
 ///////  HELPER FUNCTIONS    /////
 

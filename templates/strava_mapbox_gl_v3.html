@@ -197,8 +197,14 @@
         console.log(err);
         $('#DownloadModal').modal("show");
     }
+    
+    function copyToClipboard(text) {
+        window.prompt("A link to your AthleteDataViz design:", text);
+    }
 
-    $(function() {
+    $( document ).ready(function() {
+        initVizMap();
+        $(function() {
     
         $("#sidebar-toggle-btn").click(function() {
             $("#sidebar").toggle();
@@ -212,17 +218,14 @@
             return false;
         });
     });
-    
-    function copyToClipboard(text) {
-        window.prompt("A link to your AthleteDataViz design:", text);
-    }
-    
+    });
+
     </script>
     <!-- Bootstrap Slider -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
-    <script type="text/javascript" src="/static/js/upload_img.js" async defer></script>
-    <script type="text/javascript" src="/static/js/image_gl_canvas.js" async defer></script>
-    <script type="text/javascript" src="/static/js/adv_viz_designer.js" async defer></script>
+    <script type="text/javascript" src="/static/js/upload_img.js" ></script>
+    <script type="text/javascript" src="/static/js/image_gl_canvas.js" ></script>
+    <script type="text/javascript" src="/static/js/adv_viz_designer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js" async defer></script>
     <!--<script src='https://api.mapbox.com/mapbox.js/plugins/geojson-extent/v0.0.1/geojson-extent.js' async defer></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js" async defer></script>
