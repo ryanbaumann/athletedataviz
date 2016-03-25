@@ -12,7 +12,7 @@ from celery import Celery
 from flask.ext.compress import Compress
 from flask.ext.cache import Cache
 from flask_sslify import SSLify
-from forms import OrderForm
+from lib.forms import OrderForm
 import shopify
 
 #################
