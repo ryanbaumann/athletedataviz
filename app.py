@@ -1,22 +1,17 @@
-import time
-import os
-import base64
-import hmac
-import urllib
+import time, os, base64, hmac, urllib
 import stravalib
 from hashlib import sha1
 from datetime import datetime
 from flask import Flask, request, flash, url_for, redirect, \
-    render_template, session,  jsonify, Response, json, send_from_directory
+    render_template, session, jsonify, Response, json, send_from_directory
 from flask_restful import Resource, Api
 from flask.ext.sqlalchemy import SQLAlchemy
-import stravaParse_v2 as sp
+from lib import stravaparse as sp
 from sqlalchemy import create_engine
 from celery import Celery
 from flask.ext.compress import Compress
 from flask.ext.cache import Cache
 from flask_sslify import SSLify
-from celery.exceptions import SoftTimeLimitExceeded
 from forms import OrderForm
 import shopify
 
@@ -40,7 +35,7 @@ compress.init_app(app)
 cache.init_app(app)
 if 'DYNO' in os.environ:
     sslify = SSLify(app, permanent=True)
-from models import *
+from lib.models import *
 BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 shop_url = "https://%s:%s@athletedataviz.myshopify.com/admin" % \
     (app.config['SHOPIFY_API_KEY'], app.config['SHOPIFY_PASSWORD'])
@@ -51,10 +46,12 @@ shop = shopify.Shop.current()
 #  API   #
 ##########
 
+
 def output_html(data, code, headers=None):
     resp = Response(data, mimetype='text/html', headers=headers)
     resp.status_code = code
     return resp
+
 
 def output_json(data, code, headers=None):
     resp = Response(data, mimetype='application/json', headers=headers)
@@ -72,7 +69,7 @@ class Heat_Points(Resource):
 
     def removeCache(self, ath_id):
         cache.delete_memoized(get, ath_id)
-        return 'removed heat_points cache for %s' %(ath_id)
+        return 'removed heat_points cache for %s' % (ath_id)
 
     def __repr__(self):
         return "%s" % (self.__class__.__name__)
@@ -87,7 +84,7 @@ class Heat_Lines(Resource):
 
     def removeCache(self, ath_id):
         cache.delete_memoized(get, ath_id)
-        return 'removed heat_lines cache for %s' %(ath_id)
+        return 'removed heat_lines cache for %s' % (ath_id)
 
     def __repr__(self):
         return "%s" % (self.__class__.__name__)
@@ -102,6 +99,7 @@ class Heat_Lines2(Resource):
 
     def __repr__(self):
         return "%s" % (self.__class__.__name__)
+
 
 class Stream_Data(Resource):
     #@cache.memoize(timeout=600)
@@ -135,6 +133,7 @@ api.add_resource(Current_Acts, '/current_acts/<int:ath_id>')
 ##########
 # helper #
 ##########
+
 
 def clearCache(ath_id):
     """ Remove Data from Cache for user """
@@ -170,8 +169,8 @@ def homepage():
         auth_url = client.authorization_url(
             client_id=app.config['STRAVA_CLIENT_ID'],
             redirect_uri=redirect_uri)
-        return render_template('main.html',  
-                                auth_url=auth_url)
+        return render_template('main.html',
+                               auth_url=auth_url)
 
     # Render the homepage with the user's Strava access token
     if request.method == 'GET':
@@ -205,17 +204,13 @@ def homepage():
                 existing_athlete.api_code = session['access_token']
                 existing_athlete.last_updated_datetime_utc =\
                     str(datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'))
+            
             # Commit the update or new row insertion
             db.session.commit()
             db.session.close()
         except:
             errors.append("Unable to add or update athlete in database.")
             print errors
-        try:
-            act_data = sp.get_acts_html(engine, int(session['ath_id']))
-            act_count = len(act_data.index)
-        except:
-            print "error getting current activity list from DB!"
 
         return render_template('main.html',
                                act_limit=int(session.get('act_limit', 1)),
@@ -258,7 +253,7 @@ def logout():
     """ End a users session and return them to the homepage """
     clearCache(session['ath_id'])
     session.pop('access_token')
-    #Clear cache???
+    # Clear cache???
 
     return redirect(url_for('homepage'))
 
@@ -297,6 +292,7 @@ def account():
     return render_template('account.html',
                            basepath=BASEPATH)
 
+
 @app.route('/newproduct')
 def newproduct():
     """Posts a new product to the shopify page"""
@@ -307,7 +303,7 @@ def newproduct():
     new_product.product_type = "Snowboard"
     new_product.vendor = "Burton"
     new_product.add
-    success = new_product.save() #returns false if the record is invalid
+    success = new_product.save()  # returns false if the record is invalid
     return('posted product!')
 
 
@@ -320,9 +316,9 @@ def sign_s3():
     AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     S3_BUCKET = os.environ.get('S3_BUCKET_IMAGES')
     # Folder to store images in
-    try: #set to logged in user
+    try:  # set to logged in user
         ath_id = str(session['ath_id'])
-    except: #Set to demo user if not logged in
+    except:  # Set to demo user if not logged in
         ath_id = str(12904699)
     foldername = r'user/' + str(ath_id) + r'/'
     # Get filename and filetype from request header in URL
@@ -354,8 +350,8 @@ def sign_s3():
     db.session.close()
     # return json to the browser to finish use the image link in the browser
     content = json.dumps({
-        'signed_request': '%s?AWSAccessKeyId=%s&Expires=%s&cache-control=%s&Signature=%s' % (url, 
-                           AWS_ACCESS_KEY, expires, 'max-age=2592000,public', signature),
+        'signed_request': '%s?AWSAccessKeyId=%s&Expires=%s&cache-control=%s&Signature=%s' % (url,
+                                                                                             AWS_ACCESS_KEY, expires, 'max-age=2592000,public', signature),
         'url': url,
     })
 
@@ -405,7 +401,7 @@ def auth_done():
     session['access_token'] = token
     return redirect(url_for('homepage'))
 
-"""@app.route('/uploads/<path:filename>')
+# DEPRICATED -- @app.route('/uploads/<path:filename>')
 def download_strava():
     try:
         filename = request.args.get('filename')
@@ -413,7 +409,7 @@ def download_strava():
         print 'filename not found, redirecting to data page!'
         return redirect(url_for('strava_activity_download'))
     return send_from_directory(app.config['UPLOAD_FOLDER'],
-                               filename, as_attachment=True)"""
+                               filename, as_attachment=True)
 
 
 @app.route('/strava_mapbox')
@@ -440,11 +436,11 @@ def strava_mapbox():
                            'heat_lines/' + str(session['ath_id']),
                            ath_name=athlete.firstname + "_" + athlete.lastname + '_' + datetime.utcnow().strftime('%y%m%d'))
 
-#@app.route('/testmap2')
+
+# NOT IN PRODUCTION - @app.route('/testmap')
 def testmap():
     """
-    A function to get the data for vizualization from the database,
-    and return the template for the user's vizualization (map)
+    A map to test new functionality not yet in the production release
     """
     # First get the map extents so we can draw a point at the center
     try:
@@ -480,10 +476,9 @@ def demodesigner():
                                'MAPBOX_GL_ACCESS_TOKEN'],
                            mapbox_accessToken=app.config[
                                'MAPBOX_ACCESS_TOKEN'],
-                           heatpoint_url=BASEPATH +'heat_points/12904699',
-                           heatline_url=BASEPATH +'heat_lines/12904699',
+                           heatpoint_url=BASEPATH + 'heat_points/12904699',
+                           heatline_url=BASEPATH + 'heat_lines/12904699',
                            ath_name="ADV" + "_" + "Demo" + '_' + datetime.utcnow().strftime('%y%m%d'))
-
 
 
 @app.route('/delete_acts', methods=['POST'])
@@ -670,4 +665,3 @@ def taskstatus(task_id):
 
 if __name__ == '__main__':
     app.run(port=int(app.config['PORT']))
-

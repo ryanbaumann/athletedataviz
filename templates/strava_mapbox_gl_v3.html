@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block import_script %}
     <!-- Mapbox GL -->
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.15.0/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.15.0/mapbox-gl.css' rel='stylesheet'>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css' rel='stylesheet'>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
 
 {% endblock %} {% block content %}
@@ -38,6 +38,7 @@
                                 <option value="bright">Bright</option>
                                 <option value="light">Light</option>
                                 <option value="satellite">Satellite</option>
+                                <option value="satellite-hybrid">Satellite-Lines</option>
                             </select>
                             <br>
                             <br>
@@ -227,6 +228,7 @@
     <script type="text/javascript" src="/static/js/image_gl_canvas.js" ></script>
     <script type="text/javascript" src="/static/js/adv_viz_designer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js" async defer></script>
+    <script type="text/javascript" src="/static/js/webgl-heatmap.js" async defer></script>
     <!--<script src='https://api.mapbox.com/mapbox.js/plugins/geojson-extent/v0.0.1/geojson-extent.js' async defer></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js" async defer></script>
     

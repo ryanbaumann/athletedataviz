@@ -251,6 +251,14 @@ function calcHeatLayers(filters, colors) {
     }
 }
 
+function getDataLinestring(callback) {
+    $.getJSON( heatpoint_url , function(data) {
+        stravaHeatGeoJson = JSON.parse(data); 
+        r.resolve();
+    }),
+    callback(stravaHeatGeoJson);
+};
+
 //Add heat points function
 function addLayerHeat(mapid) {
     // Mapbox JS Api - import heatmap layer
@@ -279,8 +287,9 @@ function addLayerHeat(mapid) {
     } catch (err) {
         console.log(err);
     }
-    //fit();
 };
+
+
 
 function addLayerLinestring(mapid) {
     //Create source for linestring data source

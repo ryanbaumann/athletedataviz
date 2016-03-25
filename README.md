@@ -5,18 +5,18 @@
 
 ## Deploy to Heroku PAAS
 To deploy a clone of this application using the [`heroku` command line tool](https://devcenter.heroku.com/articles/heroku-command):
-    cd <your working dir for athletedataviz>
-    heroku create <your_app_name>
-    git remote add pro https://git.heroku.com/<your_app_name>.git
-    git push pro master
+cd <your working dir for athletedataviz>
+heroku create <your_app_name>
+git remote add pro https://git.heroku.com/<your_app_name>.git
+git push pro master
 
 Now provision a POSTGIS database on Heroku (this is the $50/month version FYI)
-    heroku addons:create heroku-postgresql:standard-Cobalt --app <your_app_name>
-    heroku pg:psql HEROKU_POSTGRESQL_COBALT_URL --app <your_app_name>
-        -> create extension postgis;
-        -> Select postgis_version(); postgis_version
-            ---------------------------------------
-            2.1 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
+heroku addons:create heroku-postgresql:standard-Cobalt --app <your_app_name>
+heroku pg:psql HEROKU_POSTGRESQL_COBALT_URL --app <your_app_name>
+-> create extension postgis;
+-> Select postgis_version(); postgis_version
+---------------------------------------
+2.1 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
 
 #Set an environement variable for the configuration version you have (Production in this case, below)
     heroku config:set APP_SETTINGS=config.ProductionConfig --remote pro

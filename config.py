@@ -1,6 +1,6 @@
 import os
 import sys
-from kombu import Queue
+#from kombu import Queue
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
