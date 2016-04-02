@@ -1,17 +1,23 @@
-import time, os, base64, hmac, urllib
+import time
+import os
+import base64
+import hmac
+import urllib
 import stravalib
 from hashlib import sha1
 from datetime import datetime
 from flask import Flask, request, flash, url_for, redirect, \
     render_template, session, jsonify, Response, json, send_from_directory
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 from flask.ext.sqlalchemy import SQLAlchemy
 from lib import stravaparse as sp
+from lib import segmentParse as seg_sp
 from sqlalchemy import create_engine
 from celery import Celery
 from flask.ext.compress import Compress
 from flask.ext.cache import Cache
 from flask_sslify import SSLify
+from flask.ext.cors import CORS
 from lib.forms import OrderForm
 import shopify
 
@@ -23,6 +29,7 @@ cache = Cache()
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 engine = create_engine(
@@ -112,6 +119,30 @@ class Stream_Data(Resource):
         return "%s" % (self.__class__.__name__)
 
 
+class Segment_Data(Resource):
+    #@cache.memoize(timeout=600)
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument(
+            'startLat', type=float, required=True, help='Enter start latitude')
+        parser.add_argument(
+            'startLong', type=float, required=True, help='Enter start longitude')
+        parser.add_argument(
+            'endLat', type=float, required=True, help='Enter end latitude')
+        parser.add_argument(
+            'endLong', type=float, required=True, help='Enter end longitude')
+        parser.add_argument(
+            'act_type', type=str, required=True, help='Enter act type riding or running')
+        args = parser.parse_args()
+
+        seg_geojson = seg_sp.get_seg_geojson(engine, args['startLat'], args['startLong'], args['endLat'], args['endLong'], args['act_type'])
+
+        return output_json(seg_geojson, 200)
+
+    def __repr__(self):
+        return "%s" % (self.__class__.__name__)
+
+
 class Current_Acts(Resource):
     def get(self, ath_id):
         try:
@@ -129,7 +160,7 @@ api.add_resource(Heat_Points, '/heat_points/<int:ath_id>')
 api.add_resource(Heat_Lines, '/heat_lines/<int:ath_id>')
 api.add_resource(Heat_Lines2, '/heat_lines2/<int:ath_id>')
 api.add_resource(Current_Acts, '/current_acts/<int:ath_id>')
-
+api.add_resource(Segment_Data, '/segment_data/')
 ##########
 # helper #
 ##########
@@ -204,7 +235,7 @@ def homepage():
                 existing_athlete.api_code = session['access_token']
                 existing_athlete.last_updated_datetime_utc =\
                     str(datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'))
-            
+
             # Commit the update or new row insertion
             db.session.commit()
             db.session.close()
@@ -402,6 +433,8 @@ def auth_done():
     return redirect(url_for('homepage'))
 
 # DEPRICATED -- @app.route('/uploads/<path:filename>')
+
+
 def download_strava():
     try:
         filename = request.args.get('filename')

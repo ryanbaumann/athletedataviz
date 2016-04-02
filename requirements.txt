@@ -32,3 +32,4 @@ Image
 flask-wtf
 ShopifyAPI
 eventlet
+flask-CORS
