@@ -20,39 +20,39 @@ def get_segs_from_api(client, extents, act_type):
 
 def seg_to_df(segment_explorer, act_type, engine, startLat, startLong, endLat, endLong):
     dflist = []
-    dl_list = get_segs_in_db(engine, 'Segment', startLat, startLong, endLat, endLong).tolist()
-    for seg in segment_explorer:
-    	print seg.id
-    	if act_type == 'riding':
-	            acttype = 'ride'
-        else:
-            acttype = 'run'
-    	if seg.id not in dl_list:
-	        print 'seg id %s' % (seg.id)
-	        newrow = {'seg_id': int(seg.id),
-	                  'name': str(seg.name),
-	                  'act_type': str(acttype),
-	                  'elev_low': 0,  # float(seg_detail.elevation_low),
-	                  'elev_high': 0, # float(seg_detail.elevation_high),
-	                  'start_lat': float(seg.start_latlng[0]),
-	                  'start_long': float(seg.start_latlng[1]),
-	                  'end_lat': float(seg.end_latlng[0]),
-	                  'end_long': float(seg.end_latlng[1]),
-	                  'date_created': datetime.utcnow(), # seg_detail.created_at.replace(tzinfo=None),
-	                  'effort_cnt': 0,  # int(seg_detail.effort_count),
-	                  'ath_cnt': 0,  # int(seg_detail.athlete_count),
-	                  'cat': int(seg.climb_category),
-	                  'elev_gain': float(seg.elev_difference),
-	                  'distance': float(seg.distance),
-	                  'seg_points': str(seg.points)
-	                  }
-	        dflist.append(newrow)
-
-	if len(dflist)>0:
-		seg_df = pd.DataFrame(dflist)
-		return seg_df
+    if act_type == 'riding':
+        acttype = 'ride'
     else:
-    	return None
+        acttype = 'run'
+    dl_list = get_segs_in_db(engine, 'Segment', startLat, startLong, endLat, endLong, acttype).tolist()
+    for seg in segment_explorer:
+        seg_id = int(seg.id)
+        if seg_id not in dl_list:
+            print 'seg id %s' % (seg_id)
+            newrow = {'seg_id': int(seg_id),
+                      'name': unicode(seg.name),
+                      'act_type': str(acttype),
+                      'elev_low': 0,  # float(seg_detail.elevation_low),
+                      'elev_high': 0, # float(seg_detail.elevation_high),
+                      'start_lat': float(seg.start_latlng[0]),
+                      'start_long': float(seg.start_latlng[1]),
+                      'end_lat': float(seg.end_latlng[0]),
+                      'end_long': float(seg.end_latlng[1]),
+                      'date_created': datetime.utcnow(), # seg_detail.created_at.replace(tzinfo=None),
+                      'effort_cnt': 0,  # int(seg_detail.effort_count),
+                      'ath_cnt': 0,  # int(seg_detail.athlete_count),
+                      'cat': int(seg.climb_category),
+                      'elev_gain': float(seg.elev_difference),
+                      'distance': float(seg.distance),
+                      'seg_points': str(seg.points)
+                      }
+            dflist.append(newrow)
+
+    if len(dflist)>0:
+        seg_df = pd.DataFrame(dflist)
+        return seg_df
+    else:
+        return None
 
 def create_points(lat_series, long_series):
     # Creates a string from a lat/long column to map to a Geography Point
@@ -62,14 +62,14 @@ def create_points(lat_series, long_series):
     return point_col
 
 
-def get_segs_in_db(engine, table_name, startLat, startLong, endLat, endLong):
+def get_segs_in_db(engine, table_name, startLat, startLong, endLat, endLong, acttype):
     # Return a list of already cached segments in the database
     already_dl_seg_id_list = []
     try:
         args = """SELECT seg_id from "%s" 
                Where ST_Contains(ST_Envelope(ST_GeomFromText('LINESTRING(%s %s, %s %s)')), 
-                                 start_point)"""  % (table_name, startLong, startLat, 
-                                 	                    endLong, endLat)
+                                 start_point) AND act_type='%s' """  % (table_name, startLong, startLat, 
+                                                        endLong, endLat, acttype)
         df = pd.read_sql(args, engine)
         already_dl_seg_id_list = df['seg_id']
     except:
@@ -78,16 +78,15 @@ def get_segs_in_db(engine, table_name, startLat, startLong, endLat, endLong):
     return already_dl_seg_id_list
 
 
-def clean_cached_segs(dl_lst, new_seg_df):
-    # Remove segments already in database from the dataframe
-    new_seg_df['rows_to_drop'] = new_seg_df['seg_id'].isin(dl_lst)
-    new_seg_df.drop(
-        new_seg_df[new_seg_df.rows_to_drop == True].index, inplace=True)
-    return new_seg_df
-
-
 def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type):
-    #[40.8, -89.7, 40.9, -89.6]
+    """Get the geojson segment linestring object from the database
+    """
+
+    if act_type == 'riding':
+        acttype = 'ride'
+    else:
+        acttype = 'run'
+
     segment_explorer = get_segs_from_api(
         client, [startLat, startLong, endLat, endLong], act_type)
 
@@ -95,21 +94,21 @@ def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type):
 
     # Update lat/long to PostGIS geometry Point types
     if seg_df is not None:
-	    seg_df['start_point'] = map(
-	        create_points, seg_df['start_lat'], seg_df['start_long'])
-	    seg_df['end_point'] = map(
-	        create_points, seg_df['end_lat'], seg_df['end_long'])
+        seg_df['start_point'] = map(
+            create_points, seg_df['start_lat'], seg_df['start_long'])
+        seg_df['end_point'] = map(
+            create_points, seg_df['end_lat'], seg_df['end_long'])
 
-	    # do not write new segments to the database
-	    seg_df = clean_cached_segs(get_segs_in_db(engine, 'Segment',
-	    	                                      startLat, startLong, endLat, endLong), seg_df)
+        # I updated this to only populate the dataframe if the segment is new - no need to delete here
+        #seg_df = clean_cached_segs(get_segs_in_db(engine, 'Segment',
+        #                                         startLat, startLong, endLat, endLong), seg_df)
 
-	        # Clean out the df and write to the database
-	    seg_df.set_index('seg_id', inplace=True)
-	    seg_df.drop(['start_lat', 'start_long', 'end_lat',
-	                 'end_long', 'rows_to_drop'], axis=1, inplace=True)
-	    seg_df.to_sql(
-	        'Segment', engine, if_exists='append', index=True, index_label='seg_id')
+            # Clean out the df and write to the database
+        seg_df.set_index('seg_id', inplace=True)
+        seg_df.drop(['start_lat', 'start_long', 'end_lat',
+                     'end_long'], axis=1, inplace=True)
+        seg_df.to_sql(
+            'Segment', engine, if_exists='append', index=True, index_label='seg_id')
 
     # Now get the results from the database
     geojson_sql = """
@@ -127,7 +126,8 @@ def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type):
                                  ) as properties
                             FROM "Segment" as lg 
                                   WHERE ST_Contains(ST_Envelope(ST_GeomFromText('LINESTRING(%s %s, %s %s)')), lg.start_point)
-                     ) as f) as fc"""  % (startLong, startLat, endLong, endLat)
+                                  AND lg.act_type = '%s'
+                     ) as f) as fc"""  % (startLong, startLat, endLong, endLat, acttype)
 
     result = engine.execute(geojson_sql)
     for row in result:

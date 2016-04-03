@@ -228,13 +228,31 @@ def homepage():
                                       ath_id=athlete.id,
                                       api_code=session['access_token'],
                                       first_name=athlete.firstname,
-                                      last_name=athlete.lastname)
+                                      last_name=athlete.lastname,
+                                      city = athlete.city,
+                                      state = athlete.state,
+                                      country = athlete.country,
+                                      email = athlete.email,
+                                      email_language = athlete.email_language,
+                                      measurement_preference = athlete.measurement_preference,
+                                      date_preference = athlete.date_preference,
+                                      profile = athlete.profile,
+                                      profile_medium = athlete.profile_medium)
                 db.session.add(new_athlete)
             else:
                 print "athlete already in db - updating existing record"
                 existing_athlete.api_code = session['access_token']
                 existing_athlete.last_updated_datetime_utc =\
                     str(datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'))
+                existing_athlete.email = athlete.email
+                existing_athlete.email = athlete.email_language
+                existing_athlete.measurement_preference = athlete.measurement_preference
+                existing_athlete.date_preference = athlete.date_preference
+                existing_athlete.profile = athlete.profile
+                existing_athlete.profile_medium = athlete.profile_medium
+                existing_athlete.city = athlete.city
+                existing_athlete.state = athlete.state
+                existing_athlete.country = athlete.country
 
             # Commit the update or new row insertion
             db.session.commit()
@@ -247,7 +265,8 @@ def homepage():
                                act_limit=int(session.get('act_limit', 1)),
                                current_act_url=BASEPATH +
                                'current_acts/' + str(session['ath_id']),
-                               athlete=athlete)
+                               athlete_name = athlete.firstname + ' ' + athlete.lastname,
+                               profile_url = athlete.profile)
 
 
 @app.route('/act_limit', methods=['POST'])
@@ -457,17 +476,19 @@ def strava_mapbox():
 
     client = stravalib.client.Client(access_token=session['access_token'])
     athlete = client.get_athlete()
-
+    print BASEPATH + str('segment_data/?')
     return render_template('strava_mapbox_gl_v3.html',
-                           mapbox_gl_accessToken=app.config[
+                           mapbox_gl_accessToken = app.config[
                                'MAPBOX_GL_ACCESS_TOKEN'],
-                           mapbox_accessToken=app.config[
+                           mapbox_accessToken = app.config[
                                'MAPBOX_ACCESS_TOKEN'],
-                           heatpoint_url=BASEPATH +
+                           heatpoint_url = BASEPATH +
                            'heat_points/' + str(session['ath_id']),
-                           heatline_url=BASEPATH +
+                           heatline_url = BASEPATH +
                            'heat_lines/' + str(session['ath_id']),
-                           ath_name=athlete.firstname + "_" + athlete.lastname + '_' + datetime.utcnow().strftime('%y%m%d'))
+                           ath_name = athlete.firstname + "_" + athlete.lastname + 
+                                    '_' + datetime.utcnow().strftime('%y%m%d'),
+                           seg_base_url = BASEPATH + str('segment_data/?'))
 
 
 # NOT IN PRODUCTION - @app.route('/testmap')
@@ -511,7 +532,8 @@ def demodesigner():
                                'MAPBOX_ACCESS_TOKEN'],
                            heatpoint_url=BASEPATH + 'heat_points/12904699',
                            heatline_url=BASEPATH + 'heat_lines/12904699',
-                           ath_name="ADV" + "_" + "Demo" + '_' + datetime.utcnow().strftime('%y%m%d'))
+                           ath_name="ADV" + "_" + "Demo" + '_' + datetime.utcnow().strftime('%y%m%d'),
+                           seg_base_url = BASEPATH + str('segment_data/?'))
 
 
 @app.route('/delete_acts', methods=['POST'])

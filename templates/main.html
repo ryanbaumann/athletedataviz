@@ -10,7 +10,13 @@
             {% endfor %}
             <div id="greeting" class="text-center">
             {% if session.access_token %}
-                <h1>Welcome {{ athlete.firstname }}! </h1>
+                <div class="col-sm-6 text-center">
+                    <h1>Welcome {{ athlete_name }}! </h1>
+                </div>
+                <br>
+                <div class="col-sm-6 text-center">
+                    <img class="img-responsive center-block" src="{{ profile_url }}" alt="img5">
+                </div>
             {% else %}
                 <h3> Please login to continue! </h3>
                 <a href="{{auth_url | safe}}">
@@ -22,6 +28,7 @@
             </div>
             <div class="col-sm-6 text-center">
                  <h3> 1) Get you Activities </h3>
+                 <p> Select a date range to get Activities from Strava.</p>
                   {% if session.access_token %}
                 <form class="form-inline" id="dl_form" action="#">
                 <!--<span class="help-block">Enter a Date Range.  Then click "Get Data"</span>-->
@@ -43,6 +50,7 @@
             </div>
             <div class="col-sm-6 text-center">
                 <h3> 2) Design your Viz! </h3>
+                <p> View heat maps, segment explorers, and more! </p>
                 {% if session.access_token %}
                 <div id="view_map">
                     <form action="strava_mapbox" method="GET">
@@ -61,12 +69,14 @@
     <div class="row">
         <div class="col-sm-6 text-center">
             <h3> View your available Activities </h3>
+            <p> Activities you've downloaded that are ready to viz </p>
             <div class="table" id="act_table">
                 Loading...
             </div>
         </div>
         <div class="col-sm-6 text-center">
-            <h3> Delete your Data on AthleteDataViz </h3>
+            <h3> Delete your Data </h3>
+            <p> Want to wipe your data on ADV?  This will do the trick! </p>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"> Delete my Data </button>
             <br>
         </div>

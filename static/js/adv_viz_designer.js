@@ -79,8 +79,8 @@ function initVizMap() {
                 container: 'map',
                 style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
                 center: mapboxgl.LngLat.convert(center_point),
-                zoom: 2,
-                minZoom: 1,
+                zoom: 4,
+                minZoom: 4,
                 maxZoom: 20,
                 attributionControl: true
             });
@@ -99,8 +99,6 @@ function initVizMap() {
         map.addControl(new mapboxgl.Navigation({
             position: 'top-left'
         }));
-        //map.dragRotate.disable();
-        //map.touchZoomRotate.disableRotation();
     });
 
     map.on('load', function() {
@@ -299,7 +297,6 @@ function addLayerHeat(mapid) {
 };
 
 
-
 function addLayerLinestring(mapid) {
     //Create source for linestring data source
     $("#loading").show();
@@ -340,14 +337,13 @@ function EncodeQueryData(data) {
     return ret.join("&");
 }
 
-function getURL() {
-    var bounds = map.getBounds();
+function getURL(mapid) {
+    var bounds = mapid.getBounds();
     var east = bounds.getEast();
     var south = bounds.getSouth();
     var west = bounds.getWest();
     var north = bounds.getNorth();
-    var acttype = 'riding';
-    var base_url = 'http://localhost:33507/segment_data/?'
+    var acttype = document.getElementById("segType").value;
     var params = {
         'startLat': south,
         'startLong': west,
@@ -356,7 +352,7 @@ function getURL() {
         'act_type': acttype
     };
     var queryString = EncodeQueryData(params)
-    var targetURL = base_url + queryString
+    var targetURL = seg_base_url + queryString
     console.log(targetURL);
     return targetURL;
 };
@@ -364,11 +360,14 @@ function getURL() {
 function addSegLayer(mapid, seg_url) {
     // Mapbox GL JS Api - import segment
     try {
-        mapid.removeLayer('segment');
-        mapid.removeSource('segment');
+        if (mapid.getLayer('segment')) {
+            mapid.removeLayer('segment');
+            mapid.removeSource('segment');
+        }
     } catch (err) {
         console.log(err);
     }
+    console.log('getting source');
     var segment_src = new mapboxgl.GeoJSONSource({
         data: seg_url,
         maxzoom: 18,
@@ -376,27 +375,28 @@ function addSegLayer(mapid, seg_url) {
         tolerance: 1
     });
     try {
+        console.log('adding source');
         mapid.addSource('segment', segment_src);
+        console.log('adding layer');
         mapid.addLayer({
             id: 'segment',
             type: 'line',
-            source: 'segment',
-            paint: {
-                "line-opacity": 1,
-                "line-width": 5,
-                "line-color": 'red',
-            }
+            source: 'segment'
         });
         var segpopup = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false
         });
-        addPopup(map, ['segment'], segpopup);
+        addPopup(mapid, ['segment'], segpopup);
+    } catch (err) {
+        console.log(err);
+    }
+    try {
+        render();
     } catch (err) {
         console.log(err);
     }
 };
-
 
 
 function fit() {
@@ -422,6 +422,7 @@ function switchLayer() {
     map.once('style.load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
+        addSegLayer(map, getURL(map));
         render();
         $("#loading").hide();
     });
@@ -518,7 +519,9 @@ function render() {
     if (document.getElementById("VizType").value == "heat-point") {
         try {
             set_visibility(map, 'linestring', 'off');
-            set_visibility(map, 'segment', 'off');
+            if (map.getLayer('segment')) {
+                set_visibility(map, 'segment', 'off');
+            }
             $('#legend-lines').hide();
             map.off('moveend');
         } catch (err) {
@@ -539,9 +542,10 @@ function render() {
     } else if (document.getElementById("VizType").value == "heat-line") {
         try {
             set_visibility(map, 'heatpoints', 'off');
-            set_visibility(map, 'segment', 'off');
+            if (map.getLayer('segment')) {
+                set_visibility(map, 'segment', 'off');
+            }
             $('#legend-points').hide();
-            map.off('moveend');
         } catch (err) {
             console.log(err);
         }
@@ -567,20 +571,21 @@ function render() {
             console.log(err);
         }
         try {
-            addSegLayer(map, getURL());
-            set_visibility(map, 'segment', 'on');
-            paintSegLayer(map,
-                document.getElementById("line_color").value,
-                parseFloat($('#line_width').slider('getValue')),
-                parseFloat($('#line_opacity').slider('getValue')),
-                parseFloat($('#pitch').slider('getValue')),
-                'segment');
+            if (map.getLayer('segment')) {
+                set_visibility(map, 'segment', 'on');
+                paintSegLayer(map,
+                    document.getElementById("line_color").value,
+                    parseFloat($('#line_width').slider('getValue')),
+                    parseFloat($('#line_opacity').slider('getValue')),
+                    parseFloat($('#pitch').slider('getValue')),
+                    'segment');
+            }
+            else {
+                addSegLayer(map, getURL(map))
+            }
         } catch (err) {
             console.log(err);
         }
-        map.on('moveend', function(e){
-            addSegLayer(map, getURL());
-        });
     }
 }
 
@@ -590,7 +595,7 @@ function addPopup(mapid, layer_list, popup) {
         maxpoint = new Array(e.point['x']+10, e.point['y']+10)
         var features = mapid.queryRenderedFeatures([minpoint, maxpoint], { layers : layer_list});
         // Change the cursor style as a UI indicator.
-         map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+         mapid.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
      });
 
     mapid.on('click', function(e) {
@@ -605,34 +610,34 @@ function addPopup(mapid, layer_list, popup) {
         var feature = features[0];
         if (document.getElementById("VizType").value == "heat-point") {
             popup.setLngLat(e.lngLat)
-                .setHTML('<h5> Detail: </h5>' +
+                .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
                     '<ul class="list-group">' +
                     '<li class="list-group-item"> Freq: ' + Math.round(feature.properties.d *10)/10 + " visits </li>" +
                     '<li class="list-group-item"> Speed: ' + Math.round(feature.properties.s*10)/10 + " mph </li>" +
                     '<li class="list-group-item"> Grade: ' + Math.round(feature.properties.g*10)/10 + " % </li>" +
-                    '</ul>')
-            .addTo(map);
+                    '</ul> </div>')
+            .addTo(mapid);
         }
         else if (document.getElementById("VizType").value == "heat-line") {
             popup.setLngLat(e.lngLat)
-                .setHTML('<h5> Detail: </h5>' +
+                .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
                     '<ul class="list-group">' +
                     '<li class="list-group-item"> Name: ' + feature.properties.na + " </li>" +
                     '<li class="list-group-item"> Type: ' + feature.properties.ty + " </li>" +
                     '<li class="list-group-item"> ID: ' + feature.properties.id + " </li>" +
-                    '</ul>')
-            .addTo(map);
+                    '</ul> </div>')
+            .addTo(mapid);
         }
         else if (document.getElementById("VizType").value == "segment") {
             popup.setLngLat(e.lngLat)
-                .setHTML('<h5> Detail: </h5>' +
+                .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
                     '<ul class="list-group">' +
                     '<li class="list-group-item"> Name: ' + feature.properties.name + " </li>" +
                     '<li class="list-group-item"> Type: ' + feature.properties.type + " </li>" +
-                    '<li class="list-group-item"> Dist: ' + feature.properties.dist + " (mi) </li>" +
-                    '<li class="list-group-item"> Elev: ' + feature.properties.elev + " (ft) </li>" +
-                    '</ul>')
-            .addTo(map);
+                    '<li class="list-group-item"> Dist: ' + Math.round(feature.properties.dist*10)/10 + " (mi) </li>" +
+                    '<li class="list-group-item"> Elev: ' + Math.round(feature.properties.elev*10)/10 + " (ft) </li>" +
+                    '</ul> </div>')
+            .addTo(mapid);
         }
     });
 }
@@ -646,11 +651,23 @@ $('#VizType').change(function() {
     //hide all elements
     $('#VizType_hide_heat-line').collapse('hide');
     $('#VizType_hide_heat-point').collapse('hide');
+    $('#VizType_hide_segment').collapse('hide');
     //show only element connected to selected option
     $(selector).collapse('show');
     if (document.getElementById("VizType").value == "segment") {
          $('#VizType_hide_heat-line').collapse('show');
+         $('#VizType_hide_segment').collapse('show');
     }
+});
+
+$('#updateSeg').on('click touch tap', function(event) {
+    addSegLayer(map, getURL(map));
+    render();
+});
+
+$('#segType').change(function(event) {
+    addSegLayer(map, getURL(map));
+    render();
 });
 
 $('#pitch').slider({
@@ -660,6 +677,15 @@ $('#pitch').slider({
 });
 $('#pitch').slider().on('slide', function(ev) {
     $('#pitch').slider('setValue', ev.value);
+    render();
+});
+$('#dist_filter').slider({
+    formatter: function(value) {
+        return 'Value: ' + value;
+    }
+});
+$('#dist_filter').slider().on('slide', function(ev) {
+    $('#dist_filter').slider('setValue', ev.value);
     render();
 });
 $('#line_width').slider({

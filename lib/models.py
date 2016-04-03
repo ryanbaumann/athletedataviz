@@ -17,14 +17,34 @@ class Athlete(db.Model):
     api_code = db.Column(db.String(50))
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
+    country = db.Column(db.String())
+    state = db.Column(db.String())
+    city = db.Column(db.String())
+    email = db.Column(db.String())
+    email_language = db.Column(db.String())
+    measurement_preference = db.Column(db.String())
+    date_preference = db.Column(db.String())
+    profile = db.Column(db.String())
+    profile_medium = db.Column(db.String())
 
     def __init__(self, data_source, ath_id,
-                 api_code, first_name, last_name):
+                 api_code, first_name, last_name, country, state, city,
+                 email, email_language,
+                 measurement_preferences, date_preference, profile, profile_medium):
         self.data_source = data_source
         self.ath_id = ath_id
         self.api_code = api_code
         self.first_name = first_name
         self.last_name = last_name
+        self.country = country
+        self.state = state
+        self.city = city
+        self.email = email
+        self.email_language = email_language
+        self.measurement_preference = measurement_preference
+        self.date_preference = date_preference
+        self.profile = profile
+        self.profile_medium = profile_medium
 
     def __repr__(self):
         return '<ath_id %s, ath_firstname %s, ath_lastname %s>' % (self.ath_id,
@@ -163,6 +183,7 @@ class Athlete_Fact(db.Model):
         return '<ath_id %s, objecttypeid %s, filename %s>' % (self.ath_id,
                                                               self.objecttypeid,
                                                               self.filename)
+
     def getUrl(self, filename):
         return self.url
 
@@ -172,7 +193,8 @@ class Orders(db.Model):
 
     order_id = db.Column(db.Integer, primary_key=True)
     ath_id = db.Column(db.Integer, db.ForeignKey('Athlete.ath_id'), index=True)
-    ath_fact_id = db.Column(db.Integer, db.ForeignKey('Athlete_Fact.id'), index=True)
+    ath_fact_id = db.Column(
+        db.Integer, db.ForeignKey('Athlete_Fact.id'), index=True)
     order_placed_date = db.Column(
         db.DateTime(), default=datetime.utcnow, index=True)
     last_updated_datetime_utc = db.Column(
@@ -180,7 +202,7 @@ class Orders(db.Model):
     first_name = db.Column(db.String())
     last_name = db.Column(db.String())
     address = db.Column(db.String())
-    state =  db.Column(db.String())
+    state = db.Column(db.String())
     zipcode = db.Column(db.String())
     country = db.Column(db.String())
     phone = db.Column(db.String())
@@ -196,9 +218,8 @@ class Orders(db.Model):
     order_closed = db.Column(db.Boolean())
     order_closed_date = db.Column(db.DateTime())
 
-
-    def __init__(self, ath_id, ath_fact_id, first_name, last_name, address, state, zipcode, 
-                country, phone, comments):
+    def __init__(self, ath_id, ath_fact_id, first_name, last_name, address, state, zipcode,
+                 country, phone, comments):
         self.ath_id = ath_id
         self.ath_fact_id = ath_fact_id
         self.first_name = first_name
@@ -212,7 +233,50 @@ class Orders(db.Model):
 
     def __repr__(self):
         return '<order_id %s, ath_id %s, ath_fact_id %s>' % (self.order_id,
-                                                              self.ath_id,
-                                                              self.ath_fact_id)
+                                                             self.ath_id,
+                                                             self.ath_fact_id)
+
     def getOrder(self, orderid):
         return self.order_id
+
+
+class Segment(db.Model):
+    __tablename__ = 'Segment'
+
+    seg_id = db.Column(db.BigInteger, primary_key=True)
+    last_updated_datetime_utc = db.Column(
+        db.DateTime(), default=datetime.utcnow)
+    act_type = db.Column(db.String(20))
+    ath_cnt = db.Column(db.BigInteger)
+    cat = db.Column(db.Integer)
+    date_created = db.Column(db.DateTime())
+    distance = db.Column(db.Float(precision=4))
+    effort_cnt = db.Column(db.BigInteger)
+    elev_gain = db.Column(db.Float(precision=4))
+    elev_high = db.Column(db.Float(precision=4))
+    elev_low = db.Column(db.Float(precision=4))
+    name = db.Column(db.String())
+    seg_points = db.Column(db.Text)
+    start_point = db.Column(Geometry('POINT'))
+    end_point = db.Column(Geometry('POINT'))
+
+    def __init__(self, seg_id, act_type, ath_cnt, cat, date_created, distance, effort_cnt,
+                 elev_gain, elev_high, elev_low, name, seg_points, start_point, end_point):
+
+        self.seg_id = seg_id
+        self.act_type = act_type
+        self.ath_cnt = ath_cnt
+        self.cat = cat
+        self.date_created = date_created
+        self.distance = distance
+        self.effort_cnt = effort_cnt
+        self.elev_gain = elev_gain
+        self.elev_high = elev_high
+        self.elev_low = elev_low
+        self.name = name
+        self.seg_points = seg_points
+        self.start_point = start_point
+        self.end_point = end_point
+
+    def __repr__(self):
+        return '<seg_id %s, name %s>' % (self.seg_id, self.name)
