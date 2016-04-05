@@ -113,9 +113,9 @@ def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type):
     # Now get the results from the database
     geojson_sql = """
                 SELECT row_to_json(fc) 
-     FROM (SELECT 'FeatureCollection' As type, 
+                FROM (SELECT 'FeatureCollection' As type, 
                   array_to_json(array_agg(f)) As features
-           FROM (SELECT 'Feature' As type, 
+                  FROM (SELECT 'Feature' As type, 
                   st_asgeojson(st_LineFromEncodedPolyline(lg.seg_points, 4))::json AS geometry,
                   (
                   select row_to_json(t) 
@@ -126,7 +126,7 @@ def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type):
                                  ) as properties
                             FROM "Segment" as lg 
                                   WHERE ST_Contains(ST_Envelope(ST_GeomFromText('LINESTRING(%s %s, %s %s)')), lg.start_point)
-                                  AND lg.act_type = '%s'
+                                  AND lg.act_type = '%s' LIMIT 250
                      ) as f) as fc"""  % (startLong, startLat, endLong, endLat, acttype)
 
     result = engine.execute(geojson_sql)
