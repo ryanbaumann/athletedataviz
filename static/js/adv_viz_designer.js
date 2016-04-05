@@ -7,6 +7,7 @@ var draw_canvas;
 //var stravaLineGeoJson;
 var linestring_src;
 var heatpoint_src;
+var segment_src;
 var VizType = 'heat-point';
 var map_style = 'dark-nolabel';
 var curStyle;
@@ -270,7 +271,10 @@ function addLayerHeat(mapid) {
         data: heatpoint_url,
         maxzoom: 18,
         buffer: 1,
-        tolerance: 1
+        tolerance: 1,
+        //cluster: true,
+        //clusterMaxZoom: 10, // Max zoom to cluster points on
+        //clusterRadius: 10
     });
     try {
         mapid.addSource('heatpoint', heatpoint_src);
@@ -360,39 +364,30 @@ function getURL(mapid) {
 function addSegLayer(mapid, seg_url) {
     // Mapbox GL JS Api - import segment
     try {
-        if (mapid.getLayer('segment')) {
-            mapid.removeLayer('segment');
-            mapid.removeSource('segment');
+        if (mapid.getSource('segment')) {
+            segment_src.setData(seg_url)
+            render();
         }
-    } catch (err) {
-        console.log(err);
-    }
-    console.log('getting source');
-    var segment_src = new mapboxgl.GeoJSONSource({
-        data: seg_url,
-        maxzoom: 18,
-        buffer: 1,
-        tolerance: 1
-    });
-    try {
-        console.log('adding source');
-        mapid.addSource('segment', segment_src);
-        console.log('adding layer');
-        mapid.addLayer({
-            id: 'segment',
-            type: 'line',
-            source: 'segment'
-        });
-        var segpopup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
-        addPopup(mapid, ['segment'], segpopup);
-    } catch (err) {
-        console.log(err);
-    }
-    try {
-        render();
+        else {
+            segment_src = new mapboxgl.GeoJSONSource({
+                data: seg_url,
+                maxzoom: 18,
+                buffer: 1,
+                tolerance: 1
+            });
+            mapid.addSource('segment', segment_src);
+            mapid.addLayer({
+                id: 'segment',
+                type: 'line',
+                source: 'segment'
+            });
+            var segpopup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
+            addPopup(mapid, ['segment'], segpopup);
+            render();   
+        }
     } catch (err) {
         console.log(err);
     }
@@ -647,17 +642,15 @@ function addPopup(mapid, layer_list, popup) {
 
 //on change of VizType, show only menu options linked to selected viztype
 $('#VizType').change(function() {
-    var selector = '#VizType_hide_' + $(this).val();
-    //hide all elements
     $('#VizType_hide_heat-line').collapse('hide');
     $('#VizType_hide_heat-point').collapse('hide');
     $('#VizType_hide_segment').collapse('hide');
-    //show only element connected to selected option
-    $(selector).collapse('show');
-    if (document.getElementById("VizType").value == "segment") {
-         $('#VizType_hide_heat-line').collapse('show');
-         $('#VizType_hide_segment').collapse('show');
+    var selector = '#VizType_hide_' + $(this).val();
+    if (document.getElementById("VizType").value == "segment"){
+        console.log('segment');
+        $('#VizType_hide_heat-line').collapse('show');
     }
+    $(selector).collapse('show');
 });
 
 $('#updateSeg').on('click touch tap', function(event) {

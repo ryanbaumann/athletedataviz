@@ -47,22 +47,22 @@
                                 <input type="text" id="pitch" class="slider" data-slider-min="0" data-slider-value="0" data-slider-max="50" data-slider-step="5">
                             <br>
                             <br>
+                            <div id="VizType_hide_segment" class="collapse">
+                                <button type="submit" id='updateSeg' class="btn btn-primary">Update Segments</button>
+                                <p>In map range</p>
+                                <b>Segment Type</b>
+                                <select id='segType' name="segType" value="riding" style="font-size: 20px;">
+                                    <option value="riding">Cycling</option>
+                                    <option value="running">Running</option>
+                                </select>
+                                <br>
+                                <br>
+                                <b> Distance Filter (mi) </b>
+                                 <input id="dist_filter" type="text" class="slider" value="" data-slider-min="0" data-slider-max="30" data-slider-step="1" data-slider-value="[0,30]" data-slider-id='dist_filter_slider' onclick="render()">
+                                <br>
+                                <br>
+                            </div>
                             <div id="VizType_hide_heat-line" class="collapse">
-                                <div id="VizType_hide_segment" class="collapse">
-                                    <button type="submit" id='updateSeg' class="btn btn-primary">Update Segments</button>
-                                    <p>In map range</p>
-                                    <b>Segment Type</b>
-                                    <select id='segType' name="segType" value="riding" style="font-size: 20px;">
-                                        <option value="riding">Cycling</option>
-                                        <option value="running">Running</option>
-                                    </select>
-                                    <br>
-                                    <br>
-                                    <b> Distance Filter (mi) </b>
-                                     <input id="dist_filter" type="text" class="slider" value="" data-slider-min="0" data-slider-max="30" data-slider-step="1" data-slider-value="[0,30]" data-slider-id='dist_filter_slider' onclick="render()">
-                                    <br>
-                                    <br>
-                                </div>
                                 <b>Line Color</b>
                                 <select id='line_color' name="line_color" style="font-size: 18px;">
                                     <option value=0>Teal-Pink-Green</option>
