@@ -67,6 +67,12 @@ var colors = color_list[0];
 var layers = [];
 var filters = [];
 var layernames=[];
+//Global variables for segments
+var seg_breaks = [3, 6, 9, 12, 16];
+var seg_colors = line_color_list[0];
+var seg_layers = [];
+var seg_filters = [];
+var seg_layernames=[];
 
 /////  Main Function  ///////
 function initVizMap() {
@@ -348,12 +354,16 @@ function getURL(mapid) {
     var west = bounds.getWest();
     var north = bounds.getNorth();
     var acttype = document.getElementById("segType").value;
+    var start_dist = parseFloat($('#dist_filter').slider('getValue')[0])*1609.34;
+    var end_dist = parseFloat($('#dist_filter').slider('getValue')[1])*1609.34;
     var params = {
         'startLat': south,
         'startLong': west,
         'endLat': north,
         'endLong': east,
-        'act_type': acttype
+        'act_type': acttype,
+        'start_dist': start_dist,
+        'end_dist': end_dist
     };
     var queryString = EncodeQueryData(params)
     var targetURL = seg_base_url + queryString
@@ -677,7 +687,7 @@ $('#dist_filter').slider({
         return 'Value: ' + value;
     }
 });
-$('#dist_filter').slider().on('slide', function(ev) {
+$('#dist_filter').slider().on('slideStop', function(ev) {
     $('#dist_filter').slider('setValue', ev.value);
     render();
 });
@@ -731,7 +741,7 @@ $('#scale').slider({
         return 'Value: ' + value;
     }
 });
-$('#scale').slider().on('slide', function(ev) {
+$('#scale').slider().on('slideStop', function(ev) {
     $('#scale').slider('setValue', ev.value);
     render();
 });

@@ -133,9 +133,24 @@ class Segment_Data(Resource):
             'endLong', type=float, required=True, help='Enter end longitude')
         parser.add_argument(
             'act_type', type=str, required=True, help='Enter act type riding or running')
+        #Optional arguments
+        parser.add_argument('start_dist', 
+            type=float,help='Enter start distance in meters')
+        parser.add_argument('end_dist', 
+            type=float, help='Enter end distance of activility in meters')
+        
         args = parser.parse_args()
-
-        seg_geojson = seg_sp.get_seg_geojson(engine, args['startLat'], args['startLong'], args['endLat'], args['endLong'], args['act_type'])
+        #For optional args, set values for query if args are blank
+        if not args['start_dist']:
+            start_dist = int(0)
+        else:
+            start_dist = args['start_dist']
+        if not args['end_dist']:
+            end_dist = int(100000)
+        else:
+            end_dist = args['end_dist']
+        seg_geojson = seg_sp.get_seg_geojson(engine, args['startLat'], args['startLong'], args['endLat'], 
+                                            args['endLong'], args['act_type'], start_dist, end_dist)
 
         return output_json(seg_geojson, 200)
 

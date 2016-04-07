@@ -66,10 +66,7 @@ def get_segs_in_db(engine, table_name, startLat, startLong, endLat, endLong, act
     # Return a list of already cached segments in the database
     already_dl_seg_id_list = []
     try:
-        args = """SELECT seg_id from "%s" 
-               Where ST_Contains(ST_Envelope(ST_GeomFromText('LINESTRING(%s %s, %s %s)')), 
-                                 start_point) AND act_type='%s' """  % (table_name, startLong, startLat, 
-                                                        endLong, endLat, acttype)
+        args = """SELECT seg_id from "%s" """  % (table_name)
         df = pd.read_sql(args, engine)
         already_dl_seg_id_list = df['seg_id']
     except:
@@ -78,7 +75,7 @@ def get_segs_in_db(engine, table_name, startLat, startLong, endLat, endLong, act
     return already_dl_seg_id_list
 
 
-def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type):
+def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type, distlow, disthigh):
     """Get the geojson segment linestring object from the database
     """
 
@@ -126,8 +123,8 @@ def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type):
                                  ) as properties
                             FROM "Segment" as lg 
                                   WHERE ST_Contains(ST_Envelope(ST_GeomFromText('LINESTRING(%s %s, %s %s)')), lg.start_point)
-                                  AND lg.act_type = '%s' LIMIT 1000
-                     ) as f) as fc"""  % (startLong, startLat, endLong, endLat, acttype)
+                                  AND lg.act_type = '%s' and lg.distance BETWEEN %s and %s LIMIT 1000
+                     ) as f) as fc"""  % (startLong, startLat, endLong, endLat, acttype, distlow, disthigh)
 
     result = engine.execute(geojson_sql)
     for row in result:
