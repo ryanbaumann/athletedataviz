@@ -27,6 +27,13 @@ var line_color_list = [
     ['#00ff00', '#008000', '#80ff80', '#00cc66', '#339933']
 ]
 
+var seg_color_list = [
+    ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"],
+    ['#ff0000', '#ff751a', '#6699ff', '#ff66ff', '#ffff66'],
+    ['#ffff00', '#808000', '#ffff99', '#808000', '#ffffe6'],
+    ['#00ff00', '#008000', '#80ff80', '#00cc66', '#339933']
+]
+
 var lineHeatStyle = {
     "id": "linestring",
     "type": "line",
@@ -55,6 +62,21 @@ var heatpoint_style = {
     }
 };
 
+var seg_style = {
+    "id": "segment",
+    "type": "line",
+    "source": 'segment',
+    "layout": {
+        "line-join": "round"
+    },
+    "paint": {
+        "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+        "line-width": parseFloat(document.getElementById("line_width").value),
+        "line-color": parseFloat(document.getElementById("line_color").value),
+        "line-gap-width": 0
+    }
+};
+
 //Global variables for heat-lines
 var lineBreaks = ['Ride', 'Run', 'Nordic Ski', 'Hike', 'Other'];
 var lineColors = line_color_list[0];
@@ -69,7 +91,7 @@ var filters = [];
 var layernames=[];
 //Global variables for segments
 var seg_breaks = [3, 6, 9, 12, 16];
-var seg_colors = line_color_list[0];
+var seg_colors = seg_color_list[0];
 var seg_layers = [];
 var seg_filters = [];
 var seg_layernames=[];
@@ -189,6 +211,47 @@ function isMapLoaded(mapid, interval) {
         clearInterval(interval);
     }
 
+}
+
+function calcSegFilters(breaks, param) {
+    //calculate line filters to apply
+    seg_filters = [];
+    for (var p = 0; p < seg_breaks.length - 1; p++) {
+        lineFilters.push(['==', param, seg_breaks[p]])
+    }
+}
+
+function calcSegLayers() {
+    //calculate line layers to create
+    seg_layers = [];
+    for (var p = 0; p < seg_filters.length; p++) {
+        lineLayers.push({
+            id: 'segment-' + p,
+            type: 'line',
+            source: 'linestring',
+            paint: {
+                "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+                "line-width": parseFloat(document.getElementById("line_width").value),
+                "line-color": seg_colors[p],
+                "line-gap-width": 0
+            },
+            filter: seg_filters[p]
+        });
+        seg_layernames.push('segment-' + p);
+    }
+}
+
+function calcSegBreaks(maxval, numbins) {
+    //calculate breaks based on a selected bin size and number of bins
+    seg_breaks = [];  //empty the segment breaks array
+    var binSize = maxval / numbins;
+    for (p = 1; p <= numbins; p++) {
+        seg_breaks.push(binSize * p);
+    }
+    updateSegLegend();
+    for (p = 0; p < seg_layers.length; p++) {
+        calcLegends(p, 'segment');
+    }
 }
 
 function calcLineLayers() {
@@ -652,15 +715,22 @@ function addPopup(mapid, layer_list, popup) {
 
 //on change of VizType, show only menu options linked to selected viztype
 $('#VizType').change(function() {
-    $('#VizType_hide_heat-line').collapse('hide');
-    $('#VizType_hide_heat-point').collapse('hide');
-    $('#VizType_hide_segment').collapse('hide');
     var selector = '#VizType_hide_' + $(this).val();
     if (document.getElementById("VizType").value == "segment"){
-        console.log('segment');
         $('#VizType_hide_heat-line').collapse('show');
+        $(selector).collapse('show');
+        $('#VizType_hide_heat-point').collapse('hide');
     }
-    $(selector).collapse('show');
+    else if (document.getElementById("VizType").value == "heat-line"){
+        $(selector).collapse('show');
+        $('#VizType_hide_heat-point').collapse('hide');
+        $('#VizType_hide_segment').collapse('hide');
+    }
+    else {
+        $(selector).collapse('show');
+        $('#VizType_hide_heat-line').collapse('hide');
+        $('#VizType_hide_segment').collapse('hide');
+    }
 });
 
 $('#updateSeg').on('click touch tap', function(event) {
