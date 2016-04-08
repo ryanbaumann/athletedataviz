@@ -165,7 +165,7 @@ function calcLegends(p, id) {
             data.textContent = breaks[p];
         }
     }
-    else {
+    else if (id == "heat-line") {
         if ($('#legend-lines-value-' + p).length > 0) {
             document.getElementById('legend-lines-value-' + p).textContent = lineBreaks[p];
             document.getElementById('legend-lines-id-' + p).style.backgroundColor = lineColors[p];
@@ -180,6 +180,23 @@ function calcLegends(p, id) {
             legend.appendChild(item);
             data = document.getElementById('legend-lines-value-' + p)
             data.textContent = lineBreaks[p];
+        }
+    }
+    else if (id == "segment") {
+        if ($('#legend-seg-value-' + p).length > 0) {
+            document.getElementById('legend-seg-value-' + p).textContent = seg_Breaks[p];
+            document.getElementById('legend-seg-id-' + p).style.backgroundColor = seg_Colors[p];
+        }
+        else {
+            legend = document.getElementById('legend-seg');
+            key.id = 'legend-seg-id-' + p;
+            key.style.backgroundColor = seg_Colors[p];
+            value.id = 'legend-seg-value-' + p;
+            item.appendChild(key);
+            item.appendChild(value);
+            legend.appendChild(item);
+            data = document.getElementById('legend-seg-value-' + p)
+            data.textContent = seg_Breaks[p];
         }
     }
 }
@@ -216,9 +233,18 @@ function isMapLoaded(mapid, interval) {
 function calcSegFilters(breaks, param) {
     //calculate line filters to apply
     seg_filters = [];
-    for (var p = 0; p < seg_breaks.length - 1; p++) {
-        lineFilters.push(['==', param, seg_breaks[p]])
+    for (var p = 0; p < seg_breaks.length; p++) {
+        if (p <= 0) {
+            seg_filters.push(['all', ['<', param, seg_breaks[p + 1]]])
+        } else if (p < seg_breaks.length - 1) {
+            seg_filters.push(['all', ['>=', param, seg_breaks[p]],
+                ['<', param, breaks[p + 1]]
+            ])
+        } else {
+            seg_filters.push(['all', ['>=', param, seg_breaks[p]]])
+        }
     }
+    console.log(seg_filters);
 }
 
 function calcSegLayers() {
@@ -239,6 +265,7 @@ function calcSegLayers() {
         });
         seg_layernames.push('segment-' + p);
     }
+    console.log(seg_layers);
 }
 
 function calcSegBreaks(maxval, numbins) {
@@ -340,10 +367,7 @@ function addLayerHeat(mapid) {
         data: heatpoint_url,
         maxzoom: 18,
         buffer: 1,
-        tolerance: 1,
-        //cluster: true,
-        //clusterMaxZoom: 10, // Max zoom to cluster points on
-        //clusterRadius: 10
+        tolerance: 1
     });
     try {
         mapid.addSource('heatpoint', heatpoint_src);
@@ -428,15 +452,15 @@ function getURL(mapid) {
         'start_dist': start_dist,
         'end_dist': end_dist
     };
-    var queryString = EncodeQueryData(params)
-    var targetURL = seg_base_url + queryString
+    var queryString = EncodeQueryData(params);
+    var targetURL = seg_base_url + queryString;
     console.log(targetURL);
     return targetURL;
 };
 
 function addSegLayer(mapid, seg_url) {
     // Mapbox GL JS Api - import segment
-    try {
+    //try {
         if (mapid.getSource('segment')) {
             segment_src.setData(seg_url)
             render();
@@ -449,21 +473,31 @@ function addSegLayer(mapid, seg_url) {
                 tolerance: 1
             });
             mapid.addSource('segment', segment_src);
-            mapid.addLayer({
+            console.log('added segment')
+            calcSegFilters(seg_breaks, 'distance');
+            calcSegLayers(seg_filters, seg_colors);
+            console.log('calced breaks')
+            mapid.batch(function(batch) {
+                for (var p = 0; p < seg_layers.length; p++) {
+                batch.addLayer(seg_layers[p]);
+                calcLegends(p, 'segment');
+                }
+            });
+            /*mapid.addLayer({
                 id: 'segment',
                 type: 'line',
                 source: 'segment'
-            });
+            });*/
             var segpopup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: false
             });
-            addPopup(mapid, ['segment'], segpopup);
+            addPopup(mapid, seg_layernames, segpopup);
             render();   
         }
-    } catch (err) {
-        console.log(err);
-    }
+    //} catch (err) {
+    //    console.log(err);
+    //}
 };
 
 
@@ -518,15 +552,15 @@ function set_visibility(mapid, id, onoff) {
             }
         });
     } else if (id == 'segment') {
-        try {
-            if (onoff == 'off') {
-                mapid.setLayoutProperty('segment', 'visibility', 'none');
-            } else if (onoff == 'on') {
-                mapid.setLayoutProperty('segment', 'visibility', 'visible');
+        mapid.batch(function(batch) {
+            for (var p = 0; p < seg_layers.length; p++) {
+                if (onoff == 'off') {
+                    mapid.setLayoutProperty('segment' + "-" + p, 'visibility', 'none');
+                } else if (onoff == 'on') {
+                    mapid.setLayoutProperty('segment' + "-" + p, 'visibility', 'visible');
+                }
             }
-        } catch (err) {
-            console.log(err);
-        }
+        });
     }
 };
 
@@ -547,12 +581,16 @@ function paintLayer(mapid, color, width, opacity, pitch, layer) {
 
 function paintSegLayer(mapid, color, width, opacity, pitch, layer) {
     lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)]
-    mapid.setPitch(pitch);
-    mapid.setPaintProperty(layer, 'line-color', lineColors[0]);
-    mapid.setPaintProperty(layer, 'line-width', width);
-    mapid.setPaintProperty(layer, 'line-opacity', opacity);
-    mapid.setPaintProperty(layer, 'line-gap-width', 
-        parseFloat(document.getElementById("line_offset").value));
+    mapid.batch(function(batch) {
+        for (var p = 0; p < seg_layers.length; p++) {
+            calcLegends(p, 'segment');
+            batch.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
+            batch.setPaintProperty(layer + '-' + p, 'line-width', width);
+            batch.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
+            batch.setPaintProperty(layer + '-' + p, 'line-gap-width', 
+                parseFloat(document.getElementById("line_offset").value));
+        }
+    });
 }
 
 function switchMapStyle() {
@@ -587,10 +625,11 @@ function render() {
     if (document.getElementById("VizType").value == "heat-point") {
         try {
             set_visibility(map, 'linestring', 'off');
-            if (map.getLayer('segment')) {
+            if (map.getSource('segment')) {
                 set_visibility(map, 'segment', 'off');
             }
             $('#legend-lines').hide();
+            $('#legend-seg').hide();
             map.off('moveend');
         } catch (err) {
             console.log(err);
@@ -610,10 +649,11 @@ function render() {
     } else if (document.getElementById("VizType").value == "heat-line") {
         try {
             set_visibility(map, 'heatpoints', 'off');
-            if (map.getLayer('segment')) {
+            if (map.getSource('segment')) {
                 set_visibility(map, 'segment', 'off');
             }
             $('#legend-points').hide();
+            $('#legend-seg').hide();
         } catch (err) {
             console.log(err);
         }
@@ -630,16 +670,16 @@ function render() {
             console.log(err);
         }
     } else if (document.getElementById("VizType").value == "segment") {
-        try {
+        //try {
             set_visibility(map, 'heatpoints', 'off');
             set_visibility(map, 'linestring', 'off');
             $('#legend-points').hide();
             $('#legend-lines').hide();
-        } catch (err) {
-            console.log(err);
-        }
-        try {
-            if (map.getLayer('segment')) {
+        //} catch (err) {
+        //    console.log(err);
+        //}
+        //try {
+            if (map.getSource('segment')) {
                 set_visibility(map, 'segment', 'on');
                 paintSegLayer(map,
                     document.getElementById("line_color").value,
@@ -647,13 +687,14 @@ function render() {
                     parseFloat($('#line_opacity').slider('getValue')),
                     parseFloat($('#pitch').slider('getValue')),
                     'segment');
+                $('#legend-seg').show();
             }
             else {
                 addSegLayer(map, getURL(map))
             }
-        } catch (err) {
-            console.log(err);
-        }
+        //} catch (err) {
+        //    console.log(err);
+        //}
     }
 }
 
