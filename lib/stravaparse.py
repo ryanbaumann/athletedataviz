@@ -382,6 +382,21 @@ def get_heatmap_points(engine, ath_id):
                 "V_Point_Heatmap"
                 WHERE ath_id = %s
                 ) as f) as fc;""" % (str(ath_id))
+    args4 = """
+            Select row_to_json(fc)::json
+            FROM(
+            SELECT array_to_json(array_agg(f))::json as points
+            FROM(
+                SELECT 
+                round(st_y(point)::numeric,3) as lt, 
+                round(st_x(point)::numeric,3) as lg, 
+                round((density)::numeric,1) as d,
+                round((speed)::numeric,1) as s,
+                round((grade)::numeric,1) as g
+                FROM 
+                "Stream_HeatPoint"
+                WHERE ath_id = %s
+                ) as f) as fc;""" % (str(ath_id))
 
     print "calculating heatmap points from db..."
     result = engine.execute(args3)

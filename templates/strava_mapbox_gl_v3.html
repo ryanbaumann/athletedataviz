@@ -61,6 +61,17 @@
                                  <input id="dist_filter" type="text" class="slider" value="" data-slider-min="0" data-slider-max="30" data-slider-step="1" data-slider-value="[0,30]" data-slider-id='dist_filter_slider' onclick="render()">
                                 <br>
                                 <br>
+                                <b>Segment Parameter</b>
+                                <select id='segParam' name="line_color" style="font-size: 18px;">
+                                    <option value="dist">Distance (mi)</option>
+                                    <option value="elev">Elevation (ft)</option>
+                                </select>
+                                <br>
+                                <br>
+                                <b>Segment Scale</b>
+                                <input type="text" id="segScale" class="slider" data-slider-min="2.5" data-slider-value="15" data-slider-max="20" data-slider-step="2.5">
+                                <br>
+                                <br>
                             </div>
                             <div id="VizType_hide_heat-line" class="collapse">
                                 <b>Line Color</b>
@@ -129,11 +140,11 @@
         <h3>Legend</h3>
         <span id='legend-points-param' class='text-center'><b>Speed (mph)</b></span>
       </div>
-      <div id='legend-lines' class='legend'>
+      <div id='legend-lines' class='legend' style="display:none;">
         <h3>Legend</h3>
         <span id='legend-lines-param' class='text-center'><b>Activity Type</b></span>
       </div>
-      <div id='legend-seg' class='legend'>
+      <div id='legend-seg' class='legend' style="display:none;">
         <h3>Legend</h3>
         <span id='legend-seg-param' class='text-center'><b>Segment Value</b></span>
       </div>
