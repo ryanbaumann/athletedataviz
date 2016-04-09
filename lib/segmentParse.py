@@ -8,13 +8,46 @@ import json
 # GLOBAL (FIX THIS BEFORE PRODUCITON)
 client = stravalib.client.Client(access_token=os.environ['STRAVA_APICODE'])
 
-
-def get_segs_from_api(client, extents, act_type):
-    """Get segments for a client in extents [40.681, -89.636, 40.775, -89.504]
-    with act_type riding or running.
+def bisect_rectange(numSplits, minlat, minlong, maxlat, maxlong):
+    """Split a rectange into numSplits^2 sub-rectanges.  
+       Return a list of extent arrays 
+       Example result [[40.681, -89.636, 40.775, -89.504], 
+                       [40.681, -89.636, 40.775, -89.504]] 
     """
-    segment_explorer = client.explore_segments(extents,
-                                               activity_type=act_type)
+    longpoints = []
+    latpoints = []
+    extents = [] #[minlat, minlong, maxlat, maxlong]
+    for i in range(numSplits+1):
+        latpoints.append( (minlat + ((maxlat-minlat)/numSplits)*i) )
+        longpoints.append( (minlong + ((maxlong-minlong)/numSplits)*i) )
+    for latindex, latmin in enumerate(latpoints):
+        for longindex, longmin in enumerate(longpoints):
+            if latindex<(len(latpoints)-1) and longindex<(len(longpoints)-1):
+                newextent = [latmin, longmin, latpoints[latindex+1], longpoints[longindex+1]]
+                extents.append(newextent)
+    return extents
+
+
+def get_segs_from_api(client, extents, act_type, **kwargs):
+    """Get segments for a client in extents [40.681, -89.636, 40.775, -89.504]
+    with act_type riding or running.  Option key work arguments specifiy if
+    the range should be iterated through to get all sub-segment areas.
+    """
+    segment_explorer = []
+    if kwargs is not None:
+        for key, value in kwargs.iteritems():
+            if key == 'bisect':
+                numSplits = value
+                ext_lst = bisect_rectange(numSplits, extents[0], extents[1], 
+                                          extents[2], extents[3])
+                for ext in ext_lst:
+                    print 'getting ext from strava api... %s' %(ext)
+                    segment_explorer.append(client.explore_segments(ext,
+                                               activity_type=act_type))
+    else:
+        segment_explorer.append(client.explore_segments(extents,
+                                                   activity_type=act_type))
+        print segment_explorer
     return segment_explorer
 
 
@@ -25,28 +58,29 @@ def seg_to_df(segment_explorer, act_type, engine, startLat, startLong, endLat, e
     else:
         acttype = 'run'
     dl_list = get_segs_in_db(engine, 'Segment', startLat, startLong, endLat, endLong, acttype).tolist()
-    for seg in segment_explorer:
-        seg_id = int(seg.id)
-        if seg_id not in dl_list:
-            print 'seg id %s' % (seg_id)
-            newrow = {'seg_id': int(seg_id),
-                      'name': unicode(seg.name),
-                      'act_type': str(acttype),
-                      'elev_low': 0,  # float(seg_detail.elevation_low),
-                      'elev_high': 0, # float(seg_detail.elevation_high),
-                      'start_lat': float(seg.start_latlng[0]),
-                      'start_long': float(seg.start_latlng[1]),
-                      'end_lat': float(seg.end_latlng[0]),
-                      'end_long': float(seg.end_latlng[1]),
-                      'date_created': datetime.utcnow(), # seg_detail.created_at.replace(tzinfo=None),
-                      'effort_cnt': 0,  # int(seg_detail.effort_count),
-                      'ath_cnt': 0,  # int(seg_detail.athlete_count),
-                      'cat': int(seg.climb_category),
-                      'elev_gain': float(seg.elev_difference),
-                      'distance': float(seg.distance),
-                      'seg_points': str(seg.points)
-                      }
-            dflist.append(newrow)
+    for exp in segment_explorer: 
+        for seg in exp:
+            seg_id = int(seg.id)
+            if seg_id not in dl_list:
+                #print 'seg id %s' % (seg_id)
+                newrow = {'seg_id': int(seg_id),
+                          'name': unicode(seg.name),
+                          'act_type': str(acttype),
+                          'elev_low': 0,  # float(seg_detail.elevation_low),
+                          'elev_high': 0, # float(seg_detail.elevation_high),
+                          'start_lat': float(seg.start_latlng[0]),
+                          'start_long': float(seg.start_latlng[1]),
+                          'end_lat': float(seg.end_latlng[0]),
+                          'end_long': float(seg.end_latlng[1]),
+                          'date_created': datetime.utcnow(), # seg_detail.created_at.replace(tzinfo=None)
+                          'effort_cnt': 0,  # int(seg_detail.effort_count),
+                          'ath_cnt': 0,  # int(seg_detail.athlete_count),
+                          'cat': int(seg.climb_category),
+                          'elev_gain': float(seg.elev_difference),
+                          'distance': float(seg.distance),
+                          'seg_points': str(seg.points)
+                          }
+                dflist.append(newrow)
 
     if len(dflist)>0:
         seg_df = pd.DataFrame(dflist)
@@ -75,7 +109,7 @@ def get_segs_in_db(engine, table_name, startLat, startLong, endLat, endLong, act
     return already_dl_seg_id_list
 
 
-def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type, distlow, disthigh):
+def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type, distlow, disthigh, newSegs):
     """Get the geojson segment linestring object from the database
     """
 
@@ -83,29 +117,31 @@ def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type, dist
         acttype = 'ride'
     else:
         acttype = 'run'
+    #If there are new segments, get them from the strava api and store them in the database
+    print 'segment new flag is : %s' %(str(newSegs))
+    if newSegs == 'True':   
+        segment_explorer = get_segs_from_api(
+            client, [startLat, startLong, endLat, endLong], act_type, bisect=3)
 
-    segment_explorer = get_segs_from_api(
-        client, [startLat, startLong, endLat, endLong], act_type)
+        seg_df = seg_to_df(segment_explorer, act_type, engine, startLat, startLong, endLat, endLong)
 
-    seg_df = seg_to_df(segment_explorer, act_type, engine, startLat, startLong, endLat, endLong)
+        # Update lat/long to PostGIS geometry Point types
+        if seg_df is not None:
+            seg_df['start_point'] = map(
+                create_points, seg_df['start_lat'], seg_df['start_long'])
+            seg_df['end_point'] = map(
+                create_points, seg_df['end_lat'], seg_df['end_long'])
 
-    # Update lat/long to PostGIS geometry Point types
-    if seg_df is not None:
-        seg_df['start_point'] = map(
-            create_points, seg_df['start_lat'], seg_df['start_long'])
-        seg_df['end_point'] = map(
-            create_points, seg_df['end_lat'], seg_df['end_long'])
+            # I updated this to only populate the dataframe if the segment is new - no need to delete here
+            #seg_df = clean_cached_segs(get_segs_in_db(engine, 'Segment',
+            #                                         startLat, startLong, endLat, endLong), seg_df)
 
-        # I updated this to only populate the dataframe if the segment is new - no need to delete here
-        #seg_df = clean_cached_segs(get_segs_in_db(engine, 'Segment',
-        #                                         startLat, startLong, endLat, endLong), seg_df)
-
-            # Clean out the df and write to the database
-        seg_df.set_index('seg_id', inplace=True)
-        seg_df.drop(['start_lat', 'start_long', 'end_lat',
-                     'end_long'], axis=1, inplace=True)
-        seg_df.to_sql(
-            'Segment', engine, if_exists='append', index=True, index_label='seg_id')
+                # Clean out the df and write to the database
+            seg_df.set_index('seg_id', inplace=True)
+            seg_df.drop(['start_lat', 'start_long', 'end_lat',
+                         'end_long'], axis=1, inplace=True)
+            seg_df.to_sql(
+                'Segment', engine, if_exists='append', index=True, index_label='seg_id')
 
     # Now get the results from the database
     geojson_sql = """

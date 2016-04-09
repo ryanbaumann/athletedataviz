@@ -1,8 +1,10 @@
 {% extends "base.html" %} {% block import_script %}
     <!-- Mapbox GL -->
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css' rel='stylesheet'>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css' rel='stylesheet' async defer>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.js' async defer></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.css' type='text/css' async defer>
 
 {% endblock %} {% block content %}
 <!-- Sidebar -->
@@ -48,8 +50,8 @@
                             <br>
                             <br>
                             <div id="VizType_hide_segment" class="collapse">
-                                <button type="submit" id='updateSeg' class="btn btn-primary">Update Segments</button>
-                                <p>In map range</p>
+                                <button type="submit" id='updateSeg' class="btn btn-primary">Get New Segments</button>
+                                <p>Takes 5-10 seconds </p>
                                 <b>Segment Type</b>
                                 <select id='segType' name="segType" value="riding" style="font-size: 20px;">
                                     <option value="riding">Cycling</option>
@@ -211,7 +213,6 @@
     try {
     var center_point = [-89.6075530123, 40.776876321];
     var seg_base_url = '{{ seg_base_url | safe}}';
-    console.log('base url is ' + seg_base_url)
     var heatpoint_url = '{{ heatpoint_url | safe}}';
     var heatline_url = '{{ heatline_url | safe}}';
     var mapbox_accessToken = '{{ mapbox_accessToken|safe }}';

@@ -138,7 +138,9 @@ class Segment_Data(Resource):
             type=float,help='Enter start distance in meters')
         parser.add_argument('end_dist', 
             type=float, help='Enter end distance of activility in meters')
-        
+        parser.add_argument('newSegs', 
+            type=str, help='Enter True or False to get new segments from the Strava API')
+
         args = parser.parse_args()
         #For optional args, set values for query if args are blank
         if not args['start_dist']:
@@ -149,8 +151,12 @@ class Segment_Data(Resource):
             end_dist = int(100000)
         else:
             end_dist = args['end_dist']
+        if not args['newSegs']:
+            newSegs = 'False'
+        else:
+            newSegs = args['newSegs']
         seg_geojson = seg_sp.get_seg_geojson(engine, args['startLat'], args['startLong'], args['endLat'], 
-                                            args['endLong'], args['act_type'], start_dist, end_dist)
+                                            args['endLong'], args['act_type'], start_dist, end_dist, newSegs)
 
         return output_json(seg_geojson, 200)
 

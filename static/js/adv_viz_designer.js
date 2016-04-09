@@ -135,6 +135,9 @@ function initVizMap() {
         map.addControl(new mapboxgl.Navigation({
             position: 'top-left'
         }));
+        map.addControl(new mapboxgl.Geocoder({
+            position: 'bottom-left'
+        }));
     });
 
     map.once('load', function() {
@@ -349,7 +352,7 @@ function EncodeQueryData(data) {
     return ret.join("&");
 }
 
-function getURL(mapid) {
+function getURL(mapid, newSegs) {
     var bounds = mapid.getBounds();
     var east = bounds.getEast();
     var south = bounds.getSouth();
@@ -365,7 +368,8 @@ function getURL(mapid) {
         'endLong': east,
         'act_type': acttype,
         'start_dist': start_dist,
-        'end_dist': end_dist
+        'end_dist': end_dist,
+        'newSegs' : newSegs
     };
     var queryString = EncodeQueryData(params);
     var targetURL = seg_base_url + queryString;
@@ -396,6 +400,7 @@ function addLayerHeat(mapid) {
                 }
         });
         addPopup(map, layernames, linepopup);
+        //fit(mapid, map.getSource('heatpoint'))
     } catch (err) {
         console.log(err);
     }
@@ -472,7 +477,7 @@ function switchLayer() {
     map.once('style.load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
-        addSegLayer(map, getURL(map));
+        addSegLayer(map, getURL(map, 'False'));
         render();
         $("#loading").hide();
     });
@@ -576,6 +581,8 @@ function render() {
             }
             $('#legend-lines').hide();
             $('#legend-seg').hide();
+            map.off('dragend')
+               .off('zoomend');
         } catch (err) {
             console.log(err);
         }
@@ -598,6 +605,8 @@ function render() {
             }
             $('#legend-points').hide();
             $('#legend-seg').hide();
+            map.off('dragend')
+               .off('zoomend');
         } catch (err) {
             console.log(err);
         }
@@ -633,7 +642,13 @@ function render() {
                 $('#legend-seg').show();
             }
             else {
-                addSegLayer(map, getURL(map))
+                addSegLayer(map, getURL(map, 'False'));
+                map.on('dragend', function() {
+                    addSegLayer(map, getURL(map, 'False'));
+                })
+                .on('zoomend', function() {
+                    addSegLayer(map, getURL(map, 'False'));
+                });
             }
         } catch (err) {
             console.log(err);
@@ -721,12 +736,12 @@ $('#VizType').change(function() {
 });
 
 $('#updateSeg').on('click touch tap', function(event) {
-    addSegLayer(map, getURL(map));
+    addSegLayer(map, getURL(map, 'True'));
     render();
 });
 
 $('#segType').change(function(event) {
-    addSegLayer(map, getURL(map));
+    addSegLayer(map, getURL(map, 'False'));
     render();
 });
 
@@ -746,7 +761,7 @@ $('#dist_filter').slider({
 });
 $('#dist_filter').slider().on('slideStop', function(ev) {
     $('#dist_filter').slider('setValue', ev.value);
-    addSegLayer(map, getURL(map));
+    addSegLayer(map, getURL(map, 'False'));
     render();
 });
 $('#line_width').slider({
@@ -852,10 +867,11 @@ function isMapLoaded(mapid, interval) {
     }
 }
 
-function fit() {
+function fit(mapid, geojson_object) {
     //fit gl map to a geojson file bounds - depricated for now!
+    console.log(geojson_object)
     try {
-        map.fitBounds(geojsonExtent(heatpoint_data));
+        mapid.fitBounds(geojsonExtent(geojson_object));
     } catch (err) {
         //Note that the user did not have any data to load
         console.log(err);
