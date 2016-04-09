@@ -121,7 +121,7 @@ def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type, dist
     print 'segment new flag is : %s' %(str(newSegs))
     if newSegs == 'True':   
         segment_explorer = get_segs_from_api(
-            client, [startLat, startLong, endLat, endLong], act_type, bisect=3)
+            client, [startLat, startLong, endLat, endLong], act_type, bisect=4)
 
         seg_df = seg_to_df(segment_explorer, act_type, engine, startLat, startLong, endLat, endLong)
 

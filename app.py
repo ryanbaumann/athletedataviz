@@ -60,7 +60,7 @@ def output_html(data, code, headers=None):
     return resp
 
 
-def output_json(data, code, headers=None):
+def output_json(data, code, age, headers=None):
     resp = Response(data, mimetype='application/json', headers=headers)
     resp.status_code = code
     resp.cache_control.max_age = 600
@@ -72,7 +72,7 @@ class Heat_Points(Resource):
     def get(self, ath_id):
         geojsonPoints = sp.get_heatmap_lines(
             engine, int(ath_id))
-        return output_json(geojsonPoints, 200)
+        return output_json(geojsonPoints, 200, 600)
 
     def removeCache(self, ath_id):
         cache.delete_memoized(get, ath_id)
@@ -87,7 +87,7 @@ class Heat_Lines(Resource):
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
-        return output_json(geojsonlines, 200)
+        return output_json(geojsonlines, 200, 600)
 
     def removeCache(self, ath_id):
         cache.delete_memoized(get, ath_id)
@@ -102,7 +102,7 @@ class Heat_Lines2(Resource):
     def get(self, ath_id):
         geojsonlines = sp.get_heatmap_lines(
             engine, int(ath_id))
-        return output_json(geojsonlines, 200)
+        return output_json(geojsonlines, 200, 600)
 
     def __repr__(self):
         return "%s" % (self.__class__.__name__)
@@ -113,7 +113,7 @@ class Stream_Data(Resource):
     def get(self, ath_id):
         geojsonlines = sp.get_heatmap_lines(
             engine, int(ath_id))
-        return output_json(geojsonlines, 200)
+        return output_json(geojsonlines, 200, 600)
 
     def __repr__(self):
         return "%s" % (self.__class__.__name__)
@@ -158,7 +158,7 @@ class Segment_Data(Resource):
         seg_geojson = seg_sp.get_seg_geojson(engine, args['startLat'], args['startLong'], args['endLat'], 
                                             args['endLong'], args['act_type'], start_dist, end_dist, newSegs)
 
-        return output_json(seg_geojson, 200)
+        return output_json(seg_geojson, 200, 60)
 
     def __repr__(self):
         return "%s" % (self.__class__.__name__)

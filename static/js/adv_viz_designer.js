@@ -140,7 +140,7 @@ function initVizMap() {
         }));
     });
 
-    map.once('load', function() {
+    map.on('load', function() {
         $("#loading").hide();
     });
 }
@@ -439,7 +439,7 @@ function addSegLayer(mapid, seg_url) {
     // Mapbox GL JS Api - import segment
     try {
         if (mapid.getSource('segment')) {
-            segment_src.setData(seg_url)
+            segment_src.setData(seg_url);
             render();
         }
         else {
@@ -468,19 +468,19 @@ function addSegLayer(mapid, seg_url) {
 
 function switchLayer() {
     layer = document.getElementById("mapStyle").value;
-    $("#loading").show();
     if (layer != 'dark-nolabel') {
         map.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
     } else {
         map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
     }
-    map.once('style.load', function() {
+    map.once('style.load', function() { 
+        isMapLoaded(map, 1);
         addLayerHeat(map);
         addLayerLinestring(map);
         addSegLayer(map, getURL(map, 'False'));
         render();
-        $("#loading").hide();
     });
+
 }
 
 function set_visibility(mapid, id, onoff) {
@@ -573,6 +573,7 @@ function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
 }
 
 function render() {
+    isMapLoaded(map, 0.5);
     if (document.getElementById("VizType").value == "heat-point") {
         try {
             set_visibility(map, 'linestring', 'off');
@@ -849,21 +850,15 @@ $('#snap').on('click touch tap', generateMap);
 
 function isMapLoaded(mapid, interval) {
     //check if map is loaded every retry_interval seconds and display or hide loading bar
-    var stop = 0
-    var timer = setInterval(function() {
-        console.log(mapid.loaded())
-        if (mapid.loaded() === false) {
-            console.log('map not yet loaded')
-            $("#loading").show();
+    var timer = setInterval(isLoaded, interval);
+    function isLoaded() {
+        if (mapid.loaded() === true) {
+            $("#loading").hide();
+            clearInterval(timer);
         }
         else {
-            console.log('map loaded')
-            $("#loading").hide();
-            stop = 1
-        }
-    }, interval);
-    if (stop==1) {
-        clearInterval(interval);
+            $("#loading").show();
+        };
     }
 }
 
@@ -878,6 +873,10 @@ function fit(mapid, geojson_object) {
         $("#loading").hide();
         $('#DownloadModal').modal("show");
     }
+}
+
+function hideLoading() {
+    $("#loading").hide();
 }
 
 function getDataLinestring(callback) {
