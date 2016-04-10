@@ -61,8 +61,8 @@ class Activity(db.Model):
     last_updated_datetime_utc = db.Column(
         db.DateTime(), default=datetime.utcnow)
     act_type = db.Column(db.String(20), index=True)
-    act_name = db.Column(db.String(200))
-    act_description = db.Column(db.String(500))
+    act_name = db.Column(db.String())
+    act_description = db.Column(db.String())
     act_startDate = db.Column(db.DateTime(), index=True)
     act_dist = db.Column(db.Float(precision=4))
     act_totalElevGain = db.Column(db.Float(precision=4))
@@ -146,7 +146,7 @@ class Stream_Act(db.Model):
         db.Integer, db.ForeignKey('Activity.act_id'), index=True)
     last_updated_datetime_utc = db.Column(
         db.DateTime(), default=datetime.utcnow)
-    act_name = db.Column(db.String(200))
+    act_name = db.Column(db.String())
     linestring = db.Column(Geometry('LINESTRING'), index=True)
     multipoint = db.Column(Geometry('MULTIPOINT'), index=True)
 

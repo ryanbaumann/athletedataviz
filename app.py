@@ -265,7 +265,7 @@ def homepage():
                 existing_athlete.api_code = session['access_token']
                 existing_athlete.last_updated_datetime_utc =\
                     str(datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'))
-                existing_athlete.email = unicode(athlete.email)
+                """existing_athlete.email = unicode(athlete.email)
                 existing_athlete.email_language = unicode(athlete.email_language)
                 existing_athlete.measurement_preference = unicode(athlete.measurement_preference)
                 existing_athlete.date_preference = unicode(athlete.date_preference)
@@ -273,7 +273,7 @@ def homepage():
                 existing_athlete.profile_medium = unicode(athlete.profile_medium)
                 existing_athlete.city = unicode(athlete.city)
                 existing_athlete.state = unicode(athlete.state)
-                existing_athlete.country = unicode(athlete.country)
+                existing_athlete.country = unicode(athlete.country)"""
 
             # Commit the update or new row insertion
             db.session.commit()

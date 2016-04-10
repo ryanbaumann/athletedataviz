@@ -1,15 +1,15 @@
-﻿-- View: "V_Stream_Activity"
+﻿-- View: public."V_Stream_Activity"
 
-DROP VIEW "V_Stream_Activity" CASCADE;
+-- DROP VIEW public."V_Stream_Activity";
 
-CREATE OR REPLACE VIEW "V_Stream_Activity" AS 
+CREATE OR REPLACE VIEW public."V_Stream_Activity" AS 
  SELECT act.ath_id,
     ath.first_name,
     ath.last_name,
     act.act_id,
     act.act_name,
     act.act_description,
-    st.id as stream_id,
+    st.id AS stream_id,
     st.last_updated_datetime_utc,
     st."timestamp",
     st.lat,
@@ -29,5 +29,5 @@ CREATE OR REPLACE VIEW "V_Stream_Activity" AS
      JOIN "Activity" act ON st.act_id = act.act_id
      JOIN "Athlete" ath ON ath.ath_id = act.ath_id;
 
-ALTER TABLE "V_Stream_Activity"
-  OWNER TO postgres;
+ALTER TABLE public."V_Stream_Activity"
+  OWNER TO ud3fimvrrn18fu;

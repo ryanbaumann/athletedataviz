@@ -1,19 +1,18 @@
-﻿Drop View "V_Point_Heatmap";
+﻿-- View: public."V_Point_Heatmap"
 
-CREATE VIEW
-"V_Point_Heatmap" as
+-- DROP VIEW public."V_Point_Heatmap";
 
-SELECT
-ath_id,
-st_centroid(st_collect(point)) as point, 
-CAST(count(stream_id) as double precision) as density,
-avg(velocity_smooth) as speed,
-avg(abs(grade_smooth)) as grade,
-avg(watts) as power,
-avg(heartrate) as hr,
-avg(cadence) as cadence
+CREATE OR REPLACE VIEW public."V_Point_Heatmap" AS 
+ SELECT "V_Stream_Activity".ath_id,
+    st_centroid(st_collect("V_Stream_Activity".point)) AS point,
+    count("V_Stream_Activity".stream_id)::double precision AS density,
+    avg("V_Stream_Activity".velocity_smooth) AS speed,
+    avg(abs("V_Stream_Activity".grade_smooth)) AS grade,
+    avg("V_Stream_Activity".watts) AS power,
+    avg("V_Stream_Activity".heartrate) AS hr,
+    avg("V_Stream_Activity".cadence) AS cadence
+   FROM "V_Stream_Activity"
+  GROUP BY "V_Stream_Activity".ath_id, (st_snaptogrid("V_Stream_Activity".point, 0.00025::double precision));
 
-FROM "V_Stream_Activity" 
-GROUP BY 
-ath_id,
-ST_SnapToGrid(point, 0.0001) ;
+ALTER TABLE public."V_Point_Heatmap"
+  OWNER TO ud3fimvrrn18fu;
