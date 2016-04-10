@@ -63,7 +63,7 @@ def output_html(data, code, headers=None):
 def output_json(data, code, age, headers=None):
     resp = Response(data, mimetype='application/json', headers=headers)
     resp.status_code = code
-    resp.cache_control.max_age = 600
+    resp.cache_control.max_age = age
     return resp
 
 
@@ -158,7 +158,7 @@ class Segment_Data(Resource):
         seg_geojson = seg_sp.get_seg_geojson(engine, args['startLat'], args['startLong'], args['endLat'], 
                                             args['endLong'], args['act_type'], start_dist, end_dist, newSegs)
 
-        return output_json(seg_geojson, 200, 60)
+        return output_json(seg_geojson, 200, 15)
 
     def __repr__(self):
         return "%s" % (self.__class__.__name__)

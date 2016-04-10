@@ -876,7 +876,6 @@ function isMapLoaded(mapid, interval, segUrl) {
             if (mapid.loaded()) {
                 $("#loading").show();
                 mapid.once('render', function() {
-                    console.log('hiding load bar!');
                     $("#loading").hide();
                     clearInterval(timer);
                 })
