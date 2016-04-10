@@ -27,7 +27,8 @@ var line_color_list = [
     //['#ffff00', '#808000', '#ffff99', '#808000', '#ffffe6'],
     ['#DDD39B', '#E3D88D', '#EEE175', '#F8EB5A', '#FFF447'],
     //['#00ff00', '#008000', '#80ff80', '#00cc66', '#339933']
-    ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47']
+    ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47'],
+    ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
 ]
 
 var lineHeatStyle = {
@@ -140,7 +141,7 @@ function initVizMap() {
         }));
     });
 
-    map.on('load', function() {
+    map.once('load', function() {
         $("#loading").hide();
     });
 }
@@ -443,6 +444,7 @@ function addSegLayer(mapid, seg_url) {
             render();
         }
         else {
+            isMapLoaded(mapid, 300, seg_url);
             segment_src = new mapboxgl.GeoJSONSource({
                 data: seg_url,
                 maxzoom: 18,
@@ -468,13 +470,13 @@ function addSegLayer(mapid, seg_url) {
 
 function switchLayer() {
     layer = document.getElementById("mapStyle").value;
+    isMapLoaded(map, 300);
     if (layer != 'dark-nolabel') {
         map.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
     } else {
         map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
     }
     map.once('style.load', function() { 
-        isMapLoaded(map, 1);
         addLayerHeat(map);
         addLayerLinestring(map);
         addSegLayer(map, getURL(map, 'False'));
@@ -573,7 +575,7 @@ function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
 }
 
 function render() {
-    isMapLoaded(map, 0.5);
+    //isMapLoaded(map, 0.5);
     if (document.getElementById("VizType").value == "heat-point") {
         try {
             set_visibility(map, 'linestring', 'off');
@@ -629,6 +631,14 @@ function render() {
             set_visibility(map, 'linestring', 'off');
             $('#legend-points').hide();
             $('#legend-lines').hide();
+            map.off('dragend')
+               .off('zoomend');
+            map.on('dragend', function() {
+                    addSegLayer(map, getURL(map, 'False'));
+                })
+                .on('zoomend', function() {
+                    addSegLayer(map, getURL(map, 'False'));
+                });
         } catch (err) {
             console.log(err);
         }
@@ -644,12 +654,6 @@ function render() {
             }
             else {
                 addSegLayer(map, getURL(map, 'False'));
-                map.on('dragend', function() {
-                    addSegLayer(map, getURL(map, 'False'));
-                })
-                .on('zoomend', function() {
-                    addSegLayer(map, getURL(map, 'False'));
-                });
             }
         } catch (err) {
             console.log(err);
@@ -852,7 +856,7 @@ function isMapLoaded(mapid, interval) {
     //check if map is loaded every retry_interval seconds and display or hide loading bar
     var timer = setInterval(isLoaded, interval);
     function isLoaded() {
-        if (mapid.loaded() === true) {
+        if (mapid.loaded()) {
             $("#loading").hide();
             clearInterval(timer);
         }
