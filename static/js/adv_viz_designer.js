@@ -438,34 +438,45 @@ function addLayerLinestring(mapid) {
 
 function addSegLayer(mapid, seg_url) {
     // Mapbox GL JS Api - import segment
-    try {
+    
         if (mapid.getSource('segment')) {
-            segment_src.setData(seg_url);
-            render();
+            try {
+                segment_src.setData(seg_url);
+                render();
+            } catch (err) {
+                console.log(err);
+                segment_src.setData(mapid.getSource('segment')['_data'])
+            }
         }
         else {
-            isMapLoaded(mapid, 300, seg_url);
-            segment_src = new mapboxgl.GeoJSONSource({
-                data: seg_url,
-                maxzoom: 18,
-                buffer: 1,
-                tolerance: 1
-            });
-            mapid.addSource('segment', segment_src);
-            calcSegFilters(seg_breaks, 'dist');
-            calcSegLayers(seg_filters, lineColors);
-            mapid.batch(function(batch) {
-                for (var p = 0; p < seg_layers.length; p++) {
-                    batch.addLayer(seg_layers[p]);
-                    calcLegends(p, 'segment');
-                }
-            });
-            addPopup(mapid, seg_layernames, segpopup);
-            render();   
+            try {
+                isMapLoaded(mapid, 300, seg_url);
+                segment_src = new mapboxgl.GeoJSONSource({
+                    data: seg_url,
+                    maxzoom: 18,
+                    buffer: 1,
+                    tolerance: 1
+                });
+                mapid.addSource('segment', segment_src);
+            } catch (err) {
+                console.log(err);
+            }
+            try {
+                calcSegFilters(seg_breaks, 'dist');
+                calcSegLayers(seg_filters, lineColors);
+                mapid.batch(function(batch) {
+                    for (var p = 0; p < seg_layers.length; p++) {
+                        batch.addLayer(seg_layers[p]);
+                        calcLegends(p, 'segment');
+                    }
+                });
+                addPopup(mapid, seg_layernames, segpopup);
+                render();   
+            } catch (err) {
+                console.log(err);
+            }
         }
-    } catch (err) {
-        console.log(err);
-    }
+    
 };
 
 function switchLayer() {
