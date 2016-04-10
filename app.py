@@ -248,32 +248,32 @@ def homepage():
                 new_athlete = Athlete(data_source='strava',
                                       ath_id=athlete.id,
                                       api_code=session['access_token'],
-                                      first_name=athlete.firstname,
-                                      last_name=athlete.lastname,
-                                      city = athlete.city,
-                                      state = athlete.state,
-                                      country = athlete.country,
-                                      email = athlete.email,
-                                      email_language = athlete.email_language,
-                                      measurement_preference = athlete.measurement_preference,
-                                      date_preference = athlete.date_preference,
-                                      profile = athlete.profile,
-                                      profile_medium = athlete.profile_medium)
+                                      first_name=unicode(athlete.firstname),
+                                      last_name=unicode(athlete.lastname),
+                                      city = unicode(athlete.city),
+                                      state = unicode(athlete.state),
+                                      country = unicode(athlete.country),
+                                      email = unicode(athlete.email),
+                                      email_language = unicode(athlete.email_language),
+                                      measurement_preference = unicode(athlete.measurement_preference),
+                                      date_preference = unicode(athlete.date_preference),
+                                      profile = unicode(athlete.profile),
+                                      profile_medium = unicode(athlete.profile_medium))
                 db.session.add(new_athlete)
             else:
                 print "athlete already in db - updating existing record"
                 existing_athlete.api_code = session['access_token']
                 existing_athlete.last_updated_datetime_utc =\
                     str(datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'))
-                existing_athlete.email = athlete.email
-                existing_athlete.email = athlete.email_language
-                existing_athlete.measurement_preference = athlete.measurement_preference
-                existing_athlete.date_preference = athlete.date_preference
-                existing_athlete.profile = athlete.profile
-                existing_athlete.profile_medium = athlete.profile_medium
-                existing_athlete.city = athlete.city
-                existing_athlete.state = athlete.state
-                existing_athlete.country = athlete.country
+                existing_athlete.email = unicode(athlete.email)
+                existing_athlete.email_language = unicode(athlete.email_language)
+                existing_athlete.measurement_preference = unicode(athlete.measurement_preference)
+                existing_athlete.date_preference = unicode(athlete.date_preference)
+                existing_athlete.profile = unicode(athlete.profile)
+                existing_athlete.profile_medium = unicode(athlete.profile_medium)
+                existing_athlete.city = unicode(athlete.city)
+                existing_athlete.state = unicode(athlete.state)
+                existing_athlete.country = unicode(athlete.country)
 
             # Commit the update or new row insertion
             db.session.commit()

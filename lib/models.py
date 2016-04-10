@@ -30,7 +30,7 @@ class Athlete(db.Model):
     def __init__(self, data_source, ath_id,
                  api_code, first_name, last_name, country, state, city,
                  email, email_language,
-                 measurement_preferences, date_preference, profile, profile_medium):
+                 measurement_preference, date_preference, profile, profile_medium):
         self.data_source = data_source
         self.ath_id = ath_id
         self.api_code = api_code

@@ -438,7 +438,6 @@ function addLayerLinestring(mapid) {
 
 function addSegLayer(mapid, seg_url) {
     // Mapbox GL JS Api - import segment
-    
         if (mapid.getSource('segment')) {
             try {
                 segment_src.setData(seg_url);
@@ -450,7 +449,7 @@ function addSegLayer(mapid, seg_url) {
         }
         else {
             try {
-                isMapLoaded(mapid, 300, seg_url);
+                isMapLoaded(mapid, 300);
                 segment_src = new mapboxgl.GeoJSONSource({
                     data: seg_url,
                     maxzoom: 18,
@@ -752,6 +751,7 @@ $('#VizType').change(function() {
 });
 
 $('#updateSeg').on('click touch tap', function(event) {
+    isMapLoaded(map, 300, 'url');
     addSegLayer(map, getURL(map, 'True'));
     render();
 });
@@ -863,13 +863,24 @@ $('#heat_color').change(render);
 $('#line_color').change(render);
 $('#snap').on('click touch tap', generateMap);
 
-function isMapLoaded(mapid, interval) {
+function isMapLoaded(mapid, interval, segUrl) {
     //check if map is loaded every retry_interval seconds and display or hide loading bar
     var timer = setInterval(isLoaded, interval);
     function isLoaded() {
-        if (mapid.loaded()) {
+        if (mapid.loaded() && segUrl === undefined) {
             $("#loading").hide();
             clearInterval(timer);
+        }
+        else if (segUrl != undefined) {
+            $("#loading").show();
+            if (mapid.loaded()) {
+                $("#loading").show();
+                mapid.once('render', function() {
+                    console.log('hiding load bar!');
+                    $("#loading").hide();
+                    clearInterval(timer);
+                })
+            }
         }
         else {
             $("#loading").show();
