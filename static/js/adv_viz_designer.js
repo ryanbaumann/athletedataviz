@@ -250,7 +250,7 @@ function calcSegBreaks(maxval, numbins) {
     seg_breaks = [];  //empty the segment breaks array
     var binSize = maxval / numbins;
     for (p = 1; p <= numbins; p++) {
-        seg_breaks.push(binSize * p);
+        seg_breaks.push(Math.round(binSize * p *10)/10);
     }
     updateSegLegend();
     for (p = 0; p < seg_layers.length; p++) {
@@ -300,7 +300,7 @@ function calcBreaks(maxval, numbins) {
     breaks = [];  //empty the breaks array
     var binSize = maxval / numbins;
     for (p = 1; p <= numbins; p++) {
-        breaks.push(binSize * p);
+        breaks.push(Math.round(binSize * p *10)/10);
     }
     updateHeatLegend();
     for (p = 0; p < layers.length; p++) {

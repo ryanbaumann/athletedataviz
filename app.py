@@ -158,7 +158,7 @@ class Segment_Data(Resource):
         seg_geojson = seg_sp.get_seg_geojson(engine, args['startLat'], args['startLong'], args['endLat'], 
                                             args['endLong'], args['act_type'], start_dist, end_dist, newSegs)
 
-        return output_json(seg_geojson, 200, 15)
+        return output_json(seg_geojson, 200, 5)
 
     def __repr__(self):
         return "%s" % (self.__class__.__name__)
