@@ -174,6 +174,7 @@ class Current_Acts(Resource):
                          "table table-condensed"])
         except:
             print "error getting current activity list from DB!"
+        gc.collect()
         return output_html(act_data, 200)
 
     def __repr__(self):
