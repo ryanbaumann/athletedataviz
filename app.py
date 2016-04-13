@@ -24,6 +24,7 @@ import shopify
 #################
 # configuration #
 #################
+gc.enable()  #auto garbage collection
 compress = Compress()
 cache = Cache()
 
