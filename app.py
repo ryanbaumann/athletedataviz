@@ -1,4 +1,4 @@
-import time
+import time, gc
 import os
 import base64
 import hmac
@@ -29,7 +29,7 @@ cache = Cache()
 
 app = Flask(__name__)
 api = Api(app)
-CORS(app)
+#CORS(app) Disable for production
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 engine = create_engine(
@@ -72,6 +72,7 @@ class Heat_Points(Resource):
     def get(self, ath_id):
         geojsonPoints = sp.get_heatmap_lines(
             engine, int(ath_id))
+        gc.collect()
         return output_json(geojsonPoints, 200, 600)
 
     def removeCache(self, ath_id):
@@ -87,6 +88,7 @@ class Heat_Lines(Resource):
     def get(self, ath_id):
         geojsonlines = sp.to_geojson_data(
             engine, '"V_Stream_LineString"', int(ath_id))
+        gc.collect()
         return output_json(geojsonlines, 200, 600)
 
     def removeCache(self, ath_id):
@@ -157,7 +159,7 @@ class Segment_Data(Resource):
             newSegs = args['newSegs']
         seg_geojson = seg_sp.get_seg_geojson(engine, args['startLat'], args['startLong'], args['endLat'], 
                                             args['endLong'], args['act_type'], start_dist, end_dist, newSegs)
-
+        gc.collect()
         return output_json(seg_geojson, 200, 5)
 
     def __repr__(self):
