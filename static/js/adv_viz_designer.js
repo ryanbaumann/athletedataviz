@@ -117,7 +117,7 @@ function initVizMap() {
                 style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
                 center: mapboxgl.LngLat.convert(center_point),
                 zoom: 4,
-                minZoom: 4,
+                minZoom: 3,
                 maxZoom: 20,
                 attributionControl: true
             });
@@ -132,6 +132,7 @@ function initVizMap() {
     map.once('style.load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
+        addSegLayer(map, getURL(map, 'False'));
         render();
         map.addControl(new mapboxgl.Navigation({
             position: 'top-left'
@@ -356,10 +357,12 @@ function EncodeQueryData(data) {
 function getURL(mapid, newSegs) {
 
     var bounds = mapid.getBounds();
-    var east = bounds.getEast();
-    var south = bounds.getSouth();
-    var west = bounds.getWest();
-    var north = bounds.getNorth();
+    var sw = bounds.getSouthWest().toArray();
+    var ne = bounds.getNorthEast().toArray();
+    var east = ne[0]
+    var south = sw[1]
+    var west = sw[0]
+    var north = ne[1]
     var acttype = document.getElementById("segType").value;
     var start_dist = parseFloat($('#dist_filter').slider('getValue')[0])*1609.34;
     var end_dist = parseFloat($('#dist_filter').slider('getValue')[1])*1609.34;
@@ -373,6 +376,7 @@ function getURL(mapid, newSegs) {
         'end_dist': end_dist,
         'newSegs' : newSegs
     };
+    //console.log(params)
     var queryString = EncodeQueryData(params);
     var targetURL = seg_base_url + queryString;
     return targetURL;
@@ -395,12 +399,10 @@ function addLayerHeat(mapid) {
     try {
         calcHeatFilters(breaks, 's');
         calcHeatLayers(filters, colors);
-        mapid.batch(function(batch) {
-            for (var p = 0; p < layers.length; p++) {
-                batch.addLayer(layers[p]);
-                calcLegends(p, 'heat-point');
-                }
-        });
+        for (var p = 0; p < layers.length; p++) {
+            mapid.addLayer(layers[p]);
+            calcLegends(p, 'heat-point');
+            };
         addPopup(map, layernames, linepopup);
         //fit(mapid, map.getSource('heatpoint'))
     } catch (err) {
@@ -425,12 +427,10 @@ function addLayerLinestring(mapid) {
     try {
         calcLineFilters(lineBreaks, 'ty');
         calcLineLayers();
-        mapid.batch(function(batch) {
-            for (var p = 0; p < lineLayers.length; p++) {
-                batch.addLayer(lineLayers[p]);
-                calcLegends(p, 'heat-lines');
-            }
-        });
+        for (var p = 0; p < lineLayers.length; p++) {
+            mapid.addLayer(lineLayers[p]);
+            calcLegends(p, 'heat-lines');
+        };
         addPopup(map, linelayernames, heatpopup);
     } catch (err) {
         console.log(err);
@@ -464,12 +464,10 @@ function addSegLayer(mapid, seg_url) {
             try {
                 calcSegFilters(seg_breaks, 'dist');
                 calcSegLayers(seg_filters, lineColors);
-                mapid.batch(function(batch) {
-                    for (var p = 0; p < seg_layers.length; p++) {
-                        batch.addLayer(seg_layers[p]);
-                        calcLegends(p, 'segment');
-                    }
-                });
+                for (var p = 0; p < seg_layers.length; p++) {
+                    mapid.addLayer(seg_layers[p]);
+                    calcLegends(p, 'segment');
+                };
                 addPopup(mapid, seg_layernames, segpopup);
                 render();   
             } catch (err) {
@@ -498,54 +496,46 @@ function switchLayer() {
 
 function set_visibility(mapid, id, onoff) {
     if (id == 'heatpoints') {
-        mapid.batch(function(batch) {
-            for (var p = 0; p < layers.length; p++) {
-                if (onoff == 'off') {
-                    batch.setLayoutProperty("heatpoints" + "-" + p, 'visibility', 'none');
-                } else if (onoff == 'on') {
-                    batch.setLayoutProperty("heatpoints" + "-" + p, 'visibility', 'visible');
-                    mouseOver(mapid, layernames);
-                }
+        for (var p = 0; p < layers.length; p++) {
+            if (onoff == 'off') {
+                mapid.setLayoutProperty("heatpoints" + "-" + p, 'visibility', 'none');
+            } else if (onoff == 'on') {
+                mapid.setLayoutProperty("heatpoints" + "-" + p, 'visibility', 'visible');
+                mouseOver(mapid, layernames);
             }
-        });
+        };
     } else if (id == 'linestring') {
-        mapid.batch(function(batch) {
-            for (var p = 0; p < lineLayers.length; p++) {
-                if (onoff == 'off') {
-                    batch.setLayoutProperty("linestring" + "-" + p, 'visibility', 'none');
-                } else if (onoff == 'on') {
-                    batch.setLayoutProperty("linestring" + "-" + p, 'visibility', 'visible');
-                    mouseOver(mapid, linelayernames);
-                }
+        for (var p = 0; p < lineLayers.length; p++) {
+            if (onoff == 'off') {
+                mapid.setLayoutProperty("linestring" + "-" + p, 'visibility', 'none');
+            } else if (onoff == 'on') {
+                mapid.setLayoutProperty("linestring" + "-" + p, 'visibility', 'visible');
+                mouseOver(mapid, linelayernames);
             }
-        });
+        };
     } else if (id == 'segment') {
-        mapid.batch(function(batch) {
-            for (var p = 0; p < seg_layers.length; p++) {
-                if (onoff == 'off') {
-                    mapid.setLayoutProperty('segment' + "-" + p, 'visibility', 'none');
-                } else if (onoff == 'on') {
-                    mapid.setLayoutProperty('segment' + "-" + p, 'visibility', 'visible');
-                    mouseOver(mapid, seg_layernames);
-                }
+        for (var p = 0; p < seg_layers.length; p++) {
+            if (onoff == 'off') {
+                mapid.setLayoutProperty('segment' + "-" + p, 'visibility', 'none');
+            } else if (onoff == 'on') {
+                mapid.setLayoutProperty('segment' + "-" + p, 'visibility', 'visible');
+                mouseOver(mapid, seg_layernames);
             }
-        });
+        }
     }
 };
 
 function paintLayer(mapid, color, width, opacity, pitch, layer) {
     lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)]
     mapid.setPitch(pitch);
-    mapid.batch(function(batch) {
-        for (var p = 0; p < lineLayers.length; p++) {
-            calcLegends(p, 'heat-line');
-            batch.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
-            batch.setPaintProperty(layer + '-' + p, 'line-width', width);
-            batch.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
-            batch.setPaintProperty(layer + '-' + p, 'line-gap-width', 
-                parseFloat(document.getElementById("line_offset").value));
-        }
-    });
+    for (var p = 0; p < lineLayers.length; p++) {
+        calcLegends(p, 'heat-line');
+        mapid.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
+        mapid.setPaintProperty(layer + '-' + p, 'line-width', width);
+        mapid.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
+        mapid.setPaintProperty(layer + '-' + p, 'line-gap-width', 
+            parseFloat(document.getElementById("line_offset").value));
+    };
 }
 
 function paintSegLayer(mapid, layer, color, width, opacity, pitch) {
@@ -553,16 +543,14 @@ function paintSegLayer(mapid, layer, color, width, opacity, pitch) {
     mapid.setPitch(pitch);
     calcSegBreaks(parseFloat($('#segScale').slider('getValue')), lineColors.length);
     calcSegFilters(seg_breaks, document.getElementById('segParam').value);
-    mapid.batch(function(batch) {
-        for (var p = 0; p < seg_layers.length; p++) {
-            batch.setFilter(layer + '-' + p, seg_filters[p]);
-            batch.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
-            batch.setPaintProperty(layer + '-' + p, 'line-width', width);
-            batch.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
-            batch.setPaintProperty(layer + '-' + p, 'line-gap-width', 
-                parseFloat(document.getElementById("line_offset").value));
-        }
-    });
+    for (var p = 0; p < seg_layers.length; p++) {
+        mapid.setFilter(layer + '-' + p, seg_filters[p]);
+        mapid.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
+        mapid.setPaintProperty(layer + '-' + p, 'line-width', width);
+        mapid.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
+        mapid.setPaintProperty(layer + '-' + p, 'line-gap-width', 
+            parseFloat(document.getElementById("line_offset").value));
+    };
 }
 
 
@@ -574,15 +562,13 @@ function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
     calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);
     calcHeatFilters(breaks, document.getElementById('heattype').value);
     //apply settings to each layer
-    mapid.batch(function(batch) {
-        for (var p = 0; p < layers.length; p++) {
-            batch.setFilter(layer + '-' + p, filters[p]);
-            batch.setPaintProperty(layer + '-' + p, 'circle-opacity', opacity);
-            batch.setPaintProperty(layer + '-' + p, 'circle-radius', radius);
-            batch.setPaintProperty(layer + '-' + p, 'circle-blur', blur);
-            batch.setPaintProperty(layer + '-' + p, 'circle-color', colors[p]);
-        }
-    });
+    for (var p = 0; p < layers.length; p++) {
+        mapid.setFilter(layer + '-' + p, filters[p]);
+        mapid.setPaintProperty(layer + '-' + p, 'circle-opacity', opacity);
+        mapid.setPaintProperty(layer + '-' + p, 'circle-radius', radius);
+        mapid.setPaintProperty(layer + '-' + p, 'circle-blur', blur);
+        mapid.setPaintProperty(layer + '-' + p, 'circle-color', colors[p]);
+    };
 }
 
 function render() {

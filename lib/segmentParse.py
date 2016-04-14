@@ -1,9 +1,8 @@
 import stravalib
 import pandas as pd
-import os
+import os, json
 from sqlalchemy import create_engine
 from datetime import datetime
-import json
 
 # GLOBAL (FIX THIS BEFORE PRODUCITON)
 client = stravalib.client.Client(access_token=os.environ['STRAVA_APICODE'])
@@ -23,6 +22,7 @@ def bisect_rectange(numSplits, minlat, minlong, maxlat, maxlong):
     for i in range(numSplits + 1):
         latpoints.append((minlat + ((maxlat - minlat) / numSplits) * i))
         longpoints.append((minlong + ((maxlong - minlong) / numSplits) * i))
+
     for latindex, latmin in enumerate(latpoints):
         for longindex, longmin in enumerate(longpoints):
             if latindex < (len(latpoints) - 1) and longindex < (len(longpoints) - 1):
@@ -71,16 +71,15 @@ def seg_to_df(segment_explorer, act_type, engine, startLat, startLong, endLat, e
                 newrow = {'seg_id': int(seg_id),
                           'name': unicode(seg.name),
                           'act_type': str(acttype),
-                          'elev_low': 0,  # float(seg_detail.elevation_low),
-                          'elev_high': 0,  # float(seg_detail.elevation_high),
+                          'elev_low': 0,
+                          'elev_high': 0,
                           'start_lat': float(seg.start_latlng[0]),
                           'start_long': float(seg.start_latlng[1]),
                           'end_lat': float(seg.end_latlng[0]),
                           'end_long': float(seg.end_latlng[1]),
-                          # seg_detail.created_at.replace(tzinfo=None)
                           'date_created': datetime.utcnow(),
-                          'effort_cnt': 0,  # int(seg_detail.effort_count),
-                          'ath_cnt': 0,  # int(seg_detail.athlete_count),
+                          'effort_cnt': 0,
+                          'ath_cnt': 0,
                           'cat': int(seg.climb_category),
                           'elev_gain': float(seg.elev_difference),
                           'distance': float(seg.distance),
@@ -141,11 +140,8 @@ def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type, dist
             seg_df['end_point'] = map(
                 create_points, seg_df['end_lat'], seg_df['end_long'])
 
-            # I updated this to only populate the dataframe if the segment is new - no need to delete here
-            # seg_df = clean_cached_segs(get_segs_in_db(engine, 'Segment',
-            # startLat, startLong, endLat, endLong), seg_df)
 
-                # Clean out the df and write to the database
+            # Clean out the df and write to the database
             seg_df.set_index('seg_id', inplace=True)
             seg_df.drop(['start_lat', 'start_long', 'end_lat',
                          'end_long'], axis=1, inplace=True)
@@ -168,7 +164,7 @@ def get_seg_geojson(engine, startLat, startLong, endLat, endLong, act_type, dist
                                  ) as properties
                             FROM "Segment" as lg 
                                   WHERE ST_Contains(ST_Envelope(ST_GeomFromText('LINESTRING(%s %s, %s %s)')), lg.start_point)
-                                  AND lg.act_type = '%s' and lg.distance BETWEEN %s and %s LIMIT 1000
+                                  AND lg.act_type = '%s' and lg.distance BETWEEN %s and %s LIMIT 1500
                      ) as f) as fc"""  % (startLong, startLat, endLong, endLat, acttype, distlow, disthigh)
 
     result = engine.execute(geojson_sql)

@@ -1,14 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import os
-from stravalib import client
+import os, json
+from stravalib import client, unithelper
 import pandas as pd
-from datetime import datetime
-from datetime import timedelta
-import zipfile
+from datetime import datetime, timedelta
 from sqlalchemy import create_engine
-from stravalib import unithelper
-import json
 
 
 def GetActivities(client, startDate, endDate, limit):

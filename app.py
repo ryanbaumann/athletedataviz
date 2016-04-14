@@ -1,8 +1,4 @@
-import time, gc
-import os
-import base64
-import hmac
-import urllib
+import time, gc, hmac, os, base64, urllib
 import stravalib
 from hashlib import sha1
 from datetime import datetime
@@ -17,9 +13,9 @@ from celery import Celery
 from flask.ext.compress import Compress
 from flask.ext.cache import Cache
 from flask_sslify import SSLify
-from flask.ext.cors import CORS
+#from flask.ext.cors import CORS
 from lib.forms import OrderForm
-import shopify
+#import shopify
 
 #################
 # configuration #
@@ -30,7 +26,7 @@ cache = Cache()
 
 app = Flask(__name__)
 api = Api(app)
-#CORS(app) Disable for production
+#CORS(app) #Disable for production
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 engine = create_engine(
@@ -47,8 +43,8 @@ from lib.models import *
 BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
 shop_url = "https://%s:%s@athletedataviz.myshopify.com/admin" % \
     (app.config['SHOPIFY_API_KEY'], app.config['SHOPIFY_PASSWORD'])
-shopify.ShopifyResource.set_site(shop_url)
-shop = shopify.Shop.current()
+#shopify.ShopifyResource.set_site(shop_url)
+#shop = shopify.Shop.current()
 
 ##########
 #  API   #
@@ -294,7 +290,7 @@ def homepage():
                                profile_url = athlete.profile)
 
 
-@app.route('/act_limit', methods=['POST'])
+#DEPRICATED @app.route('/act_limit', methods=['POST'])
 def act_input():
     """Get the user number of activities to query"""
     if request.method == 'POST':
@@ -307,7 +303,6 @@ def act_input():
             flash("Please enter a valid integer between 1 and 100")
         # Tell the user that the value has been updated
         flash("Activity limit updated to %s!" % (str(act_limit)))
-        cache.clear()
         return redirect(url_for('homepage', act_limit=act_limit))
 
 
@@ -326,14 +321,13 @@ def login():
 @app.route('/logout')
 def logout():
     """ End a users session and return them to the homepage """
-    clearCache(session['ath_id'])
+    #clearCache(session['ath_id'])
     session.pop('access_token')
-    # Clear cache???
 
     return redirect(url_for('homepage'))
 
 
-@app.route('/order', methods=['GET', 'POST'])
+#DEPRICATED @app.route('/order', methods=['GET', 'POST'])
 def order():
     """ Sends user to contact page """
     form = OrderForm()
@@ -349,28 +343,28 @@ def order():
         return render_template('order.html', form=form, img_url=session['img_url'])
 
 
-@app.route('/products')
+#DEPRICATED @app.route('/products')
 def products():
     """ Temporary redirect to home page until implemented """
     return redirect(url_for('homepage'))
 
 
-@app.route('/blog')
+#DEPRICATED @app.route('/blog')
 def blog():
     """ Temporary redirect to home page until implemented """
     return redirect(url_for('homepage'))
 
 
-@app.route('/account')
+#DEPRICATED @app.route('/account')
 def account():
     """ Sends user to account page """
     return render_template('account.html',
                            basepath=BASEPATH)
 
 
-@app.route('/newproduct')
-def newproduct():
-    """Posts a new product to the shopify page"""
+#DEPRICATED @app.route('/newproduct')
+"""def newproduct():
+    'Posts a new product to the shopify page'
 
     # Create a new product
     new_product = shopify.Product()
@@ -380,7 +374,7 @@ def newproduct():
     new_product.add
     success = new_product.save()  # returns false if the record is invalid
     return('posted product!')
-
+"""
 
 @app.route('/sign_s3')
 def sign_s3():
@@ -429,11 +423,11 @@ def sign_s3():
                                                                                              AWS_ACCESS_KEY, expires, 'max-age=2592000,public', signature),
         'url': url,
     })
-
+    gc.collect()
     return content
 
 
-@app.route("/submit_form", methods=["POST"])
+#DEPRICATED @app.route("/submit_form", methods=["POST"])
 def submit_form():
     username = request.form["username"]
     full_name = request.form["full_name"]
@@ -442,13 +436,13 @@ def submit_form():
     return redirect(url_for('profile'))
 
 
-@app.route('/about')
+#DEPRICATED @app.route('/about')
 def about():
     """ Sends user to contact page """
     return render_template('about.html')
 
 
-@app.route('/update')
+#DEPRICATED @app.route('/update')
 def update():
     return render_template('update.html')
 
@@ -477,8 +471,6 @@ def auth_done():
     return redirect(url_for('homepage'))
 
 # DEPRICATED -- @app.route('/uploads/<path:filename>')
-
-
 def download_strava():
     try:
         filename = request.args.get('filename')
@@ -565,9 +557,7 @@ def demodesigner():
 def delete_acts():
     """Delete all activities from the user currently logged in"""
     if request.method == 'POST':
-
-        clearCache(session['ath_id'])
-
+        #clearCache(session['ath_id'])
         try:
             acts_dl_list = []
             for act in Activity.query.filter_by(
@@ -672,6 +662,7 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
             except:
                 print "error entering activity or stream data into db!"
     db.session.close()
+    gc.collect()
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
             'result': 'Complete! Got ' + str(count) + ' new activities'}
 
@@ -682,8 +673,7 @@ def longtask():
     Begin the long task of downloading data from strava.  Accepts params from the form of 
     startDate, endDate, and activity limit from the page. 
     """
-    clearCache(session['ath_id'])
-
+    #clearCache(session['ath_id'])
     # Get the post data from the form via AJAX
     try:
         startDate = request.json['startDate']
@@ -703,6 +693,7 @@ def longtask():
                             'grade_smooth', 'watts', 'temp', 'heartrate', 'cadence', 'moving'],
                            session['access_token'],
                            'medium')
+
     if os.environ['APP_SETTINGS'] == 'config.DevelopmentConfig':
         return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                       task_id=task.id)}
