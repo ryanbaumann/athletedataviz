@@ -898,3 +898,11 @@ function getDataLinestring(callback) {
     }),
     callback(stravaHeatGeoJson);
 };
+
+function getStravaLeaderboard(segid, token) {
+    $.getJSON('https://www.strava.com/api/v3/segments/' + segid + '/leaderboard?' +
+        'access_token=' + token, function (data) {
+             console.log(data)
+         });
+    
+}

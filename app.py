@@ -13,7 +13,7 @@ from celery import Celery
 from flask.ext.compress import Compress
 from flask.ext.cache import Cache
 from flask_sslify import SSLify
-#from flask.ext.cors import CORS
+from flask.ext.cors import CORS
 from lib.forms import OrderForm
 #import shopify
 
@@ -26,7 +26,7 @@ cache = Cache()
 
 app = Flask(__name__)
 api = Api(app)
-#CORS(app) #Disable for production
+CORS(app) #Disable for production
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 engine = create_engine(
