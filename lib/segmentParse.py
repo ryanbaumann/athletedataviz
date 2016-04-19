@@ -163,11 +163,11 @@ def get_seg_geojson(engine, startLat, startLong,
                                 round((lg.distance*0.000621371)::numeric,1) as dist,
                                 round((lg.elev_gain*3.28084)::numeric,1) as elev) as t
                                  ) as properties
-                            FROM "Segment" as lg  WHERE ST_Contains(ST_Envelope(ST_GeomFromText('LINESTRING(%s %s, %s %s)')), lg.start_point)
-                                  and lg.act_type = '%s' and lg.distance BETWEEN %s and %s limit 600
-                     ) as f) as fc"""  % (startLong, startLat, endLong, endLat, acttype, distlow, disthigh)
-                     #
-                     #
+                            FROM "Segment" as lg  
+                                  WHERE lg.act_type = '%s' and lg.distance BETWEEN %s and %s
+                     ) as f) as fc"""  % (acttype, distlow, disthigh)
+                     #WHERE ST_Contains(ST_Envelope(ST_GeomFromText('LINESTRING(%s %s, %s %s)')), lg.start_point)
+                     #startLong, startLat, endLong, endLat
 
     result = engine.execute(geojson_sql)
     for row in result:
