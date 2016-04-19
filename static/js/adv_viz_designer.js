@@ -633,9 +633,9 @@ function render() {
             map.on('dragend', function() {
                     addSegLayer(map, getURL(map, 'False'));
                 })
-                /*.on('zoomend', function() {
+                .on('zoomend', function() {
                     addSegLayer(map, getURL(map, 'False'));
-                });*/
+                });
         } catch (err) {
             console.log(err);
         }
