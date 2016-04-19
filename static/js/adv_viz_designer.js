@@ -581,8 +581,8 @@ function render() {
             }
             $('#legend-lines').hide();
             $('#legend-seg').hide();
-            //map.off('dragend')
-            //   .off('zoomend');
+            map.off('dragend')
+               .off('zoomend');
         } catch (err) {
             console.log(err);
         }
@@ -605,8 +605,8 @@ function render() {
             }
             $('#legend-points').hide();
             $('#legend-seg').hide();
-            //map.off('dragend')
-            //   .off('zoomend');
+            map.off('dragend')
+               .off('zoomend');
         } catch (err) {
             console.log(err);
         }
@@ -628,12 +628,12 @@ function render() {
             set_visibility(map, 'linestring', 'off');
             $('#legend-points').hide();
             $('#legend-lines').hide();
-            //map.off('dragend')
-            //   .off('zoomend');
-            /*map.on('dragend', function() {
+            map.off('dragend')
+               .off('zoomend');
+            map.on('dragend', function() {
                     addSegLayer(map, getURL(map, 'False'));
                 })
-                .on('zoomend', function() {
+                /*.on('zoomend', function() {
                     addSegLayer(map, getURL(map, 'False'));
                 });*/
         } catch (err) {
