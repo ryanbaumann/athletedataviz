@@ -372,7 +372,7 @@ def get_heatmap_points(engine, ath_id):
                 round(st_y(point)::numeric,3) as lt, 
                 round(st_x(point)::numeric,3) as lg, 
                 round((density)::numeric,1) as d,
-                round((speed)::numeric,1) as s,
+                round((speed*2.23694)::numeric,1) as s,
                 round((grade)::numeric,1) as g
                 FROM 
                 "V_Point_Heatmap"
@@ -428,7 +428,7 @@ def get_heatmap_lines(engine, ath_id):
                   (
                   select row_to_json(t) 
                   FROM (SELECT round((lg.density)::numeric,1) as d,
-                                round((lg.speed)::numeric,1) as s,
+                                round((lg.speed*2.23694)::numeric,1) as s,
                                 round((lg.grade)::numeric,1) as g) as t
                                  ) as properties
                             FROM "V_Point_Heatmap" as lg WHERE ath_id = %s
