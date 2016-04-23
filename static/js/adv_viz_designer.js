@@ -702,7 +702,7 @@ function addPopup(mapid, layer_list, popup) {
         }
         else if (document.getElementById("VizType").value == "segment") {
             popup.setLngLat(e.lngLat)
-                .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
+                .setHTML('<div id="popup" class="popup" style="z-index: 10;"> <h5> Detail: </h5>' +
                     '<ul class="list-group">' +
                     '<li class="list-group-item"> Name: ' + feature.properties.name + " </li>" +
                     '<li class="list-group-item"> Type: ' + feature.properties.type + " </li>" +
