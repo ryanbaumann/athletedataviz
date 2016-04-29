@@ -3,6 +3,7 @@ import pandas as pd
 import os, json
 from sqlalchemy import create_engine
 from datetime import datetime
+#from pathos.multiprocessing import ProcessingPool as Pool
 
 # GLOBAL (FIX THIS BEFORE PRODUCITON)
 client = stravalib.client.Client(access_token=os.environ['STRAVA_APICODE'])
@@ -31,12 +32,15 @@ def bisect_rectange(numSplits, minlat, minlong, maxlat, maxlong):
                 extents.append(newextent)
     return extents
 
+def get_segments(ext, act_type):
+    return client.explore_segments(ext, activity_type=act_type)
 
 def get_segs_from_api(client, extents, act_type, **kwargs):
     """Get segments for a client in extents [40.681, -89.636, 40.775, -89.504]
     with act_type riding or running.  Option key work arguments specifiy if
     the range should be iterated through to get all sub-segment areas.
     """
+
     segment_explorer = []
     if kwargs is not None:
         for key, value in kwargs.iteritems():
@@ -48,6 +52,8 @@ def get_segs_from_api(client, extents, act_type, **kwargs):
                     print 'getting ext from strava api... %s' % (ext)
                     segment_explorer.append(client.explore_segments(ext,
                                                                     activity_type=act_type))
+                
+
     else:
         segment_explorer.append(client.explore_segments(extents,
                                                         activity_type=act_type))
