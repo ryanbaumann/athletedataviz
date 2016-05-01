@@ -3,8 +3,6 @@ mapboxgl.accessToken = mapboxgl_accessToken;
 
 /////////////  Global variables  ////////////
 var draw_canvas;
-//var heatpoint_data;
-//var stravaLineGeoJson;
 var linestring_src;
 var heatpoint_src;
 var segment_src;
@@ -12,7 +10,6 @@ var VizType = 'heat-point';
 var map_style = 'dark-nolabel';
 var curStyle;
 var map;
-//Heat Point gradients
 
 var color_list = [
     ['blue', 'cyan', 'lime', 'yellow', 'red'],
@@ -22,11 +19,8 @@ var color_list = [
 
 var line_color_list = [
     ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"],
-    //['#ff0000', '#ff751a', '#6699ff', '#ff66ff', '#ffff66'],
     ['#01970B', '#07A991', '#1911C6', '#E21EB4', '#F52D29'],
-    //['#ffff00', '#808000', '#ffff99', '#808000', '#ffffe6'],
     ['#DDD39B', '#E3D88D', '#EEE175', '#F8EB5A', '#FFF447'],
-    //['#00ff00', '#008000', '#80ff80', '#00cc66', '#339933']
     ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47'],
     ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
 ]
@@ -43,19 +37,6 @@ var lineHeatStyle = {
         "line-width": parseFloat(document.getElementById("line_width").value),
         "line-color": parseFloat(document.getElementById("line_color").value),
         "line-gap-width": 0
-    }
-};
-
-var heatpoint_style = {
-    "id": "heatpoints",
-    "type": "circle",
-    "source": 'heatpoint',
-    "layout": {},
-    "paint": {
-        "circle-color": document.getElementById("heat_color").value,
-        "circle-opacity": 0.8,
-        "circle-radius": 2,
-        "circle-blur": 0.5
     }
 };
 
@@ -107,7 +88,6 @@ var segpopup = new mapboxgl.Popup({
 /////  Main Function  ///////
 function initVizMap() {
     if (!mapboxgl.supported()) {
-        //stop and alert user map is not supported
         alert('Your browser does not support Mapbox GL.  Please try Chrome or Firefox.');
     } else {
         try {
@@ -129,7 +109,7 @@ function initVizMap() {
         }
     }
 
-    map.once('style.load', function() {
+    map.on('style.load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
         addSegLayer(map, getURL(map, 'False'));
@@ -158,7 +138,6 @@ function updateSegLegend() {
 }
 
 function calcLegends(p, id) {
-    // Build out legends
     var item = document.createElement('div');
     var key = document.createElement('span');
     key.className = 'legend-key';
@@ -304,28 +283,12 @@ function calcBreaks(maxval, numbins) {
         breaks.push(Math.round(binSize * p *10)/10);
     }
     updateHeatLegend();
-    for (p = 0; p < layers.length; p++) {
+    for (p = 0; p < breaks.length; p++) {
         calcLegends(p, 'heat-point');
     }
 }
 
-function calcHeatFilters(breaks, param) {
-    //calculate filters to apply to sheet (first run only)
-    filters = [];
-    for (var p = 0; p < breaks.length; p++) {
-        if (p <= 0) {
-            filters.push(['all', ['<', param, breaks[p + 1]]])
-        } else if (p < breaks.length - 1) {
-            filters.push(['all', ['>=', param, breaks[p]],
-                ['<', param, breaks[p + 1]]
-            ])
-        } else {
-            filters.push(['all', ['>=', param, breaks[p]]])
-        }
-    }
-}
-
-function calcHeatLayers(filters, colors) {
+function calcHeatLayers() {
     //create layers with filters
     layers = [];
     layernames=[];
@@ -334,22 +297,15 @@ function calcHeatLayers(filters, colors) {
         type: 'circle',
         source: 'heatpoint',
         paint: {
-            "circle-radius": {
-                "base": 1,
-                "stops": [
-                [breaks[0], 1],
-                [breaks[1], 5],
-                [breaks[2], 10],
-                [breaks[3], 20]
-            ]
-            },
+            "circle-radius": 1,
             "circle-color": {
                 property: 's',
                 stops: [
                 [breaks[0], colors[0]],
                 [breaks[1], colors[1]],
                 [breaks[2], colors[2]],
-                [breaks[3], colors[3]]
+                [breaks[3], colors[3]],
+                [breaks[4], colors[4]]
             ]
             },
             "circle-opacity": 0.8,
@@ -390,7 +346,6 @@ function getURL(mapid, newSegs) {
         'end_dist': end_dist,
         'newSegs' : newSegs
     };
-    //console.log(params)
     var queryString = EncodeQueryData(params);
     var targetURL = seg_base_url + queryString;
     return targetURL;
@@ -410,15 +365,13 @@ function addLayerHeat(mapid) {
     } catch (err) {
         console.log(err);
     }
-    try {
-        calcHeatFilters(breaks, 's');
-        calcHeatLayers(filters, colors);
-        for (var p = 0; p < layers.length; p++) {
-            mapid.addLayer(layers[p]);
+    try { 
+        calcHeatLayers()
+        mapid.addLayer(layers[0]);
+        for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-point');
             };
-        addPopup(map, layernames, linepopup);
-        //fit(mapid, map.getSource('heatpoint'))
+        addPopup(mapid, layernames, heatpopup);
     } catch (err) {
         console.log(err);
     }
@@ -445,7 +398,7 @@ function addLayerLinestring(mapid) {
             mapid.addLayer(lineLayers[p]);
             calcLegends(p, 'heat-lines');
         };
-        addPopup(map, linelayernames, heatpopup);
+        addPopup(map, linelayernames, linepopup);
     } catch (err) {
         console.log(err);
     }
@@ -499,7 +452,7 @@ function switchLayer() {
     } else {
         map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
     }
-    map.once('style.load', function() { 
+    map.on('load', function() { 
         addLayerHeat(map);
         addLayerLinestring(map);
         addSegLayer(map, getURL(map, 'False'));
@@ -574,15 +527,32 @@ function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
     mapid.setPitch(pitch);
     colors = color_list[parseFloat(document.getElementById('heat_color').value)];
     calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);
-    calcHeatFilters(breaks, document.getElementById('heattype').value);
-    //apply settings to each layer
-    for (var p = 0; p < layers.length; p++) {
-        mapid.setFilter(layer + '-' + p, filters[p]);
-        mapid.setPaintProperty(layer + '-' + p, 'circle-opacity', opacity);
-        mapid.setPaintProperty(layer + '-' + p, 'circle-radius', radius);
-        mapid.setPaintProperty(layer + '-' + p, 'circle-blur', blur);
-        mapid.setPaintProperty(layer + '-' + p, 'circle-color', colors[p]);
-    };
+    circle_color_property = document.getElementById('heattype').value
+    base_radius = radius
+    radius_values=[radius*1, radius*2, radius*5, radius*10]
+    circle_radius_style = { "base": base_radius,
+                              "stops": [
+                                [breaks[0], radius_values[0]],
+                                [breaks[1], radius_values[1]],
+                                [breaks[2], radius_values[2]],
+                                [breaks[3], radius_values[3]]
+                               ]
+                        };
+    circle_color_style = { "property": circle_color_property,
+                        "stops": [
+                        [breaks[0], colors[0]],
+                        [breaks[1], colors[1]],
+                        [breaks[2], colors[2]],
+                        [breaks[3], colors[3]],
+                        [breaks[4], colors[4]]
+                        ]
+                    };
+    
+    mapid.setPaintProperty(layer + '-' + 0, 'circle-radius', radius);
+    mapid.setPaintProperty(layer + '-' + 0, 'circle-color', circle_color_style);
+    mapid.setPaintProperty(layer + '-' + 0, 'circle-blur', blur);
+    mapid.setPaintProperty(layer + '-' + 0, 'circle-opacity', opacity);
+
 }
 
 function render() {

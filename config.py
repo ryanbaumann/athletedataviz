@@ -13,7 +13,7 @@ class Config(object):
     SECRET_KEY = os.environ.get(
         'SECURE_KEY', '\xfb\x13\xdf\xa1@i\xd6>V\xc0\xbf\x8fp\x16#Z\x0b\x81\xeb\x16')
 
-    IP = os.environ.get('OPENSHIFT_PYTHON_IP', '127.0.0.1')
+    IP = os.environ.get('127.0.0.1')
     PORT = str(os.environ.get('PORT', 33507))
     PREFERRED_URL_SCHEME = 'https'
     REDIS_URL = os.environ['REDIS_URL']
