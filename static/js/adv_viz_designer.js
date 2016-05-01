@@ -19,7 +19,7 @@ var color_list = [
 
 var line_color_list = [
     ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"],
-    ['#01970B', '#07A991', '#1911C6', '#E21EB4', '#F52D29'],
+    ['#F52D29', '#E21EB4', '#01970B', '#07A991', '#1911C6'],
     ['#DDD39B', '#E3D88D', '#EEE175', '#F8EB5A', '#FFF447'],
     ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47'],
     ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
@@ -101,6 +101,12 @@ function initVizMap() {
                 maxZoom: 20,
                 attributionControl: true
             });
+            map.addControl(new mapboxgl.Navigation({
+                position: 'top-left'
+            }));
+            map.addControl(new mapboxgl.Geocoder({
+                position: 'bottom-left'
+            }));
         } catch (err) {
             //Note that the user did not have any data to load
             console.log(err);
@@ -114,14 +120,7 @@ function initVizMap() {
         addLayerLinestring(map);
         addSegLayer(map, getURL(map, 'False'));
         render();
-        map.addControl(new mapboxgl.Navigation({
-            position: 'top-left'
-        }));
-        map.addControl(new mapboxgl.Geocoder({
-            position: 'bottom-left'
-        }));
     });
-
     map.once('load', function() {
         $("#loading").hide();
     });
@@ -356,7 +355,7 @@ function addLayerHeat(mapid) {
     // Mapbox JS Api - import heatmap layer
     heatpoint_src = new mapboxgl.GeoJSONSource({
         data: heatpoint_url,
-        maxzoom: 18,
+        maxzoom: 22,
         buffer: 1,
         tolerance: 1
     });
@@ -377,12 +376,11 @@ function addLayerHeat(mapid) {
     }
 };
 
-//Add linestring function
+
 function addLayerLinestring(mapid) {
-    //Create source for linestring data source
     linestring_src = new mapboxgl.GeoJSONSource({
         data: heatline_url,
-        maxzoom: 18,
+        maxzoom: 22,
         buffer: 1,
         tolerance: 1
     });
@@ -405,14 +403,12 @@ function addLayerLinestring(mapid) {
 };
 
 function addSegLayer(mapid, seg_url) {
-    // Mapbox GL JS Api - import segment
         if (mapid.getSource('segment')) {
             try {
                 segment_src.setData(seg_url);
                 render();
             } catch (err) {
                 console.log(err);
-                segment_src.setData(mapid.getSource('segment')['_data'])
             }
         }
         else {
@@ -420,7 +416,7 @@ function addSegLayer(mapid, seg_url) {
                 isMapLoaded(mapid, 300);
                 segment_src = new mapboxgl.GeoJSONSource({
                     data: seg_url,
-                    maxzoom: 18,
+                    maxzoom: 22,
                     buffer: 1,
                     tolerance: 1
                 });
@@ -528,26 +524,24 @@ function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
     colors = color_list[parseFloat(document.getElementById('heat_color').value)];
     calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);
     circle_color_property = document.getElementById('heattype').value
-    base_radius = radius
     radius_values=[radius*1, radius*2, radius*5, radius*10]
-    circle_radius_style = { "base": base_radius,
+    circle_radius_style = { "base": radius,
                               "stops": [
-                                [breaks[0], radius_values[0]],
-                                [breaks[1], radius_values[1]],
-                                [breaks[2], radius_values[2]],
-                                [breaks[3], radius_values[3]]
+                                [15, radius_values[0]],
+                                [17, radius_values[1]],
+                                [19, radius_values[2]],
+                                [22, radius_values[3]]
                                ]
                         };
     circle_color_style = { "property": circle_color_property,
                         "stops": [
-                        [breaks[0], colors[0]],
-                        [breaks[1], colors[1]],
-                        [breaks[2], colors[2]],
-                        [breaks[3], colors[3]],
-                        [breaks[4], colors[4]]
-                        ]
-                    };
-    
+                            [breaks[0], colors[0]],
+                            [breaks[1], colors[1]],
+                            [breaks[2], colors[2]],
+                            [breaks[3], colors[3]],
+                            [breaks[4], colors[4]]
+                            ]
+                        };
     mapid.setPaintProperty(layer + '-' + 0, 'circle-radius', radius);
     mapid.setPaintProperty(layer + '-' + 0, 'circle-color', circle_color_style);
     mapid.setPaintProperty(layer + '-' + 0, 'circle-blur', blur);

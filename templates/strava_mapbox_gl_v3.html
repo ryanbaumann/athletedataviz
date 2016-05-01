@@ -1,10 +1,10 @@
 {% extends "base.html" %} {% block import_script %}
     <!-- Mapbox GL -->
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.js'></script>
+    
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.css' rel='stylesheet' async defer>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
-    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script> 
     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.css' type='text/css' async defer>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
 
 {% endblock %} {% block content %}
 <!-- Sidebar -->
@@ -115,11 +115,11 @@
                                 <br>
                                 <br>
                                 <b>Heat Scale</b>
-                                <input type="text" id="scale" class="slider" data-slider-min="1" data-slider-value="20" data-slider-max="30" data-slider-step="1">
+                                <input type="text" id="scale" class="slider" data-slider-min="1" data-slider-value="25" data-slider-max="35" data-slider-step="1">
                                 <br>
                                 <br>
                                 <b>Heat Blur</b>
-                                <input type="text" id="blur" class="slider" data-slider-min="0" data-slider-value="0.5" data-slider-max="2" data-slider-step="0.25">
+                                <input type="text" id="blur" class="slider" data-slider-min="0" data-slider-value="0.5" data-slider-max="3" data-slider-step="0.25">
                                 <br>
                                 <br>
                                 <b>Heat Radius</b>
@@ -256,14 +256,12 @@
     });
 
     </script>
-    <!-- Bootstrap Slider -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
-    <script type="text/javascript" src="/static/js/upload_img.js" ></script>
-    <script type="text/javascript" src="/static/js/image_gl_canvas.js" ></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.js'></script>
+    <script type="text/javascript" src="/static/js/upload_img.js"></script>
+    <script type="text/javascript" src="/static/js/image_gl_canvas.js"></script>
     <script type="text/javascript" src="/static/js/adv_viz_designer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js" async defer></script>
-    <!--<script type="text/javascript" src="/static/js/webgl-heatmap.js" async defer></script>-->
-    <!--<script src='https://api.mapbox.com/mapbox.js/plugins/geojson-extent/v0.0.1/geojson-extent.js' async defer></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js" async defer></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.js'></script>
     
     {% endblock %}

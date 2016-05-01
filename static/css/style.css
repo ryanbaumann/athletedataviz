@@ -256,6 +256,11 @@ input[type="radio"], input[type="checkbox"] {
   max-height: 300px;
   overflow: auto;
 }
+
+.mapboxgl-ctrl-geocoder {
+  z-index:12 !important;
+}
+
 .tt-suggestion {
   font-size: 14px;
   line-height: 20px;
