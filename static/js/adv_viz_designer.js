@@ -329,22 +329,36 @@ function calcHeatLayers(filters, colors) {
     //create layers with filters
     layers = [];
     layernames=[];
-    for (var p = 0; p < breaks.length; p++) {
-        layers.push({
-            id: 'heatpoints-' + p,
-            type: 'circle',
-            source: 'heatpoint',
-            paint: {
-                "circle-color": colors[p],
-                "circle-opacity": 0.8,
-                "circle-radius": 2,
-                "circle-blur": 0.5
+    layers.push({
+        id: 'heatpoints-0',
+        type: 'circle',
+        source: 'heatpoint',
+        paint: {
+            "circle-radius": {
+                "base": 1,
+                "stops": [
+                [breaks[0], 1],
+                [breaks[1], 5],
+                [breaks[2], 10],
+                [breaks[3], 20]
+            ]
             },
-            filter: filters[p]
-        });
-        layernames.push('heatpoints-' + p);
-    }
+            "circle-color": {
+                property: 's',
+                stops: [
+                [breaks[0], colors[0]],
+                [breaks[1], colors[1]],
+                [breaks[2], colors[2]],
+                [breaks[3], colors[3]]
+            ]
+            },
+            "circle-opacity": 0.8,
+            "circle-blur": 0.5
+        }
+    });
+    layernames.push('heatpoints-0');
 }
+
 
 //Query URL Args parsing for segments layers
 function EncodeQueryData(data) {
