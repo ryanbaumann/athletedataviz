@@ -28,25 +28,13 @@ class Config(object):
 
     #CELERY
     # Enables error emails.
-    #CELERY_SEND_TASK_ERROR_EMAILS = True
-    BROKER_POOL_LIMIT=15 #Prevent each new celery connection from opening a new conn
     CELERY_ACCEPT_CONTENT = ['json', 'pickle']
-    #CELERY_IGNORE_RESULT = True
-    #CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
     CELERY_REDIS_MAX_CONNECTIONS = 19
     BROKER_POOL_LIMIT=0
     # Name and email addresses of recipients
     ADMINS = (
         ('test', 'test@gmail.com')
     )
-    # Email address used as sender (From field).
-    SERVER_EMAIL = 'no-reply@test.com'
-    # Mailserver configuration
-    #EMAIL_HOST='smtp.gmail.com'
-    #EMAIL_HOST_USER='test@gmail.com'
-    #EMAIL_HOST_PASSWORD=os.environ['ATHLETEDATAVIZ_EMAIL_PW']
-    #EMAIL_PORT=587
-    #EMAIL_USE_TLS = True
     CELERYD_TASK_SOFT_TIME_LIMIT = 300
     CELERYD_TASK_TIME_LIMIT = 600
 
