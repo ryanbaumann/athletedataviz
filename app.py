@@ -15,7 +15,6 @@ from flask.ext.cache import Cache
 from flask_sslify import SSLify
 from flask.ext.cors import CORS
 from lib.forms import OrderForm
-from lib.models import *
 #import shopify
 
 #################
@@ -36,6 +35,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 engine = create_engine(
     app.config['SQLALCHEMY_DATABASE_URI'], convert_unicode=True)
+from lib.models import *
 
 #initialize celery
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
