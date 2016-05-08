@@ -1,64 +1,62 @@
 import os
 import sys
-#from kombu import Queue
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config(object):
-    DEBUG = False
-    TESTING = False
     PROPAGATE_EXCEPTIONS = True
     CSRF_ENABLED = True
     WTF_CSRF_ENABLED = True
     SECRET_KEY = os.environ.get(
         'SECURE_KEY', '\xfb\x13\xdf\xa1@i\xd6>V\xc0\xbf\x8fp\x16#Z\x0b\x81\xeb\x16')
 
-    IP = os.environ.get('127.0.0.1')
     PORT = str(os.environ.get('PORT', 33507))
     PREFERRED_URL_SCHEME = 'https'
+
+    # Redis
     REDIS_URL = os.environ['REDIS_URL']
+
+    # Mapbox
     MAPBOX_GL_ACCESS_TOKEN = os.environ['MAPBOX_GL_ACCESS_TOKEN']
     MAPBOX_ACCESS_TOKEN = os.environ['MAPBOX_ACCESS_TOKEN']
+
+    # Strava
     STRAVA_CLIENT_ID = os.environ['STRAVA_CLIENT_ID']
     STRAVA_CLIENT_SECRET = os.environ['STRAVA_CLIENT_SECRET']
+
+    # Runkeeper - Optional, not yet implemented
     RUNKEEPER_CLIENT_ID = os.environ['RUNKEEPER_CLIENT_ID']
     RUNKEEPER_CLIENT_SECRET = os.environ['RUNKEEPER_CLIENT_SECRET']
-    UPLOAD_FOLDER = 'uploads'
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
-    #CELERY
-    # Enables error emails.
+    # Database
+    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # CELERY
     CELERY_ACCEPT_CONTENT = ['json', 'pickle']
+    CELERY_BROKER_URL = os.environ['REDIS_URL']
+    CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
     CELERY_REDIS_MAX_CONNECTIONS = 19
-    BROKER_POOL_LIMIT=0
-    # Name and email addresses of recipients
-    ADMINS = (
-        ('test', 'test@gmail.com')
-    )
+    BROKER_POOL_LIMIT = 0
     CELERYD_TASK_SOFT_TIME_LIMIT = 300
     CELERYD_TASK_TIME_LIMIT = 600
 
-    """
-    CELERY_DEFAULT_QUEUE = 'default'
-    CELERY_QUEUES = (
-        Queue('default',    routing_key='task.#'),
-        Queue('feed_tasks', routing_key='feed.#'),
-    )
-    CELERY_DEFAULT_EXCHANGE = 'tasks'
-    CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
-    CELERY_DEFAULT_ROUTING_KEY = 'task.default'
-    """
+    # Flask-Compress
     COMPRESS_MIMETYPES = [
         'text/html', 'text/css', 'text/xml', 'application/json', 'application/javascript']
     COMPRESS_LEVEL = 9
     COMPRESS_MIN_SIZE = 250
+
+    # Flask-Cache
     CACHE_TYPE = 'redis'
     CACHE_REDIS_URL = os.environ['REDIS_URL']
     CACHE_KEY_PREFIX = 'fcache'
 
-    #Shopify API
+    # Shopify API
     SHOPIFY_API_KEY = os.environ['SHOPIFY_API_KEY']
     SHOPIFY_PASSWORD = os.environ['SHOPIFY_PASSWORD']
+
 
 class ProductionConfig(Config):
     DEBUG = False

@@ -409,11 +409,11 @@ def get_acts_html(engine, ath_id):
                     act_name as "Activity Name"
             FROM "Activity"
             WHERE ath_id = %s
-            Order By act_id desc""" % (str(ath_id))
+            Order by act_id desc""" % (str(ath_id))
     df = pd.read_sql(args, engine)
+    df.sort_values(['Date'], axis=0, ascending=False, inplace=True)
     df.index += 1
     df.index.name = 'Activity #'
-    df.sort(ascending=False, inplace=True)
 
     return df
 
