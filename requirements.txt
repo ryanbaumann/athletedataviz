@@ -1,6 +1,6 @@
 flask
 stravalib 
-pandas
+pandas==0.18.1
 pg
 sqlalchemy
 sqlalchemy-utils
@@ -19,7 +19,7 @@ requests
 gunicorn
 psycopg2
 flask-debugtoolbar
-celery
+celery==3.1.23
 kombu
 redis
 healthgraph-api
@@ -33,3 +33,7 @@ flask-wtf
 ShopifyAPI
 eventlet
 flask-CORS
+mapbox
+boto3
+responses
+pytest

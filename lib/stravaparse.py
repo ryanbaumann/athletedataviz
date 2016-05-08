@@ -424,7 +424,7 @@ def get_heatmap_lines(engine, ath_id):
      FROM (SELECT 'FeatureCollection' As type, 
                   array_to_json(array_agg(f)) As features
            FROM (SELECT 'Feature' As type, 
-                  st_asgeojson(lg.point, 4)::json AS geometry,
+                  st_asgeojson(lg.point, 6)::json AS geometry,
                   (
                   select row_to_json(t) 
                   FROM (SELECT round((lg.density)::numeric,1) as d,
