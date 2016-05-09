@@ -296,7 +296,14 @@ function calcHeatLayers() {
         type: 'circle',
         source: 'heatpoint',
         paint: {
-            "circle-radius": 1,
+            "circle-radius": {
+                stops: [
+                        [12, 1],
+                        [14, 2],
+                        [16, 4],
+                        [18, 8]
+                       ]
+            },
             "circle-color": {
                 property: 's',
                 stops: [
@@ -524,13 +531,14 @@ function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
     colors = color_list[parseFloat(document.getElementById('heat_color').value)];
     calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);
     circle_color_property = document.getElementById('heattype').value
-    radius_values=[radius*1, radius*2, radius*5, radius*10]
+    radius_values=[radius*1, radius*2, radius*4, radius*6, radius*8]
     circle_radius_style = { "base": radius,
                               "stops": [
-                                [15, radius_values[0]],
-                                [17, radius_values[1]],
-                                [19, radius_values[2]],
-                                [22, radius_values[3]]
+                                [12, radius_values[0]],
+                                [14, radius_values[1]],
+                                [16, radius_values[2]],
+                                [18, radius_values[3]],
+                                [20, radius_values[3]]
                                ]
                         };
     circle_color_style = { "property": circle_color_property,
@@ -542,7 +550,7 @@ function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
                             [breaks[4], colors[4]]
                             ]
                         };
-    mapid.setPaintProperty(layer + '-' + 0, 'circle-radius', radius);
+    mapid.setPaintProperty(layer + '-' + 0, 'circle-radius', circle_radius_style);
     mapid.setPaintProperty(layer + '-' + 0, 'circle-color', circle_color_style);
     mapid.setPaintProperty(layer + '-' + 0, 'circle-blur', blur);
     mapid.setPaintProperty(layer + '-' + 0, 'circle-opacity', opacity);

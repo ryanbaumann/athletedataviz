@@ -3,7 +3,7 @@ import pandas as pd
 import os, json
 from sqlalchemy import create_engine
 from datetime import datetime
-#from pathos.multiprocessing import ProcessingPool as Pool
+from concurrent.futures import ThreadPoolExecutor
 
 # GLOBAL (FIX THIS BEFORE PRODUCITON)
 client = stravalib.client.Client(access_token=os.environ['STRAVA_APICODE'])
