@@ -14,7 +14,7 @@
 ## Deploy to Heroku PAAS
 To deploy a clone of this application using the [`heroku` command line tool](https://devcenter.heroku.com/articles/heroku-command):
 
-```python
+```
 cd <your working dir for athletedataviz>
 heroku <create your_app_name>
 git remote add pro https://git.heroku.com/<your_app_name>.git
@@ -27,14 +27,14 @@ After the database is available, install the PostGIS extension.  Requires POSTGI
 
 NOTE: Heroku requires a Production database to install PostGIS.  Minimum $50/month.
 
-```python
+```
 heroku addons:create heroku-postgresql:standard-Cobalt --app <your_app_name>
 heroku pg:psql HEROKU_POSTGRESQL_COBALT_URL --app <your_app_name>
 ```
 
 Now install the PostGIS extension
 
-```python
+```
 create extension postgis;
 Select postgis_version(); postgis_version
 ```
@@ -48,15 +48,18 @@ You should see PostGIS version 2.2+ installed.
 See https://www.mapbox.com/developers/ for details
 Obtain a mapbox API public key and place it in the "config.py" file in the root dir of this repo
 
+```
     heroku config:set MAPBOX_GL_ACCESS_TOKEN=<your_mapbox_gl_access_token> --remote pro
+```
 
 ## A Strava dev account is required
 See https://strava.com/developers for details
 Obtain an application ID, then set environment variables
 
+```
     heroku config:set STRAVA_CLIENT_ID=<your_strava_client_id> --remote <your_app_name>
-
     heroku config:set STRAVA_CLIENT_SECRET=<your_strava_client_secret> --remote <your_app_name>
+```
 
 ## Setup Background Tasks
 1) Install Redis.  Start redis server after install.
@@ -69,7 +72,7 @@ Obtain an application ID, then set environment variables
 ## First Run
 1) run command "python app.py" to start the local server.  Ensure your development server has the required environment variables defined as per the build instrcutions.
 
-2) Start the Celery Worker "celery worker -A app.celery"
+2) Start the Celery Worker ```python celery worker -A app.celery ```
 
 3) Navigate to localhost:33507 to open the ADV homepage
 
