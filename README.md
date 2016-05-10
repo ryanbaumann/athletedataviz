@@ -4,7 +4,7 @@
 ## Building
 
 ## Install Python
-1) Install [Python 2.7.11] (https://www.python.org/downloads/release/python-2711/) - run using a system copy of python or a virtualenv 
+1) Install [Python 2.7.11] (https://www.python.org/downloads/release/python-2711/) - run using a system copy of python or a virtualenv
 
 2) Install [Redis](http://redis.io/download)
 
@@ -13,32 +13,35 @@
 
 ## Deploy to Heroku PAAS
 To deploy a clone of this application using the [`heroku` command line tool](https://devcenter.heroku.com/articles/heroku-command):
+<
+cd your working dir for athletedataviz
 
-cd <your working dir for athletedataviz>
-
-heroku create <your_app_name>
+heroku create your_app_name
 
 git remote add pro https://git.heroku.com/<your_app_name>.git
 
 git push pro master
-
+>
 Now provision a PostgreSQL database on Heroku.  Requires PostgreSQL version 9.5.2+  
 
 After the database is available, install the PostGIS extension.  Requires POSTGIS version 2.2+, which should be installed by default by Heroku on a PostgreSQL 9.5.2+ database.  
 
 NOTE: Heroku requires a Production database to install PostGIS.  Minimum $50/month.
 
-
-heroku addons:create heroku-postgresql:standard-Cobalt --app <your_app_name>
+<heroku addons:create heroku-postgresql:standard-Cobalt --app <your_app_name>
 
 heroku pg:psql HEROKU_POSTGRESQL_COBALT_URL --app <your_app_name>
+>
 
--> create extension postgis;
+Now install the PostGIS extension
 
--> Select postgis_version(); postgis_version
+<
+create extension postgis;
+
+Select postgis_version(); postgis_version
 ---------------------------------------
 2.2.2 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
-
+>
 #Set an environement variable for the configuration version you have (Production in this case, below)
     heroku config:set APP_SETTINGS=config.ProductionConfig --remote pro
 
