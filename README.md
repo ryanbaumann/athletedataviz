@@ -1,7 +1,8 @@
 ## Athlete Data Viz
-*powered by Flask, PostGis, Mapbox, Strava, Bootleaf, print-maps, and AWS S3*
+Web application to create customizable, high-resolution print images of athletics gps data.
+*powered by Heroku, Flask, PostgreSQL, PostGIS, Mapbox-GL-JS, Strava, Bootleaf, print-maps, and AWS S3*
 
-## Building
+# Building
 
 ## Install Python
 1) Install [Python 2.7.11] (https://www.python.org/downloads/release/python-2711/) - run using a system copy of python or a virtualenv
