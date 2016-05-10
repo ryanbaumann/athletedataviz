@@ -41,12 +41,15 @@ Select postgis_version(); postgis_version
 You should see PostGIS version 2.2+ installed.
 
 
-#Set an environement variable for the configuration version you have (Production in this case, below)
+#Set env var for config version
+```
     heroku config:set APP_SETTINGS=config.ProductionConfig --remote pro
+```
 
 ## A mapbox dev account is required.  
 See https://www.mapbox.com/developers/ for details
-Obtain a mapbox API public key and place it in the "config.py" file in the root dir of this repo
+
+Obtain a mapbox API public key and set environment variables.
 
 ```
     heroku config:set MAPBOX_GL_ACCESS_TOKEN=<your_mapbox_gl_access_token> --remote pro
