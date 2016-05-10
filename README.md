@@ -8,6 +8,9 @@
 
 2) Install [Redis](http://redis.io/download)
 
+3) Run "pip install -r requirements.txt" if building locally.  Heroku will auto-run the command when deploying a new dyno.
+
+
 ## Deploy to Heroku PAAS
 To deploy a clone of this application using the [`heroku` command line tool](https://devcenter.heroku.com/articles/heroku-command):
 
