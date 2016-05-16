@@ -451,7 +451,7 @@ function switchLayer() {
     layer = document.getElementById("mapStyle").value;
     isMapLoaded(map, 300);
     if (layer != 'dark-nolabel') {
-        map.setStyle('mapbox://styles/mapbox/' + layer + '-v8');
+        map.setStyle('mapbox://styles/mapbox/' + layer + '-v9');
     } else {
         map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
     }
