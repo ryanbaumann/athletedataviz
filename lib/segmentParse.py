@@ -152,8 +152,12 @@ def get_seg_geojson(engine, startLat, startLong,
             seg_df.set_index('seg_id', inplace=True)
             seg_df.drop(['start_lat', 'start_long', 'end_lat',
                          'end_long'], axis=1, inplace=True)
-            seg_df.to_sql(
-                'Segment', engine, if_exists='append', index=True, index_label='seg_id')
+            try:
+                seg_df.to_sql(
+                  'Segment', engine, if_exists='append', index=True, index_label='seg_id')
+            except:
+                raise
+                pass
 
     # Now get the results from the database
     geojson_sql = """

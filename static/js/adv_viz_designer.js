@@ -334,8 +334,8 @@ function EncodeQueryData(data) {
 function getURL(mapid, newSegs) {
 
     var bounds = mapid.getBounds();
-    var sw = bounds.getSouthWest().toArray();
-    var ne = bounds.getNorthEast().toArray();
+    var sw = bounds.getSouthWest().wrap().toArray();
+    var ne = bounds.getNorthEast().wrap().toArray();
     var east = ne[0]
     var south = sw[1]
     var west = sw[0]
