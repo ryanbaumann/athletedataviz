@@ -1,10 +1,5 @@
 {% extends "base.html" %} {% block import_script %}
     <!-- Mapbox GL -->
-    
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.css' rel='stylesheet' async defer>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script> 
-    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.css' type='text/css' async defer>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
 
 {% endblock %} {% block content %}
 <!-- Sidebar -->
@@ -33,11 +28,10 @@
                             <br>
                             <b>Map Style</b>
                             <select id='mapStyle' name="mapStyle" value="dark" style="font-size: 20px;">
-                                <option value="dark-nolabel">Dark: no Label</option>
-                                <option value="dark">Dark: Label</option>
+                                <option value="dark-nolabel">Dark v1</option>
+                                <option value="dark">Dark v2</option>
                                 <option value="basic">Basic</option>
                                 <option value="streets">Streets</option>
-                                <!--<option value="emerald">Emerald</option>!-->
                                 <option value="bright">Bright</option>
                                 <option value="light">Light</option>
                                 <option value="satellite">Satellite</option>
@@ -241,27 +235,31 @@
         initVizMap();
         $(function() {
     
-        $("#sidebar-toggle-btn").click(function() {
-            $("#sidebar").toggle();
-            map.resize();
-            return false;
-        });
+            $("#sidebar-toggle-btn").click(function() {
+                $("#sidebar").toggle();
+                map.resize();
+                return false;
+            });
 
-        $("#sidebar-hide-btn").click(function() {
-            $('#sidebar').hide();
-            map.resize();
-            return false;
+            $("#sidebar-hide-btn").click(function() {
+                $('#sidebar').hide();
+                map.resize();
+                return false;
+            });
+
+            $("#img_share_url").click(function() {
+                copyToClipboard(imgurl);
+            });
         });
-    });
     });
 
     </script>
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.js'></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.js'></script>
+    <script type="text/javascript" src="/static/js/adv_viz_designer.js"></script>
     <script type="text/javascript" src="/static/js/upload_img.js"></script>
     <script type="text/javascript" src="/static/js/image_gl_canvas.js"></script>
-    <script type="text/javascript" src="/static/js/adv_viz_designer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.1.0/js/canvas-to-blob.min.js" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js" async defer></script>
-    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.js'></script>
-    
+
     {% endblock %}

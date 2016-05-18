@@ -17,10 +17,6 @@ function get_signed_request(file){
     xhr.send();
 }
 
-$("#img_share_url").click(function() {
-    copyToClipboard(imgurl);
-});
-
 document.getElementById('download_viz').addEventListener("click", function(event) {
     event.preventDefault();
     saveAs(imgBlob, filename);

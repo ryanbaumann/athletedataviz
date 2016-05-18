@@ -94,7 +94,8 @@ function initVizMap() {
             $('#legend-lines').hide();
             map = new mapboxgl.Map({
                 container: 'map',
-                style: 'mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn',
+                /*rsbaumann/ciiia74pe00298ulxsin2emmn*/
+                style: 'mapbox://styles/mapbox/dark-v8',
                 center: mapboxgl.LngLat.convert(center_point),
                 zoom: 4,
                 minZoom: 3,
@@ -453,7 +454,7 @@ function switchLayer() {
     if (layer != 'dark-nolabel') {
         map.setStyle('mapbox://styles/mapbox/' + layer + '-v9');
     } else {
-        map.setStyle('mapbox://styles/rsbaumann/ciiia74pe00298ulxsin2emmn');
+        map.setStyle('mapbox://styles/mapbox/dark-v8');
     }
     map.on('load', function() { 
         addLayerHeat(map);
@@ -704,137 +705,140 @@ function addPopup(mapid, layer_list, popup) {
 //////////////// SLIDERS AND BUTTON ACTIONS ////////////
 
 //on change of VizType, show only menu options linked to selected viztype
-$('#VizType').change(function() {
-    var selector = '#VizType_hide_' + $(this).val();
-    if (document.getElementById("VizType").value == "segment"){
-        $('#VizType_hide_heat-line').collapse('show');
-        $(selector).collapse('show');
-        $('#VizType_hide_heat-point').collapse('hide');
-    }
-    else if (document.getElementById("VizType").value == "heat-line"){
-        $(selector).collapse('show');
-        $('#VizType_hide_heat-point').collapse('hide');
-        $('#VizType_hide_segment').collapse('hide');
-    }
-    else {
-        $(selector).collapse('show');
-        $('#VizType_hide_heat-line').collapse('hide');
-        $('#VizType_hide_segment').collapse('hide');
-    }
-});
+$( document ).ready(function() {
+    $('#VizType').change(function() {
+        var selector = '#VizType_hide_' + $(this).val();
+        if (document.getElementById("VizType").value == "segment"){
+            $('#VizType_hide_heat-line').collapse('show');
+            $(selector).collapse('show');
+            $('#VizType_hide_heat-point').collapse('hide');
+        }
+        else if (document.getElementById("VizType").value == "heat-line"){
+            $(selector).collapse('show');
+            $('#VizType_hide_heat-point').collapse('hide');
+            $('#VizType_hide_segment').collapse('hide');
+        }
+        else {
+            $(selector).collapse('show');
+            $('#VizType_hide_heat-line').collapse('hide');
+            $('#VizType_hide_segment').collapse('hide');
+        }
+    });
 
-$('#updateSeg').on('click touch tap', function(event) {
-    isMapLoaded(map, 300, 'url');
-    addSegLayer(map, getURL(map, 'True'));
-    render();
-});
+    $('#updateSeg').on('click touch tap', function(event) {
+        isMapLoaded(map, 300, 'url');
+        addSegLayer(map, getURL(map, 'True'));
+        render();
+    });
 
-$('#segType').change(function(event) {
-    addSegLayer(map, getURL(map, 'False'));
-    render();
-});
+    $('#segType').change(function(event) {
+        addSegLayer(map, getURL(map, 'False'));
+        render();
+    });
 
-$('#pitch').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#pitch').slider().on('slide', function(ev) {
-    $('#pitch').slider('setValue', ev.value);
-    render();
-});
-$('#dist_filter').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#dist_filter').slider().on('slideStop', function(ev) {
-    $('#dist_filter').slider('setValue', ev.value);
-    addSegLayer(map, getURL(map, 'False'));
-    render();
-});
-$('#line_width').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#line_width').slider().on('slide', function(ev) {
-    $('#line_width').slider('setValue', ev.value);
-    render();
-});
-$('#line_opacity').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#line_opacity').slider().on('slide', function(ev) {
-    $('#line_opacity').slider('setValue', ev.value);
-    render();
-});
-$('#line_offset').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#line_offset').slider().on('slide', function(ev) {
-    $('#line_offset').slider('setValue', ev.value);
-    render();
-});
-$('#blur').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#blur').slider().on('slide', function(ev) {
-    $('#blur').slider('setValue', ev.value);
-    render();
-});
-$('#radius').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#radius').slider().on('slide', function(ev) {
-    $('#radius').slider('setValue', ev.value);
-    render();
-});
-$('#segScale').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#segScale').slider().on('slideStop', function(ev) {
-    $('#segScale').slider('setValue', ev.value);
-    render();
-});
-$('#scale').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#scale').slider().on('slideStop', function(ev) {
-    $('#scale').slider('setValue', ev.value);
-    render();
-});
-$('#minOpacity').slider({
-    formatter: function(value) {
-        return 'Value: ' + value;
-    }
-});
-$('#minOpacity').slider().on('slide', function(ev) {
-    $('#minOpacity').slider('setValue', ev.value);
-    render();
-});
+    $('#pitch').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#pitch').slider().on('slide', function(ev) {
+        $('#pitch').slider('setValue', ev.value);
+        render();
+    });
+    $('#dist_filter').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#dist_filter').slider().on('slideStop', function(ev) {
+        $('#dist_filter').slider('setValue', ev.value);
+        addSegLayer(map, getURL(map, 'False'));
+        render();
+    });
+    $('#line_width').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#line_width').slider().on('slide', function(ev) {
+        $('#line_width').slider('setValue', ev.value);
+        render();
+    });
+    $('#line_opacity').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#line_opacity').slider().on('slide', function(ev) {
+        $('#line_opacity').slider('setValue', ev.value);
+        render();
+    });
+    $('#line_offset').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#line_offset').slider().on('slide', function(ev) {
+        $('#line_offset').slider('setValue', ev.value);
+        render();
+    });
+    $('#blur').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#blur').slider().on('slide', function(ev) {
+        $('#blur').slider('setValue', ev.value);
+        render();
+    });
+    $('#radius').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#radius').slider().on('slide', function(ev) {
+        $('#radius').slider('setValue', ev.value);
+        render();
+    });
+    $('#segScale').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#segScale').slider().on('slideStop', function(ev) {
+        $('#segScale').slider('setValue', ev.value);
+        render();
+    });
+    $('#scale').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#scale').slider().on('slideStop', function(ev) {
+        $('#scale').slider('setValue', ev.value);
+        render();
+    });
+    $('#minOpacity').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+        }
+    });
+    $('#minOpacity').slider().on('slide', function(ev) {
+        $('#minOpacity').slider('setValue', ev.value);
+        render();
+    });
 
 
-$('#heat_color').change(render);
-$('#VizType').change(render);
-$('#mapStyle').change(switchLayer);
-$('#heattype').change(render);
-$('#segParam').change(render);
-$('#heat_color').change(render);
-$('#line_color').change(render);
-$('#snap').on('click touch tap', generateMap);
+    $('#heat_color').change(render);
+    $('#VizType').change(render);
+    $('#mapStyle').change(switchLayer);
+    $('#heattype').change(render);
+    $('#segParam').change(render);
+    $('#heat_color').change(render);
+    $('#line_color').change(render);
+    $('#snap').on('click touch tap', generateMap);
+
+});
 
 function isMapLoaded(mapid, interval, segUrl) {
     //check if map is loaded every retry_interval seconds and display or hide loading bar

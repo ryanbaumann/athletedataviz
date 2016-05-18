@@ -128,100 +128,100 @@
 </div>
 
 <script>
-function start_long_task() {
-    // add task status elements
-    document.getElementById('dl_data_btn').classList.add('disabled');
-    div = $('<div class="progress"><div></div><div>0%</div></div>');
-    div2 = $('<div id="status" class="text-center"></div>')
-    $('#progress').append(div).append(div2);
+    function start_long_task() {
+        // add task status elements
+        document.getElementById('dl_data_btn').classList.add('disabled');
+        div = $('<div class="progress"><div></div><div>0%</div></div>');
+        div2 = $('<div id="status" class="text-center"></div>')
+        $('#progress').append(div).append(div2);
 
-    // create a progress bar
-    var nanobar = new Nanobar({
-        bg: '#44f',
-        target: div[0].childNodes[0]
-    });
-    var params = {
-        startDate: document.getElementById("startDate").value,
-        endDate: document.getElementById("endDate").value,
-        act_limit: 500
-    };
-    // send ajax POST request to start background job
-    $.ajax({
-        type: 'POST',
-        url: '/longtask',
-        data: JSON.stringify(params),
-        contentType: 'application/json;charset=UTF-8',
-        success: function(data, status, request) {
-            status_url = request.getResponseHeader('Location');
-            update_progress(status_url, nanobar, div[0]);
-        },
-        error: function() {
-            alert('Unexpected error');
-        }
-    });
-}
-
-function update_progress(status_url, nanobar, status_div) {
-    // send GET request to status URL
-
-    $.getJSON(status_url, function(data) {
-        // update UI
-        percent = parseInt(data['current'] * 100 / data['total']);
-        nanobar.go(percent);
-        $(status_div.childNodes[1]).text(percent + '%');
-        $(status_div.childNodes[2]).text(data['status']);
-        if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
-            if ('result' in data) {
-                // show result
-                $(status_div.childNodes[3]).text('Result: ' + data['result']);
-                $('#status').html("<strong> Result: "+data['result']+"</strong>");
-                document.getElementById("dl_data_btn").classList.remove("disabled")
-            } else {
-                // something unexpected happened
-                $(status_div.childNodes[3]).text('Result: ' + data['state']);
-                $('#status').html("<strong> Result: "+data['state']+"</strong>");
+        // create a progress bar
+        var nanobar = new Nanobar({
+            bg: '#44f',
+            target: div[0].childNodes[0]
+        });
+        var params = {
+            startDate: document.getElementById("startDate").value,
+            endDate: document.getElementById("endDate").value,
+            act_limit: 500
+        };
+        // send ajax POST request to start background job
+        $.ajax({
+            type: 'POST',
+            url: '/longtask',
+            data: JSON.stringify(params),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(data, status, request) {
+                status_url = request.getResponseHeader('Location');
+                update_progress(status_url, nanobar, div[0]);
+            },
+            error: function() {
+                alert('Unexpected error');
             }
-        } else {
-            // rerun in 2.5 seconds
-            setTimeout(function() {
-                update_progress(status_url, nanobar, status_div);
-                $('#status').html("<strong>"+data['status']+"</strong>");
-                get_acts();
-            }, 2500);
-        }
+        });
+    }
+
+    function update_progress(status_url, nanobar, status_div) {
+        // send GET request to status URL
+
+        $.getJSON(status_url, function(data) {
+            // update UI
+            percent = parseInt(data['current'] * 100 / data['total']);
+            nanobar.go(percent);
+            $(status_div.childNodes[1]).text(percent + '%');
+            $(status_div.childNodes[2]).text(data['status']);
+            if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+                if ('result' in data) {
+                    // show result
+                    $(status_div.childNodes[3]).text('Result: ' + data['result']);
+                    $('#status').html("<strong> Result: "+data['result']+"</strong>");
+                    document.getElementById("dl_data_btn").classList.remove("disabled")
+                } else {
+                    // something unexpected happened
+                    $(status_div.childNodes[3]).text('Result: ' + data['state']);
+                    $('#status').html("<strong> Result: "+data['state']+"</strong>");
+                }
+            } else {
+                // rerun in 2.5 seconds
+                setTimeout(function() {
+                    update_progress(status_url, nanobar, status_div);
+                    $('#status').html("<strong>"+data['status']+"</strong>");
+                    get_acts();
+                }, 2500);
+            }
+        });
+    }
+
+    $('#dl_form').submit(function() {
+        start_long_task();
+        return false;
     });
-}
 
-$('#dl_form').submit(function() {
-    start_long_task();
-    return false;
-});
-
-//Stop the loading bar when ajax requests complete
-$(document).one("ajaxStop", function() {
-    $("#loading").hide();
-});
-
-function get_acts() {
-    {% if session.access_token %}
-    $.get("{{ current_act_url|safe }}", function(data, status) {
-        $('#act_table').html(data);
+    //Stop the loading bar when ajax requests complete
+    $(document).one("ajaxStop", function() {
+        $("#loading").hide();
     });
-    {% endif %}
-}
+
+    function get_acts() {
+        {% if session.access_token %}
+        $.get("{{ current_act_url|safe }}", function(data, status) {
+            $('#act_table').html(data);
+        });
+        {% endif %}
+    }
 
 
-$(function() {
-    {% if session.access_token %}
-    $('#act_table').on('load', get_acts());
-    var today = moment().format('YYYY-MM-DD');
-    var threeMonthsAgo = moment().subtract(90, 'days').format('YYYY-MM-DD');
-    $('#startDate').val(threeMonthsAgo);
-    $('#endDate').val(today);
-    {% else %}
-    $("#loginModal").modal("show");
-    {% endif %}
-});
+    $(function() {
+        {% if session.access_token %}
+        $('#act_table').on('load', get_acts());
+        var today = moment().format('YYYY-MM-DD');
+        var threeMonthsAgo = moment().subtract(90, 'days').format('YYYY-MM-DD');
+        $('#startDate').val(threeMonthsAgo);
+        $('#endDate').val(today);
+        {% else %}
+        $("#loginModal").modal("show");
+        {% endif %}
+    });
 
 </script>
 {% endblock %}
