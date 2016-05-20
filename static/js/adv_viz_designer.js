@@ -363,9 +363,8 @@ function addLayerHeat(mapid) {
     // Mapbox JS Api - import heatmap layer
     heatpoint_src = new mapboxgl.GeoJSONSource({
         data: heatpoint_url,
-        maxzoom: 22,
-        buffer: 1,
-        tolerance: 1
+        maxzoom: 20,
+        buffer: 0
     });
     try {
         mapid.addSource('heatpoint', heatpoint_src);
@@ -388,9 +387,8 @@ function addLayerHeat(mapid) {
 function addLayerLinestring(mapid) {
     linestring_src = new mapboxgl.GeoJSONSource({
         data: heatline_url,
-        maxzoom: 22,
-        buffer: 1,
-        tolerance: 1
+        maxzoom: 20,
+        buffer: 0
     });
     try {
         mapid.addSource('linestring', linestring_src);
@@ -424,9 +422,8 @@ function addSegLayer(mapid, seg_url) {
                 isMapLoaded(mapid, 300);
                 segment_src = new mapboxgl.GeoJSONSource({
                     data: seg_url,
-                    maxzoom: 22,
-                    buffer: 1,
-                    tolerance: 1
+                    maxzoom: 20,
+                    buffer: 0
                 });
                 mapid.addSource('segment', segment_src);
             } catch (err) {
