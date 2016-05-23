@@ -6,11 +6,16 @@ db_user = os.environ['db_user_adv']
 db_pass = os.environ['db_pass_adv']
 db_name = os.environ['db_name_adv']
 
-args = '''
+sql = '''
         "SELECT 
         seg_id, last_updated_datetime_utc, act_type, ath_cnt, cat,date_created, distance, effort_cnt, 
         elev_gain, elev_high, elev_low, name, avg_grade, max_grade, total_elevation_gain, linestring 
         FROM ""V_Segment""
         '''
 
-pgsql2shp - f all_segments - h ec2 - 52 - 71 - 220 - 14.compute - 1.amazonaws.com - u ud3fimvrrn18fu - P p87a8j3h644qa1a6g1cge2qdtgl d9g0tctvfg0d4s
+out_file_name = 'all_segments'
+
+args = 'pgsql2shp - f {0} -h {1} -u {2} -P {3} {4} {5}'.format(out_file_name, db_host, db_user, db_pass, db_name, sql)
+
+
+
