@@ -66,6 +66,7 @@ class Activity(db.Model):
     act_startDate = db.Column(db.DateTime(), index=True)
     act_dist = db.Column(db.Float(precision=4))
     act_totalElevGain = db.Column(db.Float(precision=4))
+    polyline = db.Column(db.Text, index=True)
 
     def __init__(self, ath_id, act_id,
                  act_type, act_name, act_description,
