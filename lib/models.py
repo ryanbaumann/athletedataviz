@@ -4,14 +4,14 @@ from datetime import datetime
 from geoalchemy2 import Geometry
 from geoalchemy2.functions import GenericFunction
 from sqlalchemy_utils import URLType
-
+from sqlalchemy import PrimaryKeyConstraint
 
 class Athlete(db.Model):
     __tablename__ = 'Athlete'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger)
     data_source = db.Column(db.String(), index=True)
-    ath_id = db.Column(db.Integer, index=True, unique=True)
+    ath_id = db.Column(db.BigInteger, index=True, unique=True, primary_key=True)
     last_updated_datetime_utc = db.Column(
         db.DateTime(), default=datetime.utcnow)
     api_code = db.Column(db.String(50))
@@ -55,9 +55,9 @@ class Athlete(db.Model):
 class Activity(db.Model):
     __tablename__ = 'Activity'
 
-    id = db.Column(db.Integer, primary_key=True)
-    ath_id = db.Column(db.Integer, db.ForeignKey('Athlete.ath_id'), index=True)
-    act_id = db.Column(db.Integer, index=True, unique=True)
+    id = db.Column(db.BigInteger)
+    ath_id = db.Column(db.BigInteger, db.ForeignKey('Athlete.ath_id'), index=True)
+    act_id = db.Column(db.BigInteger, index=True, unique=True, primary_key=True)
     last_updated_datetime_utc = db.Column(
         db.DateTime(), default=datetime.utcnow)
     act_type = db.Column(db.String(20), index=True)
@@ -66,7 +66,42 @@ class Activity(db.Model):
     act_startDate = db.Column(db.DateTime(), index=True)
     act_dist = db.Column(db.Float(precision=4))
     act_totalElevGain = db.Column(db.Float(precision=4))
-    polyline = db.Column(db.Text, index=True)
+    polyline = db.Column(db.Text)
+    act_distance = db.Column(db.Float(precision=4))
+    act_moving_time = db.Column(db.Float(precision=4))
+    act_elapsed_time = db.Column(db.Float(precision=4))
+    act_avg_speed = db.Column(db.Float(precision=4))
+    act_max_speed = db.Column(db.Float(precision=4))
+    act_avg_cadence = db.Column(db.Float(precision=4))
+    act_avg_temp = db.Column(db.Float(precision=4))
+    act_avg_watts = db.Column(db.Float(precision=4))
+    act_max_watts = db.Column(db.Float(precision=4))
+    act_norm_power = db.Column(db.Float(precision=4))
+    act_kilojoules = db.Column(db.Float(precision=4))
+    act_avg_heartrate = db.Column(db.Float(precision=4))
+    act_max_heartrate = db.Column(db.Integer)
+    act_has_heartrate = db.Column(db.Boolean())
+    act_device_watts = db.Column(db.Boolean())
+    act_calories = db.Column(db.Float(precision=4))
+    act_elev_high = db.Column(db.Float(precision=4))
+    act_elev_low = db.Column(db.Float(precision=4))
+    act_start_point = db.Column(Geometry('POINT'), index=True)
+    act_end_point = db.Column(Geometry('POINT'))
+    act_achievement_count = db.Column(db.Integer)
+    act_kudos_count = db.Column(db.Integer)
+    act_comment_count = db.Column(db.Integer)
+    act_athlete_count = db.Column(db.Integer)
+    act_total_photo_count = db.Column(db.Integer)
+    act_commute = db.Column(db.Boolean())
+    act_manual = db.Column(db.Boolean())
+    act_trainer = db.Column(db.Boolean())
+    act_private = db.Column(db.Boolean())
+    act_device_name = db.Column(db.String())
+    act_workout_type = db.Column(db.Integer)
+    act_gear_id = db.Column(db.String())
+    act_segment_efforts = db.Column(JSON)
+    act_photo_url_list = db.Column(JSON)
+
 
     def __init__(self, ath_id, act_id,
                  act_type, act_name, act_description,
@@ -85,17 +120,17 @@ class Activity(db.Model):
         self.act_calories = act_calories
 
     def __repr__(self):
-        return '<ath_id %s, act_id %s, \
-                act_name %s, act_startDate %s>' % (self.ath_id, self.act_id,
+        return """<ath_id %s, act_id %s,
+                act_name %s, act_startDate %s>""" % (self.ath_id, self.act_id,
                                                    self.act_name, self.act_startDate)
 
 
 class Stream(db.Model):
     __tablename__ = 'Stream'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger)
     act_id = db.Column(
-        db.Integer, db.ForeignKey('Activity.act_id'), index=True)
+        db.Integer, db.ForeignKey('Activity.act_id'))
     last_updated_datetime_utc = db.Column(
         db.DateTime(), default=datetime.utcnow)
     timestamp = db.Column(db.DateTime())
@@ -112,6 +147,11 @@ class Stream(db.Model):
     cadence = db.Column(db.Float(precision=4))
     moving = db.Column(db.Boolean())
     point = db.Column(Geometry('POINT'), index=True)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('id', 'act_id'),
+        {},
+    )
 
     def __init__(self, act_id, timestamp, lat, long, elapsed_time, elapsed_dist, velocity_smooth,
                  altitude, grade_smooth, watts, temp, heartrate, cadence, moving, point):
@@ -133,11 +173,11 @@ class Stream(db.Model):
         self.point = point
 
     def __repr__(self):
-        return '<act_id %s, timestamp %s, \
-                velocity_smooth %s, point %s>' % (self.act_id, self.timestamp,
+        return """<act_id %s, timestamp %s,
+                velocity_smooth %s, point %s>""" % (self.act_id, self.timestamp,
                                                   self.velocity_smooth, self.point)
 
-
+'''
 class Stream_Act(db.Model):
     __tablename__ = 'Stream_Act'
 
@@ -158,7 +198,7 @@ class Stream_Act(db.Model):
         self.act_name = act_name
         self.linestring = linestring
         self.multipoint = multipoint
-
+'''
 
 class Athlete_Fact(db.Model):
     __tablename__ = 'Athlete_Fact'
@@ -251,7 +291,7 @@ class Segment(db.Model):
     ath_cnt = db.Column(db.BigInteger)
     cat = db.Column(db.Integer)
     date_created = db.Column(db.DateTime())
-    distance = db.Column(db.Float(precision=4))
+    distance = db.Column(db.Float(precision=4), index=True)
     effort_cnt = db.Column(db.BigInteger)
     elev_gain = db.Column(db.Float(precision=4))
     elev_high = db.Column(db.Float(precision=4))
@@ -261,7 +301,7 @@ class Segment(db.Model):
     total_elevation_gain = db.Column(db.Float(precision=4), default=0)
     name = db.Column(db.String())
     seg_points = db.Column(db.Text)
-    start_point = db.Column(Geometry('POINT'))
+    start_point = db.Column(Geometry('POINT'), index=True)
     end_point = db.Column(Geometry('POINT'))
 
     def __init__(self, seg_id, act_type, ath_cnt, cat, date_created, distance, effort_cnt,
