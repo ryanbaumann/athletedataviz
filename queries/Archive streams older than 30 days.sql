@@ -29,3 +29,13 @@ Where "Stream".act_id in (
 
 /*Cluster table on act id*/
 CLUSTER "Stream" USING ix_Stream_act_id
+
+insert into "Activty_Archive"
+SELECT 
+* from "Activity"
+where act_id not in (select distinct act_id from "Stream")
+and act_id not in (select distinct act_id from "Activty_Archive");
+
+
+DELETE from "Activity"
+where act_id not in (select distinct act_id from "Stream");

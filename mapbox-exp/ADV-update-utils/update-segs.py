@@ -24,8 +24,8 @@ public_token = os.environ['STRAVA_PUBLIC_TOKEN_SEGS']
 
 client = stravalib.client.Client(access_token=public_token)
 
-#connection = engine_prod.connect()
-connection = engine.connect()
+connection = engine_prod.connect()
+#connection = engine.connect()
 
 def trunc_string(string):
     return string.split(' ')[0]
@@ -40,13 +40,27 @@ def cv(val, type):
             return int(val)
 
 
-def update_acts(act_id):
+def update_acts(client, act_id):
         """
         Updates an activity int the database.  Accepts an activity ID list.
         """
         act = client.get_activity(act_id)
         args = """ UPDATE "Activity" 
                            Set 
+                           %s = '%s',
+                           "%s" = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
+                           %s = %s,
                            %s = '%s',
                            %s = %s,
                            %s = %s,
@@ -55,13 +69,10 @@ def update_acts(act_id):
                            %s = %s,
                            %s = %s,
                            %s = %s,
-                           %s = %s,
-                           %s = %s,
-                           %s = %s,
-                           %s = %s,
-                           %s = %s,
-                           %s = %s
+                           %s = '%s'
+
                            WHERE act_id = %s """ % ('polyline', act.map.polyline, 
+                                                     'act_totalElevGain', cv(act.total_elevation_gain, 'int'),
                                                      'act_achievement_count', cv(act.achievement_count, 'int'),
                                                      'act_athlete_count', cv(act.athlete_count, 'int'),
                                                      'act_avg_cadence', cv(act.average_cadence, 'int'),
@@ -72,17 +83,25 @@ def update_acts(act_id):
                                                      'act_calories', cv(act.calories, 'int'),
                                                      'act_comment_count', cv(act.comment_count, 'int'),
                                                      'act_commute', act.commute,
-                                                     'act_distance', cv(act.distance, 'float'),
+                                                     'act_dist', cv(act.distance, 'float'),
                                                      'act_elapsed_time', cv(act.elapsed_time.total_seconds(), 'int'),
-                                                     'act_gear_id', cv(act.gear_id, 'int'),
-                                                    act_id)
+                                                     'act_gear_id', unicode(act.gear_id),
+                                                     'act_kilojoules', cv(act.kilojoules, 'int'),
+                                                     'act_kudos_count', cv(act.kudos_count, 'int'),
+                                                     'act_manual', act.manual,
+                                                     'act_max_heartrate', cv(act.max_heartrate, 'int'),
+                                                     'act_max_speed', cv(act.max_speed, 'int'),
+                                                     'act_moving_time', cv(act.moving_time.total_seconds(), 'int'),
+                                                     'act_total_photo_count', cv(act.photo_count, 'int'),
+                                                     'act_workout_type', cv(act.workout_type, 'int'),
+                                                     act_id)
         connection.execute(args)
         return args
 
 "Get a list of activites to update from the database"
-act_lst = pd.read_sql("""SELECT act_id from "Activity" Where
-                          polyline is null LIMIT 2""", engine)['act_id'].tolist()
-
+ath_table = pd.read_sql(""" SELECT ath_id, api_code from "Athlete" """, engine_prod)
+ath_lst = ath_table['ath_id'].tolist()
+api_code_lst = ath_table['api_code'].tolist()
 result_list = []
 def log_result(result):
     # This is called whenever foo_pool(i) returns a result.
@@ -90,7 +109,7 @@ def log_result(result):
     result_list.append(result)
 
 if __name__ == "__main__":
-    print act_lst
+
     '''
     pool = multiprocessing.Pool(multiprocessing.cpu_count()-1)
     results = pool.imap(update_acts, (act_lst, ))
@@ -98,7 +117,25 @@ if __name__ == "__main__":
     pool.join()
     print(result_list)
     '''
-    for act_id in act_lst:
-        print act_id
-        update_acts(act_id)
-    print 'complete!'
+    for i in range(len(ath_lst)):
+        try:
+            client = stravalib.client.Client(access_token=api_code_lst[i])
+        except:
+            print 'no access to that athlete - trying public update'
+            client = stravalib.client.Client(access_token=public_token)
+
+        ath_id = ath_lst[i]
+        act_lst = pd.read_sql(""" SELECT act_id from "Activity" Where
+                          polyline is null and
+                          act_gear_id is null and
+                          ath_id = %s""" %(ath_id), engine_prod)['act_id'].tolist()
+
+        for act_id in act_lst:
+            print ath_id, act_id
+            try:
+                args = update_acts(client, act_id)
+                print args
+            except:
+                print 'error getting activity!  Moving on...'
+            
+            print 'complete!'
