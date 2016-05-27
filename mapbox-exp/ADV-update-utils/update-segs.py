@@ -44,6 +44,7 @@ def update_acts(client, act_id):
         """
         Updates an activity int the database.  Accepts an activity ID list.
         """
+        connection = engine_prod.connect()
         act = client.get_activity(act_id)
         args = """ UPDATE "Activity" 
                            Set 
@@ -96,6 +97,7 @@ def update_acts(client, act_id):
                                                      'act_workout_type', cv(act.workout_type, 'int'),
                                                      act_id)
         connection.execute(args)
+        connection.close()
         return args
 
 "Get a list of activites to update from the database"
@@ -135,6 +137,7 @@ if __name__ == "__main__":
             try:
                 args = update_acts(client, act_id)
                 print args
+
             except:
                 print 'error getting activity!  Moving on...'
             

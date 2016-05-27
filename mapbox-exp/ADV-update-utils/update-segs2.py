@@ -16,7 +16,7 @@ engine = create_engine('postgresql+psycopg2://admin:password@localhost:5432/webd
                        convert_unicode=True)
 
 engine_prod = create_engine(r'postgresql+psycopg2://' + os.environ['ADV_PROD_POSTGRESQL_DB'],
-                            convert_unicode=True)
+                            convert_unicode=True, pool_size=50)
 
 client_secret = os.environ['STRAVA_CLIENT_SECRET_SEGS']
 client_id = os.environ['STRAVA_CLIENT_ID_SEGS']
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         table_name = 'Segment'
         args = 'SELECT seg_id from "%s" Where ath_cnt=0' % (table_name)
         df = pd.read_sql(args, engine_prod)
-        already_dl_seg_id_list = df['seg_id']
+        already_dl_seg_id_list = df['seg_id'].unique()
         print 'got seg ids!'
         print already_dl_seg_id_list
     except:
@@ -57,6 +57,7 @@ if __name__ == "__main__":
         print 'getting seg %s' %(segid)
         seg_detail = client.get_segment(segid)
         print 'got segment from strava, analyzing'
+        connection = engine_prod.connect()
         updaterow = {'seg_id' : int(segid),
                       'elev_low' : float(seg_detail.elevation_low),
                       'elev_high' : float(seg_detail.elevation_high),
@@ -67,21 +68,26 @@ if __name__ == "__main__":
                       'max_grade' : int(seg_detail.maximum_grade),
                       'total_elevation_gain' : int(seg_detail.total_elevation_gain)
                      }
-        dflist.append(updaterow)
 
-        for d in dflist:
-            segment_id = d.get('seg_id', None)
-            print 'segment id : ' + str(segment_id)
-            for key, value in d.iteritems():
-                if key != 'seg_id':
-                    if key == 'date_created':
-                        args = """ UPDATE "Segment" 
-                               Set %s = to_date('%s', 'YYYY-MM-DD HH24:MI:SS') 
-                               WHERE seg_id = %s """ %(key, value, segment_id)
-                    else:
-                        args = """ UPDATE "Segment" 
-                                   Set %s = %s 
-                                   WHERE seg_id = %s """ %(key, value, segment_id)
-                    print args
-                    result = connection.execute(args)
-    connection.close()
+        args = """ UPDATE "Segment" 
+               Set %s = to_date('%s', 'YYYY-MM-DD HH24:MI:SS'),
+               %s = %s,
+               %s = %s,
+               %s = %s,
+               %s = %s,
+               %s = %s,
+               %s = %s,
+               %s = %s
+               WHERE seg_id = %s """  %('date_created', updaterow['date_created'],
+                'elev_low', updaterow['elev_low'],
+                'elev_high', updaterow['elev_high'],
+                'effort_cnt', updaterow['effort_cnt'],
+                'ath_cnt', updaterow['ath_cnt'],
+                'avg_grade', updaterow['avg_grade'],
+                'max_grade', updaterow['max_grade'],
+                'total_elevation_gain', updaterow['total_elevation_gain'],
+                segid)
+
+        print args
+        connection.execute(args)
+        connection.close()
