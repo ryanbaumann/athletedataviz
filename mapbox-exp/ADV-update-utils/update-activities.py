@@ -101,7 +101,7 @@ def update_acts(client, act_id):
         return args
 
 "Get a list of activites to update from the database"
-ath_table = pd.read_sql(""" SELECT ath_id, api_code from "Athlete" """, engine_prod)
+ath_table = pd.read_sql(""" SELECT ath_id, api_code from "Athlete" Where city is not null """, engine_prod)
 ath_lst = ath_table['ath_id'].tolist()
 api_code_lst = ath_table['api_code'].tolist()
 result_list = []
@@ -128,8 +128,8 @@ if __name__ == "__main__":
 
         ath_id = ath_lst[i]
         act_lst = pd.read_sql(""" SELECT act_id from "Activity" Where
-                          polyline is null and
-                          act_gear_id is null and
+                          /*polyline is null and*/
+                          act_dist is null and
                           ath_id = %s""" %(ath_id), engine_prod)['act_id'].tolist()
 
         for act_id in act_lst:
@@ -140,5 +140,6 @@ if __name__ == "__main__":
 
             except:
                 print 'error getting activity!  Moving on...'
+                pass
             
             print 'complete!'

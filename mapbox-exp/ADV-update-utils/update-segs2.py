@@ -55,7 +55,12 @@ if __name__ == "__main__":
     dflist = []
     for segid in already_dl_seg_id_list:
         print 'getting seg %s' %(segid)
-        seg_detail = client.get_segment(segid)
+        try:
+            seg_detail = client.get_segment(segid)
+        except:
+            print 'error getting seg detail'
+            raise
+            pass
         print 'got segment from strava, analyzing'
         connection = engine_prod.connect()
         updaterow = {'seg_id' : int(segid),
