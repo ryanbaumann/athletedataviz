@@ -1,12 +1,12 @@
-flask
+Flask==0.11
 stravalib 
 pandas==0.18.1
 numpy==1.11.0
 pg
-sqlalchemy
+sqlalchemy==1.0.13
 sqlalchemy-utils
 flask-sqlalchemy
-geoalchemy2
+geoalchemy2==0.8
 MarkupSafe
 pygresql
 pg8000
@@ -38,3 +38,5 @@ mapbox
 boto3
 responses
 pytest
+Flask-Assets==0.11
+mapbox

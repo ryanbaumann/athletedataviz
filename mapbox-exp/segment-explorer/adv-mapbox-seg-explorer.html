@@ -156,13 +156,13 @@ body {
 
             map.addSource('all_segments', {
                 type: 'vector',
-                url: 'mapbox://rsbaumann.bkxfy0ve'
+                url: 'mapbox://rsbaumann.ADV_all_segments'
             });
-
+            console.log(map.getSource('all_segments'))
             map.addLayer({
                     "id": "segment-1",
                     "source": 'all_segments',
-                    "source-layer": "all_segments2",
+                    "source-layer": "adv_all_segments",
                     "type": "line",
                     "paint": {
                         "line-opacity": 1,

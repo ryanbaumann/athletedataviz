@@ -15,6 +15,7 @@ from flask.ext.cache import Cache
 from flask_sslify import SSLify
 from flask.ext.cors import CORS
 from lib.forms import OrderForm
+from flask.ext.assets import Environment, Bundle
 #import shopify
 
 #################
@@ -50,6 +51,12 @@ cache.init_app(app)
 #flask-sslify
 if 'DYNO' in os.environ:
     sslify = SSLify(app, permanent=True)
+
+#flask-assets
+assets = Environment(app)
+js = Bundle('jquery.js', 'base.js', 'widgets.js',
+            filters='jsmin', output='gen/packed.js')
+assets.register('js_all', js)
 
 #Globals
 BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'

@@ -40,13 +40,13 @@ def cv(val, type):
             return int(val)
 
 
-def update_acts(client, act_id):
+def update_acts(client, tablename, act_id):
         """
         Updates an activity int the database.  Accepts an activity ID list.
         """
         connection = engine_prod.connect()
         act = client.get_activity(act_id)
-        args = """ UPDATE "Activity" 
+        args = """ UPDATE "%s" 
                            Set 
                            %s = '%s',
                            "%s" = %s,
@@ -72,7 +72,8 @@ def update_acts(client, act_id):
                            %s = %s,
                            %s = '%s'
 
-                           WHERE act_id = %s """ % ('polyline', act.map.polyline, 
+                           WHERE act_id = %s """ % (tablename, 
+                                                     'polyline', act.map.polyline, 
                                                      'act_totalElevGain', cv(act.total_elevation_gain, 'int'),
                                                      'act_achievement_count', cv(act.achievement_count, 'int'),
                                                      'act_athlete_count', cv(act.athlete_count, 'int'),
@@ -101,7 +102,7 @@ def update_acts(client, act_id):
         return args
 
 "Get a list of activites to update from the database"
-ath_table = pd.read_sql(""" SELECT ath_id, api_code from "Athlete" Where city is not null """, engine_prod)
+ath_table = pd.read_sql(""" SELECT ath_id, api_code from "Athlete" """, engine_prod)
 ath_lst = ath_table['ath_id'].tolist()
 api_code_lst = ath_table['api_code'].tolist()
 result_list = []
@@ -112,34 +113,43 @@ def log_result(result):
 
 if __name__ == "__main__":
 
-    '''
-    pool = multiprocessing.Pool(multiprocessing.cpu_count()-1)
-    results = pool.imap(update_acts, (act_lst, ))
-    pool.close()
-    pool.join()
-    print(result_list)
-    '''
     for i in range(len(ath_lst)):
+        go = True
         try:
             client = stravalib.client.Client(access_token=api_code_lst[i])
         except:
             print 'no access to that athlete - trying public update'
+            go = False
             client = stravalib.client.Client(access_token=public_token)
+        if go:
+            ath_id = ath_lst[i]
+            act_lst = pd.read_sql(""" SELECT act_id from "Activity" Where
+                              act_dist is null and
+                              ath_id = %s""" %(ath_id), engine_prod)['act_id'].tolist()
 
-        ath_id = ath_lst[i]
-        act_lst = pd.read_sql(""" SELECT act_id from "Activity" Where
-                          /*polyline is null and*/
-                          act_dist is null and
-                          ath_id = %s""" %(ath_id), engine_prod)['act_id'].tolist()
+            for act_id in act_lst:
+                print 'trying act update for %s, %s' %(ath_id, act_id)
+                if go:
+                    try:
+                        args = update_acts(client, 'Activity', act_id)
+                        print args
+                    except:
+                        print 'error getting activity!  Moving on...'
+                        go = False
+                        pass
 
-        for act_id in act_lst:
-            print ath_id, act_id
-            try:
-                args = update_acts(client, act_id)
-                print args
-
-            except:
-                print 'error getting activity!  Moving on...'
-                pass
-            
-            print 'complete!'
+            act_lst = pd.read_sql(""" SELECT act_id from "Activty_Archive" Where
+                              act_dist is null and
+                              ath_id = %s""" %(ath_id), engine_prod)['act_id'].tolist()
+            for act_id in act_lst:
+                print 'trying act_archive update for %s, %s' %(ath_id, act_id)
+                if go:
+                    try:
+                        args = update_acts(client, 'Activty_Archive', act_id)
+                        print args
+                    except:
+                        print 'error getting activity!  Moving on...'
+                        go = False
+                        pass
+        
+        print 'complete!'

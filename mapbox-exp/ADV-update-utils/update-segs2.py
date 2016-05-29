@@ -11,6 +11,7 @@ import json
 import multiprocessing
 from multiprocessing import Pool, Process
 import re
+import time
 
 engine = create_engine('postgresql+psycopg2://admin:password@localhost:5432/webdev6',
                        convert_unicode=True)
@@ -41,12 +42,14 @@ def cv(val, type):
 
 if __name__ == "__main__":
     already_dl_seg_id_list = []
+    seg_count = 0
     try:
         print 'getting segment ids from database'
         table_name = 'Segment'
         args = 'SELECT seg_id from "%s" Where ath_cnt=0' % (table_name)
         df = pd.read_sql(args, engine_prod)
         already_dl_seg_id_list = df['seg_id'].unique()
+        total_segs = df['seg_id'].count()
         print 'got seg ids!'
         print already_dl_seg_id_list
     except:
@@ -54,24 +57,26 @@ if __name__ == "__main__":
 
     dflist = []
     for segid in already_dl_seg_id_list:
+        seg_count += 1
         print 'getting seg %s' %(segid)
         try:
             seg_detail = client.get_segment(segid)
         except:
             print 'error getting seg detail'
-            raise
+            time.sleep(60)
             pass
         print 'got segment from strava, analyzing'
+        print 'seg %s of %s' %(seg_count, total_segs)
         connection = engine_prod.connect()
         updaterow = {'seg_id' : int(segid),
-                      'elev_low' : float(seg_detail.elevation_low),
-                      'elev_high' : float(seg_detail.elevation_high),
+                      'elev_low' : cv(seg_detail.elevation_low, 'float'),
+                      'elev_high' : cv(seg_detail.elevation_high, 'float'),
                       'date_created' : seg_detail.created_at.replace(tzinfo=None),
-                      'effort_cnt' : int(seg_detail.effort_count),
-                      'ath_cnt' : int(seg_detail.athlete_count),
-                      'avg_grade' : int(seg_detail.average_grade),
-                      'max_grade' : int(seg_detail.maximum_grade),
-                      'total_elevation_gain' : int(seg_detail.total_elevation_gain)
+                      'effort_cnt' : cv(seg_detail.effort_count, 'float'),
+                      'ath_cnt' : cv(seg_detail.athlete_count, 'int'),
+                      'avg_grade' : cv(seg_detail.average_grade, 'float'),
+                      'max_grade' : cv(seg_detail.maximum_grade, 'float'),
+                      'total_elevation_gain' : cv(seg_detail.total_elevation_gain, 'int')
                      }
 
         args = """ UPDATE "Segment" 
