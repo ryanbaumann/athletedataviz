@@ -40,3 +40,4 @@ responses
 pytest
 Flask-Assets==0.11
 mapbox
+jsmin==2.2.1

@@ -54,7 +54,7 @@ if 'DYNO' in os.environ:
 
 #flask-assets
 assets = Environment(app)
-js = Bundle('jquery.js', 'base.js', 'widgets.js',
+js = Bundle('js/adv_viz_designer.js', 'js/image_gl_canvas.js', 'js/upload_img.js',
             filters='jsmin', output='gen/packed.js')
 assets.register('js_all', js)
 

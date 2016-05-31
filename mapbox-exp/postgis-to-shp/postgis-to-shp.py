@@ -15,11 +15,12 @@ import requests
 import time
 import logging
 
-logging.basicConfig(filename='adv_export_shp.log',
-                    level=logging.INFO, format='%(asctime)s %(message)s')
-
 working_folder = r'C:\Projects\athletedataviz\website\athletedataviz_v1-0\mapbox-exp\postgis-to-shp'
 data_dir = r'C:\Projects\athletedataviz\website\athletedataviz_v1-0\mapbox-exp\postgis-to-shp'
+
+os.chdir(working_folder)
+logging.basicConfig(filename='log/adv_export_shp.log',
+                    level=logging.INFO, format='%(asctime)s %(message)s')
 
 db_host = os.environ['db_host_adv']
 db_user = os.environ['db_user_adv']
@@ -63,12 +64,25 @@ def zip_like_files(working_folder, filePattern):
             print f
             files.append(f)
     os.chdir(working_folder)
+
+    try:
+        logging.info('archiving existing zip file')
+        os.rename(filePattern + '.zip', 'archive/' + filePattern + '.zip')
+    except Exception as e:
+        logging.exception(
+            'no existing zip archive to remove!')
+        pass
+
     with ZipFile(filePattern + '.zip', 'w') as myzip:
 
         for f in files:
             print 'adding %s to zip!' % (str(f))
             myzip.write(f, compress_type=compression)
-            os.remove(f)
+            if not f.endswith('.prj') or not f.endswith('.qpj'):
+                logging.info('deleting file %s' %(f))
+                os.remove(f)
+            else:
+                logging.info('skipping deletion of prj and qpj files %s' %(f))
         myzip.close()
 
 
@@ -77,8 +91,9 @@ if __name__ == "__main__":
     logging.info('getting activity shp...')
     p2 = Popen(args_act_shp_export)
     p2.wait()
-    logging.info('completed shp file export, now zipping')
+    
     try:
+        logging.info('completed shp file export, now zipping')
         zip_like_files(working_folder, act_out_file_name)
         logging.info('completed act file zip ' + act_out_file_name)
     except Exception as e:
