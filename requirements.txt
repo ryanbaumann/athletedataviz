@@ -6,7 +6,7 @@ pg
 sqlalchemy==1.0.13
 sqlalchemy-utils
 flask-sqlalchemy
-geoalchemy2==0.8
+geoalchemy2
 MarkupSafe
 pygresql
 pg8000
