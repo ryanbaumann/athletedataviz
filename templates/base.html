@@ -11,28 +11,26 @@
     <meta name="title" content="AthleteDataViz" />
     <meta name="author" content="RyanBaumann" />
     <meta name="keywords" content="athlete, data, viz, athletedataviz, heatmap, map, cycling, running, hiking, triathalon, vizualization, mapbox" />
-
     <meta name="p:domain_verify" content="2518dde61dca1f34a95baa06a75883a0" />
     <meta property="fb:app_id" content="1250707668278763" />
     <meta property="og:url" content="https://design.athletedataviz.com" />
     <meta property=og:type content="website" />
-    <meta property="og:title"  content="AthleteDataViz" />
+    <meta property="og:title" content="AthleteDataViz" />
     <meta property="og:image" content="https://s3.amazonaws.com/images.athletedataviz.com/static/img/title_gallery_2.jpg" />
     <meta name="og:description" content="Design your custom Strava heatmap and order high-rez prints of your viz creation." />
-    
-    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" / async defer>
+    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" / async defer> {% assets "css_all" %}
+    <link rel="stylesheet" type="text/css" src="{{ ASSET_URL }}">
+    {% endassets %}
+    <!--
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" async defer>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" async defer>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" async defer>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/stylesheets/jquery.sidr.light.css" async defer>
     <link rel='stylesheet' href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.css'  async defer> 
     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.css' type='text/css' async defer>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
     <link rel="stylesheet" href="static/css/style.css" type="text/css" async defer>
-
+    !-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/bootstrap-slider.min.js'></script>
     {% block import_script %} {% endblock %}
 </head>
 
@@ -57,10 +55,8 @@
             <div class="navbar-header">
                 <div class="navbar-icon-container">
                     <a class="navbar-brand" href="https://athletedataviz.com">AthleteDataViz </a>
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> 
-                    {% if ((request.path=="/strava_mapbox") or (request.path=="/demodesigner")): %}
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o">&nbsp;&nbsp;Toolbar </i></a> 
-                    {% endif %}
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> {% if ((request.path=="/strava_mapbox") or (request.path=="/demodesigner")): %}
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o">&nbsp;&nbsp;Toolbar </i></a> {% endif %}
                 </div>
             </div>
             <div class="navbar-collapse collapse" id="myNavbar">
@@ -88,75 +84,65 @@
             </div>
         </div>
     </nav>
-
     <div class="modal fade text-center" id="DownloadModal" tabindex="-1" role="dialog">
-      <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Just a slight problem...</h4>
-          </div>
-          <div class="modal-body">
-            <h4> Do you have any data on AthleteDataViz?</h4>
-            <a class="btn btn-primary" href="/">Download</a>
-            <br><br>
-            <p> Please email support at <strong>ryanbaumann@athletedataviz.com</strong> if you have any problems </p>
-            </a>
-            <br>
-            
-          </div>
-          <div class="modal-footer text-center">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          </div>
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Just a slight problem...</h4>
+                </div>
+                <div class="modal-body">
+                    <h4> Do you have any data on AthleteDataViz?</h4>
+                    <a class="btn btn-primary" href="/">Download</a>
+                    <br>
+                    <br>
+                    <p> Please email support at <strong>ryanbaumann@athletedataviz.com</strong> if you have any problems </p>
+                    </a>
+                    <br>
+                </div>
+                <div class="modal-footer text-center">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
+    {% block content %} {% endblock %}
+    <script>
+    $(document).ready(function() {
+        $("#full-extent-btn").click(function() {
+            map.fitBounds(boroughs.getBounds());
+            $(".navbar-collapse.in").collapse("hide");
+            return false;
+        });
 
-{% block content %} {% endblock %}
+        $("#legend-btn").click(function() {
+            $("#legendModal").modal("show");
+            $(".navbar-collapse.in").collapse("hide");
+            return false;
+        });
 
-<script>
-$( document ).ready(function() {
-    $("#full-extent-btn").click(function() {
-        map.fitBounds(boroughs.getBounds());
-        $(".navbar-collapse.in").collapse("hide");
-        return false;
+
+        $('#login-btn').on('click', function() {
+            $("#loginModal").modal("show");
+            $(".navbar-collapse.in").collapse("hide");
+            return false;
+        });
+
+        $("#nav-btn").click(function() {
+            $(".navbar-collapse").collapse("toggle");
+            return false;
+        });
+        $("#list-btn").click(function() {
+            $('#sidebar').toggle();
+            map.resize();
+            return false;
+        });
+
     });
-
-    $("#legend-btn").click(function() {
-        $("#legendModal").modal("show");
-        $(".navbar-collapse.in").collapse("hide");
-        return false;
-    });
-
-
-    $('#login-btn').on('click', function() {
-        $("#loginModal").modal("show");
-        $(".navbar-collapse.in").collapse("hide");
-        return false;
-    });
-
-    $("#nav-btn").click(function() {
-        $(".navbar-collapse").collapse("toggle");
-        return false;
-    });
-    $("#list-btn").click(function() {
-        $('#sidebar').toggle();
-        map.resize();
-        return false;
-    });
-
-});
-
-</script>
-{% assets "js_all" %}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js" async defer></script>
-<script src="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/jquery.sidr.js" async defer></script>
-<script src="https://apis.google.com/js/platform.js" async defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" async defer></script>
+    </script>
+    {% assets "js_all" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}" async defer></script>
+    {% endassets %}
 </body>
-
 
 </html>

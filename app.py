@@ -54,8 +54,31 @@ if 'DYNO' in os.environ:
 
 #flask-assets
 assets = Environment(app)
-js = Bundle('js/adv_viz_designer.js', 'js/image_gl_canvas.js', 'js/upload_img.js',
+js = Bundle('js/mapbox-gl-js-0-18-0.js',
+            'js/mapbox-gl-geocoder-1-0-0.js',
+            'js/bootstrap.js',
+            'js/bootstrap-slider.js',     
+            'js/modernizr-2-8-3.js',
+            'js/moment-2-10-6.js',
+            'js/nanobar-0.2.1.js',
+            'js/platform.js',
+            'js/canvas-to-blob.js',
+            'js/fileSaver.js',
+            'js/adv_viz_designer.js', 
+            'js/image_gl_canvas.js', 
+            'js/upload_img.js',
             filters='jsmin', output='gen/packed.js')
+
+css = Bundle('css/bootstrap.css',
+             'css/bootstrap-slider.css',
+             'css/font-awesome.css',
+             'css/mapbox-gl-js-0-18-0.css',
+             'css/mapbox-gl-geocoder-1-0-0.css',
+             'css/normalize.css',
+             'css/style.css',
+             filters='cssmin', output="gen/all.css")
+
+assets.register('css_all', css)
 assets.register('js_all', js)
 
 #Globals
@@ -411,8 +434,6 @@ def strava_mapbox():
     return render_template('strava_mapbox_gl_v3.html',
                            mapbox_gl_accessToken = app.config[
                                'MAPBOX_GL_ACCESS_TOKEN'],
-                           mapbox_accessToken = app.config[
-                               'MAPBOX_ACCESS_TOKEN'],
                            heatpoint_url = BASEPATH +
                            'heat_points/' + str(session['ath_id']),
                            heatline_url = BASEPATH +

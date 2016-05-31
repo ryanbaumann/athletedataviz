@@ -1,7 +1,21 @@
+try {
+    var center_point = [-89.6075530123, 40.776876321];
+    var seg_base_url = '{{ seg_base_url | safe}}';
+    var heatpoint_url = '{{ heatpoint_url | safe}}';
+    var heatline_url = '{{ heatline_url | safe}}';
+    var mapboxgl_accessToken = '{{ mapbox_gl_accessToken|safe }}';
+    var ath_name = '{{ath_name}}';
+}
+catch (err) {
+    console.log(err);
+    $('#DownloadModal').modal("show");
+}
+
 // API tokens 
 mapboxgl.accessToken = mapboxgl_accessToken;
 
 /////////////  Global variables  ////////////
+
 var draw_canvas;
 var linestring_src;
 var heatpoint_src;

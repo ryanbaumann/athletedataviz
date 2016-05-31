@@ -41,3 +41,4 @@ pytest
 Flask-Assets==0.11
 mapbox
 jsmin==2.2.1
+cssmin==0.2.0
