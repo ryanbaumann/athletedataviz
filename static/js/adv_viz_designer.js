@@ -9,49 +9,95 @@ var map_style = 'dark-nolabel';
 var curStyle;
 var map;
 
-var color_list = [
-    ['blue', 'cyan', 'lime', 'yellow', 'red'],
-    ['purple', 'pink', 'blue', 'yellow', 'orange'],
-    ['green', 'aquamarine', 'blanchedalmond', 'coral', 'red']
-]
+function addSegLayer(mapid, seg_url) {
+        if (mapid.getSource('segment')) {
+            try {
+                segment_src.setData(seg_url);
+                render();
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        else {
+            try {
+                isMapLoaded(mapid, 300);
+                segment_src = new mapboxgl.GeoJSONSource({
+                    data: seg_url,
+                    maxzoom: 22,
+                    buffer: 10,
+                    tolerance: 1
+                });
+                mapid.addSource('segment', segment_src);
+            } catch (err) {
+                console.log(err);
+            }
+            try {
+                calcSegFilters(seg_breaks, 'dist');
+                calcSegLayers(seg_filters, lineColors);
+                for (var p = 0; p < seg_layers.length; p++) {
+                    mapid.addLayer(seg_layers[p]);
+                    calcLegends(p, 'segment');
+                };
+                addPopup(mapid, seg_layernames, segpopup);
+                render();   
+            } catch (err) {
+                console.log(err);
+            }
+        } 
+};
 
-var line_color_list = [
-    ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"],
-    ['#F52D29', '#E21EB4', '#01970B', '#07A991', '#1911C6'],
-    ['#DDD39B', '#E3D88D', '#EEE175', '#F8EB5A', '#FFF447'],
-    ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47'],
-    ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
-]
+function addLayerLinestring(mapid) {
+    linestring_src = new mapboxgl.GeoJSONSource({
+        data: heatline_url,
+        maxzoom: 22,
+        buffer: 0,
+        buffer: 10,
+        tolerance: 1
+    });
+    try {
+        mapid.addSource('linestring', linestring_src);
+    } catch (err) {
+        console.log(err);
+    }
+    try {
+        calcLineFilters(lineBreaks, 'ty');
+        calcLineLayers();
+        for (var p = 0; p < lineLayers.length; p++) {
+            mapid.addLayer(lineLayers[p]);
+            calcLegends(p, 'heat-lines');
+        };
+        addPopup(map, linelayernames, linepopup);
+    } catch (err) {
+        console.log(err);
+    }
+};
 
-//Global variables for heat-lines
-var lineBreaks = ['Ride', 'Run', 'NordicSki', 'Hike', 'Other'];
-var lineColors = line_color_list[0];
-var lineFilters = [];
-var lineLayers = [];
-var linelayernames=[];
-var linepopup = new mapboxgl.Popup({
-    closeButton: false,
-    closeOnClick: false
-});
-//Global variables for heat-points
-var breaks = [3, 6, 9, 12, 16];
-var colors = color_list[0];
-var layers = [];
-var filters = [];
-var layernames=[];
-var heatpopup = new mapboxgl.Popup({
-    closeButton: false,
-    closeOnClick: false
-});
-//Global variables for segments
-var seg_breaks = [3, 6, 9, 12, 16];
-var seg_layers = [];
-var seg_filters = [];
-var seg_layernames=[];
-var segpopup = new mapboxgl.Popup({
-    closeButton: false,
-    closeOnClick: false
-});
+//Add heat points function
+function addLayerHeat(mapid) {
+    // Mapbox JS Api - import heatmap layer
+    heatpoint_src = new mapboxgl.GeoJSONSource({
+        data: heatpoint_url,
+        maxzoom: 22,
+        buffer: 10,
+        tolerance: 10
+    });
+    try {
+        mapid.addSource('heatpoint', heatpoint_src);
+    } catch (err) {
+        console.log(err);
+    }
+    try { 
+        calcHeatLayers()
+        mapid.addLayer(layers[0]);
+        for (var p = 0; p < breaks.length; p++) {
+            calcLegends(p, 'heat-point');
+            };
+        addPopup(mapid, layernames, heatpopup);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
 
 /////  Main Function  ///////
 function initVizMap() {
@@ -98,14 +144,6 @@ function initVizMap() {
 }
 
 ///////  HELPER FUNCTIONS    /////
-
-function updateHeatLegend() {
-    document.getElementById('legend-points-param').textContent = $("#heattype option:selected").text();
-}
-
-function updateSegLegend() {
-    document.getElementById('legend-seg-param').textContent = $("#segParam option:selected").text();
-}
 
 function calcLegends(p, id) {
     var item = document.createElement('div');
@@ -166,259 +204,6 @@ function calcLegends(p, id) {
     }
 }
 
-function calcLineFilters(breaks, param) {
-    //calculate line filters to apply
-    lineFilters = [];
-    for (var p = 0; p < lineBreaks.length - 1; p++) {
-        lineFilters.push(['==', param, lineBreaks[p]])
-    }
-}
-
-function calcLineLayers() {
-    //calculate line layers to create
-    lineLayers = [];
-    linelayernames = [];
-    for (var p = 0; p < lineFilters.length; p++) {
-        lineLayers.push({
-            id: 'linestring-' + p,
-            type: 'line',
-            source: 'linestring',
-            paint: {
-                "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-                "line-width": parseFloat(document.getElementById("line_width").value),
-                "line-color": lineColors[p],
-                "line-gap-width": 0
-            },
-            filter: lineFilters[p]
-        });
-        linelayernames.push('linestring-' + p);
-    }
-}
-
-function calcSegBreaks(maxval, numbins) {
-    //calculate breaks based on a selected bin size and number of bins
-    seg_breaks = [];  //empty the segment breaks array
-    var binSize = maxval / numbins;
-    for (p = 1; p <= numbins; p++) {
-        seg_breaks.push(Math.round(binSize * p *10)/10);
-    }
-    updateSegLegend();
-    for (p = 0; p < seg_layers.length; p++) {
-        calcLegends(p, 'segment');
-    }
-}
-
-function calcSegFilters(breaks, param) {
-    //calculate line filters to apply
-    seg_filters = [];
-    for (var p = 0; p < seg_breaks.length; p++) {
-        if (p <= 0) {
-            seg_filters.push(['all', ['<', param, seg_breaks[p + 1]]])
-        } else if (p < seg_breaks.length - 1) {
-            seg_filters.push(['all', ['>=', param, seg_breaks[p]],
-                ['<', param, breaks[p + 1]]
-            ])
-        } else {
-            seg_filters.push(['all', ['>=', param, seg_breaks[p]]])
-        }
-    }
-}
-
-function calcSegLayers() {
-    //calculate line layers to create
-    seg_layers = [];
-    seg_layernames = [];
-    for (var p = 0; p < seg_filters.length; p++) {
-        seg_layers.push({
-            id: 'segment-' + p,
-            type: 'line',
-            source: 'segment',
-            paint: {
-                "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-                "line-width": parseFloat(document.getElementById("line_width").value),
-                "line-color": lineColors[p],
-                "line-gap-width": 0
-            },
-            filter: seg_filters[p]
-        });
-        seg_layernames.push('segment-' + p);
-    }
-}
-
-function calcBreaks(maxval, numbins) {
-    //calculate breaks based on a selected bin size and number of bins
-    breaks = [];  //empty the breaks array
-    var binSize = maxval / numbins;
-    for (p = 1; p <= numbins; p++) {
-        breaks.push(Math.round(binSize * p *10)/10);
-    }
-    updateHeatLegend();
-    for (p = 0; p < breaks.length; p++) {
-        calcLegends(p, 'heat-point');
-    }
-}
-
-function calcHeatLayers() {
-    //create layers with filters
-    layers = [];
-    layernames=[];
-    layers.push({
-        id: 'heatpoints-0',
-        type: 'circle',
-        source: 'heatpoint',
-        paint: {
-            "circle-radius": {
-                stops: [
-                        [12, 1],
-                        [14, 2],
-                        [16, 4],
-                        [18, 8]
-                       ]
-            },
-            "circle-color": {
-                property: 's',
-                stops: [
-                [breaks[0], colors[0]],
-                [breaks[1], colors[1]],
-                [breaks[2], colors[2]],
-                [breaks[3], colors[3]],
-                [breaks[4], colors[4]]
-            ]
-            },
-            "circle-opacity": 0.8,
-            "circle-blur": 0.5
-        }
-    });
-    layernames.push('heatpoints-0');
-}
-
-
-//Query URL Args parsing for segments layers
-function EncodeQueryData(data) {
-    var ret = [];
-    for (var d in data)
-        ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
-    return ret.join("&");
-}
-
-function getURL(mapid, newSegs) {
-
-    var bounds = mapid.getBounds();
-    var sw = bounds.getSouthWest().wrap().toArray();
-    var ne = bounds.getNorthEast().wrap().toArray();
-    var east = ne[0]
-    var south = sw[1]
-    var west = sw[0]
-    var north = ne[1]
-    var acttype = document.getElementById("segType").value;
-    var start_dist = parseFloat($('#dist_filter').slider('getValue')[0])*1609.34;
-    var end_dist = parseFloat($('#dist_filter').slider('getValue')[1])*1609.34;
-    var params = {
-        'startLat': south,
-        'startLong': west,
-        'endLat': north,
-        'endLong': east,
-        'act_type': acttype,
-        'start_dist': start_dist,
-        'end_dist': end_dist,
-        'newSegs' : newSegs
-    };
-    var queryString = EncodeQueryData(params);
-    var targetURL = seg_base_url + queryString;
-    return targetURL;
-};
-
-//Add heat points function
-function addLayerHeat(mapid) {
-    // Mapbox JS Api - import heatmap layer
-    heatpoint_src = new mapboxgl.GeoJSONSource({
-        data: heatpoint_url,
-        maxzoom: 22,
-        buffer: 10,
-        tolerance: 10
-    });
-    try {
-        mapid.addSource('heatpoint', heatpoint_src);
-    } catch (err) {
-        console.log(err);
-    }
-    try { 
-        calcHeatLayers()
-        mapid.addLayer(layers[0]);
-        for (var p = 0; p < breaks.length; p++) {
-            calcLegends(p, 'heat-point');
-            };
-        addPopup(mapid, layernames, heatpopup);
-    } catch (err) {
-        console.log(err);
-    }
-};
-
-
-function addLayerLinestring(mapid) {
-    linestring_src = new mapboxgl.GeoJSONSource({
-        data: heatline_url,
-        maxzoom: 22,
-        buffer: 0,
-        buffer: 10,
-        tolerance: 1
-    });
-    try {
-        mapid.addSource('linestring', linestring_src);
-    } catch (err) {
-        console.log(err);
-    }
-    try {
-        calcLineFilters(lineBreaks, 'ty');
-        calcLineLayers();
-        for (var p = 0; p < lineLayers.length; p++) {
-            mapid.addLayer(lineLayers[p]);
-            calcLegends(p, 'heat-lines');
-        };
-        addPopup(map, linelayernames, linepopup);
-    } catch (err) {
-        console.log(err);
-    }
-};
-
-function addSegLayer(mapid, seg_url) {
-        if (mapid.getSource('segment')) {
-            try {
-                segment_src.setData(seg_url);
-                render();
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        else {
-            try {
-                isMapLoaded(mapid, 300);
-                segment_src = new mapboxgl.GeoJSONSource({
-                    data: seg_url,
-                    maxzoom: 22,
-                    buffer: 10,
-                    tolerance: 1
-                });
-                mapid.addSource('segment', segment_src);
-            } catch (err) {
-                console.log(err);
-            }
-            try {
-                calcSegFilters(seg_breaks, 'dist');
-                calcSegLayers(seg_filters, lineColors);
-                for (var p = 0; p < seg_layers.length; p++) {
-                    mapid.addLayer(seg_layers[p]);
-                    calcLegends(p, 'segment');
-                };
-                addPopup(mapid, seg_layernames, segpopup);
-                render();   
-            } catch (err) {
-                console.log(err);
-            }
-        }
-    
-};
-
 function switchLayer() {
     layer = document.getElementById("mapStyle").value;
     isMapLoaded(map, 300);
@@ -467,67 +252,6 @@ function set_visibility(mapid, id, onoff) {
     }
 };
 
-function paintLayer(mapid, color, width, opacity, pitch, layer) {
-    lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)]
-    mapid.setPitch(pitch);
-    for (var p = 0; p < lineLayers.length; p++) {
-        calcLegends(p, 'heat-line');
-        mapid.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
-        mapid.setPaintProperty(layer + '-' + p, 'line-width', width);
-        mapid.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
-        mapid.setPaintProperty(layer + '-' + p, 'line-gap-width', 
-            parseFloat(document.getElementById("line_offset").value));
-    };
-}
-
-function paintSegLayer(mapid, layer, color, width, opacity, pitch) {
-    lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)]
-    mapid.setPitch(pitch);
-    calcSegBreaks(parseFloat($('#segScale').slider('getValue')), lineColors.length);
-    calcSegFilters(seg_breaks, document.getElementById('segParam').value);
-    for (var p = 0; p < seg_layers.length; p++) {
-        mapid.setFilter(layer + '-' + p, seg_filters[p]);
-        mapid.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
-        mapid.setPaintProperty(layer + '-' + p, 'line-width', width);
-        mapid.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
-        mapid.setPaintProperty(layer + '-' + p, 'line-gap-width', 
-            parseFloat(document.getElementById("line_offset").value));
-    };
-}
-
-
-//Update heatpoints properties
-function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
-    //Update the break and filter settings
-    mapid.setPitch(pitch);
-    colors = color_list[parseFloat(document.getElementById('heat_color').value)];
-    calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);
-    circle_color_property = document.getElementById('heattype').value
-    radius_values=[radius*1, radius*2, radius*4, radius*6, radius*8]
-    circle_radius_style = { "base": radius,
-                              "stops": [
-                                [12, radius_values[0]],
-                                [14, radius_values[1]],
-                                [16, radius_values[2]],
-                                [18, radius_values[3]],
-                                [20, radius_values[3]]
-                               ]
-                        };
-    circle_color_style = { "property": circle_color_property,
-                        "stops": [
-                            [breaks[0], colors[0]],
-                            [breaks[1], colors[1]],
-                            [breaks[2], colors[2]],
-                            [breaks[3], colors[3]],
-                            [breaks[4], colors[4]]
-                            ]
-                        };
-    mapid.setPaintProperty(layer + '-' + 0, 'circle-radius', circle_radius_style);
-    mapid.setPaintProperty(layer + '-' + 0, 'circle-color', circle_color_style);
-    mapid.setPaintProperty(layer + '-' + 0, 'circle-blur', blur);
-    mapid.setPaintProperty(layer + '-' + 0, 'circle-opacity', opacity);
-
-}
 
 function render() {
     //isMapLoaded(map, 0.5);
@@ -718,13 +442,6 @@ function hideLoading() {
     $("#loading").hide();
 }
 
-function getDataLinestring(callback) {
-    $.getJSON( heatpoint_url , function(data) {
-        stravaHeatGeoJson = JSON.parse(data); 
-        r.resolve();
-    }),
-    callback(stravaHeatGeoJson);
-};
 
 function getStravaLeaderboard(segid, token) {
     $.getJSON('https://www.strava.com/api/v3/segments/' + segid + '/leaderboard?' +

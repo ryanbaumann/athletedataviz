@@ -212,6 +212,10 @@
     </div>
     <!-- Map Designer Time! -->
     <script>
+    var domReady = function(callback) {
+        document.readyState === "interactive" || document.readyState === "complete" ? callback() : document.addEventListener("DOMContentLoaded", callback);
+    };
+
     //initialize variables from server
     var center_point = [-89.6075530123, 40.776876321];
     var seg_base_url = '{{ seg_base_url | safe}}';
@@ -224,7 +228,7 @@
         window.prompt("A link to your AthleteDataViz design:", text);
     }
 
-    $(document).ready(function() {
+    domReady(function() {
         initVizMap();
 
         $('#VizType').change(function() {

@@ -19,29 +19,15 @@
     <meta property="og:image" content="https://s3.amazonaws.com/images.athletedataviz.com/static/img/title_gallery_2.jpg" />
     <meta name="og:description" content="Design your custom Strava heatmap and order high-rez prints of your viz creation." />
 
-    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" / async defer> {% assets "css_all" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}" type="text/css" /> 
+    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" async defer/> 
+    {% assets "css_all" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" type="text/css" async defer/> 
     {% endassets %}
     
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     {% block import_script %} {% endblock %}
 </head>
 
 <body>
-    <script>
-    // Asynchronous google analytics
-    var _gaq = [
-        ['_setAccount', 'UA-58623894-3'],
-        ['_trackPageview']
-    ];
-    (function(d, t) {
-        var g = d.createElement(t),
-            s = d.getElementsByTagName(t)[0];
-        g.async = true;
-        g.src = '//www.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g, s);
-    })(document, 'script');
-    </script>
     <!--- BEGINNING OF NAVBAR -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container-fluid">
@@ -101,7 +87,11 @@
     </div>
     {% block content %} {% endblock %}
     <script>
-    $(document).ready(function() {
+    var domReady = function(callback) {
+        document.readyState === "interactive" || document.readyState === "complete" ? callback() : document.addEventListener("DOMContentLoaded", callback);
+    };
+
+    domReady(function() {
         $("#full-extent-btn").click(function() {
             map.fitBounds(boroughs.getBounds());
             $(".navbar-collapse.in").collapse("hide");
@@ -134,8 +124,22 @@
     });
     </script>
     {% assets "js_base" %}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
+    <script>
+    // Asynchronous google analytics
+    var _gaq = [
+        ['_setAccount', 'UA-58623894-3'],
+        ['_trackPageview']
+    ];
+    (function(d, t) {
+        var g = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        g.async = true;
+        g.src = '//www.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g, s);
+    })(document, 'script');
+    </script>
 </body>
 
 </html>

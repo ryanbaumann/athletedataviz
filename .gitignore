@@ -6,9 +6,9 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.zip
+*.zip
 .Python
-.log
+static/.webassets-cache
 env/
 bin/
 build/

@@ -54,7 +54,8 @@ if 'DYNO' in os.environ:
 
 #flask-assets
 assets = Environment(app)
-js_base = Bundle('js/mapbox-gl-js-0-18-0.js',
+js_base = Bundle('js/jquery-2.2.4.min.js',
+            'js/mapbox-gl-js-0-18-0.js',
             'js/mapbox-gl-geocoder-1-0-0.js',
             'js/bootstrap.js',
             'js/bootstrap-slider.js',     
@@ -65,7 +66,10 @@ js_base = Bundle('js/mapbox-gl-js-0-18-0.js',
             'js/canvas-to-blob.js',
             'js/fileSaver.js',
             'js/download_acts.js',
-            'js/adv_viz_designer.js', 
+            'js/heat_viz.js',
+            'js/line_viz.js',
+            'js/seg_viz.js', 
+            'js/adv_viz_designer.js',
             'js/image_gl_canvas.js', 
             'js/upload_img.js',
             filters='jsmin', output='gen/packed_base.js')

@@ -257,16 +257,16 @@ body {
 
         function render() {
             map.setPitch(parseFloat($('#pitch').slider('getValue')))
-            for (i = 0; i < lineLayers.length; i++) {
-                console.log(lineLayers[i])
+            for (i = 0; i < lineLayernames.length; i++) {
                 let width = parseFloat($('#line_width').slider('getValue'))
                 let opacity = parseFloat($('#line_opacity').slider('getValue'))
-                let color = line_colors[i]
+                let color = line_color[i]
                 let lineOffset = parseFloat($('#line_offset').slider('getValue'))
-                map.setPaintProperty(lineLayers[i], "line-width", width)
-                map.setPaintProperty(lineLayers[i], "line-opacity", opacity)
-                map.setPaintProperty(lineLayers[i], "line-color", color)
-                map.setPaintProperty(lineLayers[i], "line-offset", lineOffset)
+                console.log(lineLayernames[i])
+                map.setPaintProperty(lineLayernames, 'line-width', width)
+                map.setPaintProperty(lineLayernames, 'line-opacity', opacity)
+                map.setPaintProperty(lineLayernames, 'line-color', color)
+                map.setPaintProperty(lineLayernames, 'line-offset', lineOffset)
             }
         }
 
