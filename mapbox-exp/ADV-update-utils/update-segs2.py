@@ -12,6 +12,11 @@ import multiprocessing
 from multiprocessing import Pool, Process
 import re
 import time
+import logging
+working_folder = r'C:\Projects\athletedataviz\website\athletedataviz_v1-0\mapbox-exp\ADV-update-utils'
+os.chdir(working_folder)
+logging.basicConfig(filename='log/adv_update_segs.log',
+                    level=logging.INFO, format='%(asctime)s %(message)s')
 
 engine = create_engine('postgresql+psycopg2://admin:password@localhost:5432/webdev6',
                        convert_unicode=True)
@@ -44,29 +49,29 @@ if __name__ == "__main__":
     already_dl_seg_id_list = []
     seg_count = 0
     try:
-        print 'getting segment ids from database'
+        logging.info('getting segment ids from database')
         table_name = 'Segment'
         args = 'SELECT seg_id from "%s" Where ath_cnt=0' % (table_name)
         df = pd.read_sql(args, engine_prod)
         already_dl_seg_id_list = df['seg_id'].unique()
         total_segs = df['seg_id'].count()
-        print 'got seg ids!'
+        logging.info('got seg ids!')
         print already_dl_seg_id_list
-    except:
-        print "no activities in database!  downloading all segments in range..."
+    except Exception as e:
+        logging.exception("no activities in database!  downloading all segments in range...")
 
     dflist = []
     for segid in already_dl_seg_id_list:
         seg_count += 1
-        print 'getting seg %s' %(segid)
+        logging.info('getting seg %s' %(segid))
         try:
             seg_detail = client.get_segment(segid)
-        except:
-            print 'error getting seg detail'
+        except Exception as e:
+            logging.exception('error getting seg detail')
             time.sleep(60)
             pass
-        print 'got segment from strava, analyzing'
-        print 'seg %s of %s' %(seg_count, total_segs)
+
+        logging.info('seg %s of %s' %(seg_count, total_segs))
         connection = engine_prod.connect()
         updaterow = {'seg_id' : int(segid),
                       'elev_low' : cv(seg_detail.elevation_low, 'float'),
@@ -98,6 +103,6 @@ if __name__ == "__main__":
                 'total_elevation_gain', updaterow['total_elevation_gain'],
                 segid)
 
-        print args
         connection.execute(args)
         connection.close()
+    logging.info('program complete!  Updated all segs in db')

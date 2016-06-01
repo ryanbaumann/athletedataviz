@@ -8,6 +8,7 @@ __pycache__/
 # Distribution / packaging
 .zip
 .Python
+.log
 env/
 bin/
 build/
