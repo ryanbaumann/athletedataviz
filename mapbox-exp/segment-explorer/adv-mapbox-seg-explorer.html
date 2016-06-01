@@ -120,6 +120,19 @@ body {
                                 <input type="text" class="slider" id="line_offset" data-slider-min="0" data-slider-value="0" data-slider-max="10" data-slider-step="1" onclick="render()">
                                 <br>
                                 <br>
+                                <b>Color Metric</b>
+                                <select id='color_metric' name="color_metric" style="font-size: 18px;">
+                                    <option value='DISTANCE'>Distance (m)</option>
+                                    <option value='TOTAL_ELEV'>Elevation Gain (m)</option>
+                                    <option value='ATH_CNT'># of Athletes</option>
+                                    <option value='ACT_TYPE'>Activity Type</option>
+                                    <option value='EFFORT_CNT'>Effort Count</option>
+                                    <option value='ELEV_LOW'>Low Elevation</option>
+                                    <option value='AVG_GRADE'>Average Grade</option>
+                                    <option value='MAX_GRADE'>Max Grade</option>
+                                </select>
+                                <br>
+                                <br>
                                 <b>Line Color</b>
                                 <select id='line_color' name="line_color" style="font-size: 18px;">
                                     <option value=0>Teal-Pink-Green</option>
@@ -239,7 +252,7 @@ body {
             });
             console.log(map.getSource('all_segments'))
 
-                calcLineFilters(lineBreaks, 'DISTANCE');
+                calcLineFilters(lineBreaks, document.getElementById('line_color').value);
                 calcLineLayers();
                 console.log(lineLayers)
                 for (var p = 0; p < lineLayers.length; p++) {
