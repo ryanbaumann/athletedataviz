@@ -361,7 +361,7 @@ function addLayerLinestring(mapid) {
         maxzoom: 22,
         buffer: 0,
         buffer: 10,
-        tolerance: 2
+        tolerance: 1
     });
     try {
         mapid.addSource('linestring', linestring_src);
@@ -397,7 +397,7 @@ function addSegLayer(mapid, seg_url) {
                     data: seg_url,
                     maxzoom: 22,
                     buffer: 10,
-                    tolerance: 2
+                    tolerance: 1
                 });
                 mapid.addSource('segment', segment_src);
             } catch (err) {
