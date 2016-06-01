@@ -1,19 +1,3 @@
-try {
-    var center_point = [-89.6075530123, 40.776876321];
-    var seg_base_url = '{{ seg_base_url | safe}}';
-    var heatpoint_url = '{{ heatpoint_url | safe}}';
-    var heatline_url = '{{ heatline_url | safe}}';
-    var mapboxgl_accessToken = '{{ mapbox_gl_accessToken|safe }}';
-    var ath_name = '{{ath_name}}';
-}
-catch (err) {
-    console.log(err);
-    $('#DownloadModal').modal("show");
-}
-
-// API tokens 
-mapboxgl.accessToken = mapboxgl_accessToken;
-
 /////////////  Global variables  ////////////
 
 var draw_canvas;
@@ -38,36 +22,6 @@ var line_color_list = [
     ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47'],
     ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
 ]
-
-var lineHeatStyle = {
-    "id": "linestring",
-    "type": "line",
-    "source": "linestring",
-    "layout": {
-        "line-join": "round"
-    },
-    "paint": {
-        "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-        "line-width": parseFloat(document.getElementById("line_width").value),
-        "line-color": parseFloat(document.getElementById("line_color").value),
-        "line-gap-width": 0
-    }
-};
-
-var seg_style = {
-    "id": "segment",
-    "type": "line",
-    "source": 'segment',
-    "layout": {
-        "line-join": "round"
-    },
-    "paint": {
-        "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-        "line-width": parseFloat(document.getElementById("line_width").value),
-        "line-color": parseFloat(document.getElementById("line_color").value),
-        "line-gap-width": 0
-    }
-};
 
 //Global variables for heat-lines
 var lineBreaks = ['Ride', 'Run', 'NordicSki', 'Hike', 'Other'];
@@ -105,6 +59,8 @@ function initVizMap() {
         alert('Your browser does not support Mapbox GL.  Please try Chrome or Firefox.');
     } else {
         try {
+            // API tokens 
+            mapboxgl.accessToken = mapboxgl_accessToken;
             $('#legend-lines').hide();
             map = new mapboxgl.Map({
                 container: 'map',
@@ -716,140 +672,6 @@ function addPopup(mapid, layer_list, popup) {
 //////////////// SLIDERS AND BUTTON ACTIONS ////////////
 
 //on change of VizType, show only menu options linked to selected viztype
-$( document ).ready(function() {
-    $('#VizType').change(function() {
-        var selector = '#VizType_hide_' + $(this).val();
-        if (document.getElementById("VizType").value == "segment"){
-            $('#VizType_hide_heat-line').collapse('show');
-            $(selector).collapse('show');
-            $('#VizType_hide_heat-point').collapse('hide');
-        }
-        else if (document.getElementById("VizType").value == "heat-line"){
-            $(selector).collapse('show');
-            $('#VizType_hide_heat-point').collapse('hide');
-            $('#VizType_hide_segment').collapse('hide');
-        }
-        else {
-            $(selector).collapse('show');
-            $('#VizType_hide_heat-line').collapse('hide');
-            $('#VizType_hide_segment').collapse('hide');
-        }
-    });
-
-    $('#updateSeg').on('click touch tap', function(event) {
-        isMapLoaded(map, 300, 'url');
-        addSegLayer(map, getURL(map, 'True'));
-        render();
-    });
-
-    $('#segType').change(function(event) {
-        addSegLayer(map, getURL(map, 'False'));
-        render();
-    });
-
-    $('#pitch').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#pitch').slider().on('slide', function(ev) {
-        $('#pitch').slider('setValue', ev.value);
-        render();
-    });
-    $('#dist_filter').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#dist_filter').slider().on('slideStop', function(ev) {
-        $('#dist_filter').slider('setValue', ev.value);
-        addSegLayer(map, getURL(map, 'False'));
-        render();
-    });
-    $('#line_width').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#line_width').slider().on('slide', function(ev) {
-        $('#line_width').slider('setValue', ev.value);
-        render();
-    });
-    $('#line_opacity').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#line_opacity').slider().on('slide', function(ev) {
-        $('#line_opacity').slider('setValue', ev.value);
-        render();
-    });
-    $('#line_offset').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#line_offset').slider().on('slide', function(ev) {
-        $('#line_offset').slider('setValue', ev.value);
-        render();
-    });
-    $('#blur').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#blur').slider().on('slide', function(ev) {
-        $('#blur').slider('setValue', ev.value);
-        render();
-    });
-    $('#radius').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#radius').slider().on('slide', function(ev) {
-        $('#radius').slider('setValue', ev.value);
-        render();
-    });
-    $('#segScale').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#segScale').slider().on('slideStop', function(ev) {
-        $('#segScale').slider('setValue', ev.value);
-        render();
-    });
-    $('#scale').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#scale').slider().on('slideStop', function(ev) {
-        $('#scale').slider('setValue', ev.value);
-        render();
-    });
-    $('#minOpacity').slider({
-        formatter: function(value) {
-            return 'Value: ' + value;
-        }
-    });
-    $('#minOpacity').slider().on('slide', function(ev) {
-        $('#minOpacity').slider('setValue', ev.value);
-        render();
-    });
-
-
-    $('#heat_color').change(render);
-    $('#VizType').change(render);
-    $('#mapStyle').change(switchLayer);
-    $('#heattype').change(render);
-    $('#segParam').change(render);
-    $('#heat_color').change(render);
-    $('#line_color').change(render);
-    $('#snap').on('click touch tap', generateMap);
-
-});
 
 function isMapLoaded(mapid, interval, segUrl) {
     //check if map is loaded every retry_interval seconds and display or hide loading bar

@@ -54,7 +54,7 @@ if 'DYNO' in os.environ:
 
 #flask-assets
 assets = Environment(app)
-js = Bundle('js/mapbox-gl-js-0-18-0.js',
+js_base = Bundle('js/mapbox-gl-js-0-18-0.js',
             'js/mapbox-gl-geocoder-1-0-0.js',
             'js/bootstrap.js',
             'js/bootstrap-slider.js',     
@@ -64,14 +64,15 @@ js = Bundle('js/mapbox-gl-js-0-18-0.js',
             'js/platform.js',
             'js/canvas-to-blob.js',
             'js/fileSaver.js',
+            'js/download_acts.js',
             'js/adv_viz_designer.js', 
             'js/image_gl_canvas.js', 
             'js/upload_img.js',
-            filters='jsmin', output='gen/packed.js')
+            filters='jsmin', output='gen/packed_base.js')
 
 css = Bundle('css/bootstrap.css',
+             'css/font-awesome.min.css',
              'css/bootstrap-slider.css',
-             'css/font-awesome.css',
              'css/mapbox-gl-js-0-18-0.css',
              'css/mapbox-gl-geocoder-1-0-0.css',
              'css/normalize.css',
@@ -79,7 +80,7 @@ css = Bundle('css/bootstrap.css',
              filters='cssmin', output="gen/all.css")
 
 assets.register('css_all', css)
-assets.register('js_all', js)
+assets.register('js_base', js_base)
 
 #Globals
 BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'

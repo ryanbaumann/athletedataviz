@@ -73,7 +73,7 @@ body {
 #sidebar {
     position: absolute;
     width: 220px;
-    height: 250px;
+    height: 400px;
     margin: 0;
     background-color: white;
     right: 10px;
@@ -109,17 +109,24 @@ body {
                                 <br>
                                 <br>
                                 <b>Line Opacity</b>
-                                <input type="text" id="blur" class="slider" data-slider-min="0.1" data-slider-value="1" data-slider-max="1" data-slider-step="0.1">
+                                <input type="text" id="line_opacity" class="slider" data-slider-min="0.1" data-slider-value="1" data-slider-max="1" data-slider-step="0.1">
                                 <br>
                                 <br>
                                 <b> Line Width</b>
-                                <input type="text" id="radius" class="slider" data-slider-min="1" data-slider-value="1" data-slider-max="10" data-slider-step="1">
+                                <input type="text" id="line_width" class="slider" data-slider-min="1" data-slider-value="1" data-slider-max="10" data-slider-step="1">
                                 <br>
                                 <br>
-                                <b> Line Color</b>
-                                <select id='line-color' name="line-color" value="red" style="font-size: 20px;">
-                                    <option value="red">Red</option>
-                                    <option value="blue">Blue</option>
+                                <b>Line Offset</b>
+                                <input type="text" class="slider" id="line_offset" data-slider-min="0" data-slider-value="0" data-slider-max="10" data-slider-step="1" onclick="render()">
+                                <br>
+                                <br>
+                                <b>Line Color</b>
+                                <select id='line_color' name="line_color" style="font-size: 18px;">
+                                    <option value=0>Teal-Pink-Green</option>
+                                    <option value=1>Red-Ora-Blu</option>
+                                    <option value=2>Yellows</option>
+                                    <option value=3>Greens</option>
+                                    <option value=4>Reds</option>
                                 </select>
                             </div>
                         </div>
@@ -152,6 +159,65 @@ body {
             minZoom: 3,
             maxZoom: 22
         });
+
+        var line_color_list = [
+            ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"],
+            ['#F52D29', '#E21EB4', '#01970B', '#07A991', '#1911C6'],
+            ['#DDD39B', '#E3D88D', '#EEE175', '#F8EB5A', '#FFF447'],
+            ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47'],
+            ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
+        ]
+
+        var line_style = {
+                        "id": "segment-",
+                        "source": 'all_segments',
+                        "source-layer": "adv_all_segments",
+                        "type": "line",
+                        "paint": {
+                            "line-opacity": 1,
+                            "line-width": 1,
+                            "line-color": 'red'
+                        }
+        }
+
+        //Global variables for heat-lines
+        var lineBreaks = ['Ride', 'Run', 'NordicSki', 'Hike', 'Other'];
+        var lineColors = line_color_list[0];
+        var lineFilters = [];
+        var lineLayers = [];
+        var linelayernames=[];
+
+        function calcLineFilters(breaks, param) {
+            //calculate line filters to apply
+            lineFilters = [];
+            for (var p = 0; p < lineBreaks.length - 1; p++) {
+                lineFilters.push(['==', param, lineBreaks[p]])
+            }
+        }
+
+        function calcLineLayers() {
+            //calculate line layers to create
+            lineLayers = [];
+            linelayernames = [];
+            for (var p = 0; p < lineFilters.length; p++) {
+                console.log(lineFilters)
+                lineLayers.push({
+                    id: 'segment-' + p,
+                    type: 'line',
+                    source: 'all_segments',
+                    "source-layer": "adv_all_segments",
+                    paint: {
+                        "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+                        "line-width": parseFloat(document.getElementById("line_width").value),
+                        "line-color": lineColors[p],
+                        "line-gap-width": 1
+                    },
+                    filter: lineFilters[p]
+                });
+                linelayernames.push('segment-' + p);
+            }
+        }
+
         map.on('load', function() {
 
             map.addSource('all_segments', {
@@ -159,18 +225,14 @@ body {
                 url: 'mapbox://rsbaumann.ADV_all_segments'
             });
             console.log(map.getSource('all_segments'))
-            map.addLayer({
-                    "id": "segment-1",
-                    "source": 'all_segments',
-                    "source-layer": "adv_all_segments",
-                    "type": "line",
-                    "paint": {
-                        "line-opacity": 1,
-                        "line-width": 1,
-                        "line-color": 'red'
-                    },
-                    "filter" : ['>=', 'DISTANCE', 500]
-            });
+
+                calcLineFilters(lineBreaks, 'ACT_TYPE');
+                calcLineLayers();
+                console.log(lineLayers)
+                for (var p = 0; p < lineLayers.length; p++) {
+                    console.log(lineLayers[p])
+                    map.addLayer(lineLayers[p]);
+                };
 
             mouseOver(map, layerlist);
             addPopup(map, layerlist, popup);
@@ -187,9 +249,11 @@ body {
                 let radius = parseFloat($('#radius').slider('getValue'))
                 let blur = parseFloat($('#blur').slider('getValue'))
                 let color = $('#line-color').val()
+                let lineOffset = parseFloat($('#line-offset').slider('getValue'))
                 map.setPaintProperty(layerlist[i], "line-width", radius)
                 map.setPaintProperty(layerlist[i], "line-opacity", blur)
                 map.setPaintProperty(layerlist[i], "line-color", color)
+                map.setPaintProperty(layerlist[i], "line-offset", lineOffset)
             }
         }
 
@@ -260,6 +324,15 @@ body {
         });
         $('#pitch').slider().on('slide', function(ev) {
             $('#pitch').slider('setValue', ev.value);
+            render();
+        });
+        $('#line_offset').slider({
+        formatter: function(value) {
+            return 'Value: ' + value;
+            }
+        });
+        $('#line_offset').slider().on('slide', function(ev) {
+            $('#line_offset').slider('setValue', ev.value);
             render();
         });
 

@@ -1,6 +1,5 @@
 {% extends "base.html" %} {% block import_script %}
-    <!-- Mapbox GL -->
-
+<!-- Mapbox GL -->
 {% endblock %} {% block content %}
 <!-- Sidebar -->
 <div id="container">
@@ -21,8 +20,8 @@
                             <b>Viz Type</b>
                             <select id='VizType' name="VizType" style="font-size: 20px;">
                                 <option value="heat-point">heat-point</option>
-                                <option value="heat-line">heat-line</option> 
-                                <option value="segment">Segments++</option> 
+                                <option value="heat-line">heat-line</option>
+                                <option value="segment">Segments++</option>
                             </select>
                             <br>
                             <br>
@@ -40,7 +39,7 @@
                             <br>
                             <br>
                             <b>Map Pitch</b>
-                                <input type="text" id="pitch" class="slider" data-slider-min="0" data-slider-value="0" data-slider-max="50" data-slider-step="5">
+                            <input type="text" id="pitch" class="slider" data-slider-min="0" data-slider-value="0" data-slider-max="50" data-slider-step="5">
                             <br>
                             <br>
                             <div id="VizType_hide_segment" class="collapse">
@@ -54,7 +53,7 @@
                                 <br>
                                 <br>
                                 <b> Distance Filter (mi) </b>
-                                 <input id="dist_filter" type="text" class="slider" value="" data-slider-min="0" data-slider-max="30" data-slider-step="1" data-slider-value="[0,30]" data-slider-id='dist_filter_slider' onclick="render()">
+                                <input id="dist_filter" type="text" class="slider" value="" data-slider-min="0" data-slider-max="30" data-slider-step="1" data-slider-value="[0,30]" data-slider-id='dist_filter_slider' onclick="render()">
                                 <br>
                                 <br>
                                 <b>Segment Parameter</b>
@@ -133,18 +132,18 @@
     </div>
     <div id='map'></div>
     <div class='legend-container'>
-      <div id='legend-points' class='legend'>
-        <h3>Legend</h3>
-        <span id='legend-points-param' class='text-center'><b>Speed (mph)</b></span>
-      </div>
-      <div id='legend-lines' class='legend' style="display:none;">
-        <h3>Legend</h3>
-        <span id='legend-lines-param' class='text-center'><b>Activity Type</b></span>
-      </div>
-      <div id='legend-seg' class='legend' style="display:none;">
-        <h3>Legend</h3>
-        <span id='legend-seg-param' class='text-center'><b>Segment Value</b></span>
-      </div>
+        <div id='legend-points' class='legend'>
+            <h3>Legend</h3>
+            <span id='legend-points-param' class='text-center'><b>Speed (mph)</b></span>
+        </div>
+        <div id='legend-lines' class='legend' style="display:none;">
+            <h3>Legend</h3>
+            <span id='legend-lines-param' class='text-center'><b>Activity Type</b></span>
+        </div>
+        <div id='legend-seg' class='legend' style="display:none;">
+            <h3>Legend</h3>
+            <span id='legend-seg-param' class='text-center'><b>Segment Value</b></span>
+        </div>
     </div>
     <div id="loading">
         <div class="loading-indicator">
@@ -178,13 +177,13 @@
                     <div class="row">
                         <div id="img_display" class="text-center">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Try a new Design</button>
-                            <a type="button" id="download_viz"   class="btn btn-default" href="" >Download </a>
+                            <a type="button" id="download_viz" class="btn btn-default" href="">Download </a>
                             <a type="button" id="img_share_url" class="btn btn-default">Share Link </a>
                         </div>
                     </div>
                     <br>
                     <div class="row text-center">
-                        <div id="loading_social" class="progress center-block"> 
+                        <div id="loading_social" class="progress center-block">
                             <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%; height: 19px;">
                                 <span> Generating high-rez viz to order and share! ... </span>
                             </div>
@@ -195,51 +194,186 @@
                                 <div class="my-product-row">
                                     <div data-accent_color="767676" data-background_color="ffffff" data-button_background_color="7fb466" data-button_text_color="ffffff" data-cart_button_text="Cart" data-cart_title="Your cart" data-cart_total_text="Total" data-checkout_button_text="Checkout" data-discount_notice_text="Shipping and discount codes are added at checkout." data-embed_type="cart" data-empty_cart_text="Your cart is empty." data-shop="athletedataviz.myshopify.com" data-sticky="true" data-text_color="000000"></div>
                                     <div data-background_color="ffffff" data-button_background_color="7fb466" data-button_text_color="ffffff" data-buy_button_out_of_stock_text="Out of Stock" data-buy_button_product_unavailable_text="Unavailable" data-buy_button_text="Buy Prints" data-collection_handle="frontpage" data-display_size="compact" data-embed_type="collection" data-has_image="true" data-next_page_button_text="Next page" data-product_handle="" data-product_modal="true" data-product_name="" data-product_title_color="000000" data-redirect_to="modal" data-shop="athletedataviz.myshopify.com"></div>
-                                    <script type="text/javascript">document.getElementById('ShopifyEmbedScript') || document.write('<script type="text/javascript" src="https://widgets.shopifyapps.com/assets/widgets/embed/client.js" id="ShopifyEmbedScript"><\/script>');</script>
+                                    <script type="text/javascript">
+                                    document.getElementById('ShopifyEmbedScript') || document.write('<script type="text/javascript" src="https://widgets.shopifyapps.com/assets/widgets/embed/client.js" id="ShopifyEmbedScript"><\/script>');
+                                    </script>
                                 </div>
                             </div>
-                                <!-- Shares -->
-                                <a id="share_fb" class="btnz share facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://athletedataviz.com" target="_blank"><i class="fa fa-facebook text-center"></i> Share</a>
-                                <a id="share_gplus" class="btnz share gplus" href="https://plus.google.com/share?url=https://athletedataviz.com"><i class="fa fa-google-plus text-center" target="_blank"></i> Share</a>
-                                <a id="share_twit" class="btnz share twitter" href="https://twitter.com/home?status=Check%20out%20custom%20designs%20at%20www.athletedataviz.com" target="_blank"><i class="fa fa-twitter text-center"></i> Tweet</a>
-                                <a id="share_pin" class="btnz share pinterest" href="https://pinterest.com/pin/create/button/?url=https://athletedataviz.com&media=https%3A//athletedataviz.com/static/img/title_gallery_3.jpg&description=Check%20out%20my%20custom%20design!" target="_blank"><i class="fa fa-pinterest text-center"></i> Pin it</a>
-                            </div>
+                            <!-- Shares -->
+                            <a id="share_fb" class="btnz share facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://athletedataviz.com" target="_blank"><i class="fa fa-facebook text-center"></i> Share</a>
+                            <a id="share_gplus" class="btnz share gplus" href="https://plus.google.com/share?url=https://athletedataviz.com"><i class="fa fa-google-plus text-center" target="_blank"></i> Share</a>
+                            <a id="share_twit" class="btnz share twitter" href="https://twitter.com/home?status=Check%20out%20custom%20designs%20at%20www.athletedataviz.com" target="_blank"><i class="fa fa-twitter text-center"></i> Tweet</a>
+                            <a id="share_pin" class="btnz share pinterest" href="https://pinterest.com/pin/create/button/?url=https://athletedataviz.com&media=https%3A//athletedataviz.com/static/img/title_gallery_3.jpg&description=Check%20out%20my%20custom%20design!" target="_blank"><i class="fa fa-pinterest text-center"></i> Pin it</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Map Designer Time! -->
     <script>
     //initialize variables from server
-    
+    var center_point = [-89.6075530123, 40.776876321];
+    var seg_base_url = '{{ seg_base_url | safe}}';
+    var heatpoint_url = '{{ heatpoint_url | safe}}';
+    var heatline_url = '{{ heatline_url | safe}}';
+    var mapboxgl_accessToken = '{{ mapbox_gl_accessToken|safe }}';
+    var ath_name = '{{ath_name}}';
+
     function copyToClipboard(text) {
         window.prompt("A link to your AthleteDataViz design:", text);
     }
 
-    $( document ).ready(function() {
+    $(document).ready(function() {
         initVizMap();
-        $(function() {
-    
-            $("#sidebar-toggle-btn").click(function() {
-                $("#sidebar").toggle();
-                map.resize();
-                return false;
-            });
 
-            $("#sidebar-hide-btn").click(function() {
-                $('#sidebar').hide();
-                map.resize();
-                return false;
-            });
-
-            $("#img_share_url").click(function() {
-                copyToClipboard(imgurl);
-            });
+        $('#VizType').change(function() {
+            var selector = '#VizType_hide_' + $(this).val();
+            if (document.getElementById("VizType").value == "segment") {
+                $('#VizType_hide_heat-line').collapse('show');
+                $(selector).collapse('show');
+                $('#VizType_hide_heat-point').collapse('hide');
+            } else if (document.getElementById("VizType").value == "heat-line") {
+                $(selector).collapse('show');
+                $('#VizType_hide_heat-point').collapse('hide');
+                $('#VizType_hide_segment').collapse('hide');
+            } else {
+                $(selector).collapse('show');
+                $('#VizType_hide_heat-line').collapse('hide');
+                $('#VizType_hide_segment').collapse('hide');
+            }
         });
+
+        $('#updateSeg').on('click touch tap', function(event) {
+            isMapLoaded(map, 300, 'url');
+            addSegLayer(map, getURL(map, 'True'));
+            render();
+        });
+
+        $('#segType').change(function(event) {
+            addSegLayer(map, getURL(map, 'False'));
+            render();
+        });
+
+        $('#pitch').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#pitch').slider().on('slide', function(ev) {
+            $('#pitch').slider('setValue', ev.value);
+            render();
+        });
+        $('#dist_filter').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#dist_filter').slider().on('slideStop', function(ev) {
+            $('#dist_filter').slider('setValue', ev.value);
+            addSegLayer(map, getURL(map, 'False'));
+            render();
+        });
+        $('#line_width').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#line_width').slider().on('slide', function(ev) {
+            $('#line_width').slider('setValue', ev.value);
+            render();
+        });
+        $('#line_opacity').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#line_opacity').slider().on('slide', function(ev) {
+            $('#line_opacity').slider('setValue', ev.value);
+            render();
+        });
+        $('#line_offset').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#line_offset').slider().on('slide', function(ev) {
+            $('#line_offset').slider('setValue', ev.value);
+            render();
+        });
+        $('#blur').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#blur').slider().on('slide', function(ev) {
+            $('#blur').slider('setValue', ev.value);
+            render();
+        });
+        $('#radius').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#radius').slider().on('slide', function(ev) {
+            $('#radius').slider('setValue', ev.value);
+            render();
+        });
+        $('#segScale').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#segScale').slider().on('slideStop', function(ev) {
+            $('#segScale').slider('setValue', ev.value);
+            render();
+        });
+        $('#scale').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#scale').slider().on('slideStop', function(ev) {
+            $('#scale').slider('setValue', ev.value);
+            render();
+        });
+        $('#minOpacity').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#minOpacity').slider().on('slide', function(ev) {
+            $('#minOpacity').slider('setValue', ev.value);
+            render();
+        });
+
+
+        $('#heat_color').change(render);
+        $('#VizType').change(render);
+        $('#mapStyle').change(switchLayer);
+        $('#heattype').change(render);
+        $('#segParam').change(render);
+        $('#heat_color').change(render);
+        $('#line_color').change(render);
+        $('#snap').on('click touch tap', generateMap);
+
+        $("#sidebar-toggle-btn").click(function() {
+            $("#sidebar").toggle();
+            map.resize();
+            return false;
+        });
+
+        $("#sidebar-hide-btn").click(function() {
+            $('#sidebar').hide();
+            map.resize();
+            return false;
+        });
+
+        $("#img_share_url").click(function() {
+            copyToClipboard(imgurl);
+        });
+
     });
 
     </script>
-
     {% endblock %}

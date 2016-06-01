@@ -18,18 +18,11 @@
     <meta property="og:title" content="AthleteDataViz" />
     <meta property="og:image" content="https://s3.amazonaws.com/images.athletedataviz.com/static/img/title_gallery_2.jpg" />
     <meta name="og:description" content="Design your custom Strava heatmap and order high-rez prints of your viz creation." />
+
     <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" / async defer> {% assets "css_all" %}
-    <link rel="stylesheet" type="text/css" src="{{ ASSET_URL }}">
+        <link rel="stylesheet" href="{{ ASSET_URL }}" type="text/css" /> 
     {% endassets %}
-    <!--
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" async defer>
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" async defer>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" async defer>
-    <link rel='stylesheet' href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.css'  async defer> 
-    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v1.0.0/mapbox-gl-geocoder.css' type='text/css' async defer>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/5.2.5/css/bootstrap-slider.min.css" async defer>
-    <link rel="stylesheet" href="static/css/style.css" type="text/css" async defer>
-    !-->
+    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     {% block import_script %} {% endblock %}
 </head>
@@ -140,8 +133,8 @@
 
     });
     </script>
-    {% assets "js_all" %}
-    <script type="text/javascript" src="{{ ASSET_URL }}" async defer></script>
+    {% assets "js_base" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
 </body>
 

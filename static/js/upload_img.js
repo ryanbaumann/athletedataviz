@@ -1,5 +1,9 @@
 
 function get_signed_request(file){
+    document.getElementById('download_viz').addEventListener("click", function(event) {
+        event.preventDefault();
+        saveAs(imgBlob, filename);
+    });
     var datapath = '/sign_s3?file_name='+file.name+'&file_type='+file.type
     var xhr = new XMLHttpRequest();
     xhr.open("GET", datapath);
@@ -16,11 +20,6 @@ function get_signed_request(file){
     };
     xhr.send();
 }
-
-document.getElementById('download_viz').addEventListener("click", function(event) {
-    event.preventDefault();
-    saveAs(imgBlob, filename);
-});
 
 //update links
 function updateLinks(url) {
