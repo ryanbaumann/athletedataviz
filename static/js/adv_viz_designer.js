@@ -363,12 +363,19 @@ function addPopup(mapid, layer_list, popup) {
         }
         var feature = features[0];
         if (document.getElementById("VizType").value == "heat-point") {
+            let watts = Math.round(feature.properties.p*10)/10
+            let hr = Math.round(feature.properties.h*10)/10
+            let cad = Math.round(feature.properties.c*10)/10
+
             popup.setLngLat(e.lngLat)
                 .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
                     '<ul class="list-group">' +
                     '<li class="list-group-item"> Freq: ' + Math.round(feature.properties.d *10)/10 + " visits </li>" +
                     '<li class="list-group-item"> Speed: ' + Math.round(feature.properties.s*10)/10 + " mph </li>" +
-                    '<li class="list-group-item"> Grade: ' + Math.round(feature.properties.g*10)/10 + " % </li>" +
+                    '<li class="list-group-item"> Grade: ' + (watts = watts || 0) + " watts </li>" +
+                    '<li class="list-group-item"> Elevation: ' + Math.round(feature.properties.e*10)/10 + " ft </li>" +
+                    '<li class="list-group-item"> Heartrate: ' + (hr = hr || 0) + " BPM </li>" +
+                    '<li class="list-group-item"> Cadence: ' + (cad = cad || 0) + " RPM </li>" +
                     '</ul> </div>')
             .addTo(mapid);
         }

@@ -429,7 +429,11 @@ def get_heatmap_lines(engine, ath_id):
                   select row_to_json(t) 
                   FROM (SELECT round((lg.density)::numeric,1) as d,
                                 round((lg.speed*2.23694)::numeric,1) as s,
-                                round((lg.grade)::numeric,1) as g) as t
+                                round((lg.grade)::numeric,1) as g,
+                                round((lg.elev*3.28084)::numeric,0) as e,
+                                round((lg.power)::numeric,0) as p,
+                                round((lg.hr)::numeric,0) as h,
+                                round((lg.cadence)::numeric,0) as c) as t
                                  ) as properties
                             FROM "V_Point_Heatmap" as lg WHERE ath_id = %s
                      ) as f) as fc"""  % (ath_id)
