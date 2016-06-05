@@ -83,7 +83,11 @@ css = Bundle('css/bootstrap.css',
              'css/style.css',
              filters='cssmin', output="gen/all.css")
 
+css_base_min = Bundle('css/style_inline_base.css',
+                filters='cssmin', output="gen/base_inline_min.css")
+
 assets.register('css_all', css)
+assets.register('css_base_min', css_base_min)
 assets.register('js_base', js_base)
 
 #Globals

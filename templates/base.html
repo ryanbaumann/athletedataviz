@@ -11,21 +11,30 @@
     <meta name="title" content="AthleteDataViz" />
     <meta name="author" content="RyanBaumann" />
     <meta name="keywords" content="athlete, data, viz, athletedataviz, heatmap, map, cycling, running, hiking, triathalon, vizualization, mapbox" />
-    <meta name="p:domain_verify" content="2518dde61dca1f34a95baa06a75883a0" />
-    <meta property="fb:app_id" content="1250707668278763" />
-    <meta property="og:url" content="https://design.athletedataviz.com" />
-    <meta property=og:type content="website" />
-    <meta property="og:title" content="AthleteDataViz" />
-    <meta property="og:image" content="https://s3.amazonaws.com/images.athletedataviz.com/static/img/title_gallery_2.jpg" />
-    <meta name="og:description" content="Design your custom Strava heatmap and order high-rez prints of your viz creation." />
-
-    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" async defer/> 
-    {% assets "css_all" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}" type="text/css" async defer/> 
-    {% endassets %}
-    
-    {% block import_script %} {% endblock %}
+    <meta name="p : domain_verify" content="2518dde61dca1f34a95baa06a75883a0" />
+    <meta property="fb : app_id" content="1250707668278763" />
+    <meta property="og : url" content="https : //design.athletedataviz.com" />
+    <meta property=og : type content="website" />
+    <meta property="og : title" content="AthleteDataViz" />
+    <meta property="og : image" content="https : //s3.amazonaws.com/images.athletedataviz.com/static/img/title_gallery_2.jpg" />
+    <meta name="og : description" content="Design your custom Strava heatmap and order high-rez prints of your viz creation." />
+    <link rel="shortcut icon" type="image/png" href="/static/img/favicon.ico" async defer/> {% assets "css_all" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}" type="text/css" async defer/> {% endassets %} {% block import_script %} {% endblock %}
 </head>
+<script>
+// Asynchronous google analytics
+var _gaq = [
+    ['_setAccount', 'UA-58623894-3'],
+    ['_trackPageview']
+];
+(function(d, t) {
+    var g = d.createElement(t),
+        s = d.getElementsByTagName(t)[0];
+    g.async = true;
+    g.src = '//www.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g, s);
+})(document, 'script');
+</script>
 
 <body>
     <!--- BEGINNING OF NAVBAR -->
@@ -33,8 +42,8 @@
         <div class="container-fluid">
             <div class="navbar-header">
                 <div class="navbar-icon-container">
-                    <a class="navbar-brand" href="https://athletedataviz.com">AthleteDataViz </a>
-                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> {% if ((request.path=="/strava_mapbox") or (request.path=="/demodesigner")): %}
+                    <a class="navbar-brand" href="https : //athletedataviz.com">AthleteDataViz </a>
+                    <a href="#" class="navbar-icon pull-right visible-xs" id="nav-btn"><i class="fa fa-bars fa-lg white"></i></a> {% if ((request.path=="/strava_mapbox") or (request.path=="/demodesigner")) : %}
                     <a href="#" class="navbar-icon pull-right visible-xs" id="sidebar-toggle-btn"><i class="fa fa-pencil-square-o">&nbsp;&nbsp;Toolbar </i></a> {% endif %}
                 </div>
             </div>
@@ -44,10 +53,10 @@
                     <!--{% if session.access_token %}
                     <li><a href="/strava_mapbox">Design</a></li>
                     {% endif %}-->
-                    <li><a href="https://athletedataviz.com/collections/frontpage">Order</a></li>
-                    <li><a href="https://athletedataviz.com/blogs/news">Blog</a></li>
-                    <li><a href="https://athletedataviz.com/pages/about">About</a></li>
-                    <li><a href="https://athletedataviz.com/pages/contact">Contact</a></li>
+                    <li><a href="https : //athletedataviz.com/collections/frontpage">Order</a></li>
+                    <li><a href="https : //athletedataviz.com/blogs/news">Blog</a></li>
+                    <li><a href="https : //athletedataviz.com/pages/about">About</a></li>
+                    <li><a href="https : //athletedataviz.com/pages/contact">Contact</a></li>
                     {% if not session.access_token %}
                     <li><a href="/"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
                     {% else %}
@@ -56,7 +65,7 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right social">
                     <!-- Toolbar for Map editor -->
-                    {% if ((request.path=="/strava_mapbox") or (request.path=="/demodesigner")): %}
+                    {% if ((request.path=="/strava_mapbox") or (request.path=="/demodesigner")) : %}
                     <li><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in" id="list-btn"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Toolbar</a> </li>
                     {% endif %}
                 </ul>
@@ -86,60 +95,46 @@
         </div>
     </div>
     {% block content %} {% endblock %}
-    <script>
-    var domReady = function(callback) {
-        document.readyState === "interactive" || document.readyState === "complete" ? callback() : document.addEventListener("DOMContentLoaded", callback);
-    };
-
-    domReady(function() {
-        $("#full-extent-btn").click(function() {
-            map.fitBounds(boroughs.getBounds());
-            $(".navbar-collapse.in").collapse("hide");
-            return false;
-        });
-
-        $("#legend-btn").click(function() {
-            $("#legendModal").modal("show");
-            $(".navbar-collapse.in").collapse("hide");
-            return false;
-        });
-
-
-        $('#login-btn').on('click', function() {
-            $("#loginModal").modal("show");
-            $(".navbar-collapse.in").collapse("hide");
-            return false;
-        });
-
-        $("#nav-btn").click(function() {
-            $(".navbar-collapse").collapse("toggle");
-            return false;
-        });
-        $("#list-btn").click(function() {
-            $('#sidebar').toggle();
-            map.resize();
-            return false;
-        });
-
-    });
-    </script>
-    {% assets "js_base" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-    <script>
-    // Asynchronous google analytics
-    var _gaq = [
-        ['_setAccount', 'UA-58623894-3'],
-        ['_trackPageview']
-    ];
-    (function(d, t) {
-        var g = d.createElement(t),
-            s = d.getElementsByTagName(t)[0];
-        g.async = true;
-        g.src = '//www.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g, s);
-    })(document, 'script');
-    </script>
 </body>
+{% assets "js_base" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+<script>
+var domReady = function(callback) {
+    document.readyState === "interactive" || document.readyState === "complete" ? callback() : document.addEventListener("DOMContentLoaded", callback);
+};
+
+domReady(function() {
+    $("#full-extent-btn").click(function() {
+        map.fitBounds(boroughs.getBounds());
+        $(".navbar-collapse.in").collapse("hide");
+        return false;
+    });
+
+    $("#legend-btn").click(function() {
+        $("#legendModal").modal("show");
+        $(".navbar-collapse.in").collapse("hide");
+        return false;
+    });
+
+
+    $('#login-btn').on('click', function() {
+        $("#loginModal").modal("show");
+        $(".navbar-collapse.in").collapse("hide");
+        return false;
+    });
+
+    $("#nav-btn").click(function() {
+        $(".navbar-collapse").collapse("toggle");
+        return false;
+    });
+    $("#list-btn").click(function() {
+        $('#sidebar').toggle();
+        map.resize();
+        return false;
+    });
+
+});
+</script>
 
 </html>

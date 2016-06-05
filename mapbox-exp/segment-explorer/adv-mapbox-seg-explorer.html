@@ -5,10 +5,10 @@
     <meta charset='utf-8' />
     <title></title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/jquery.sidr/1.2.1/stylesheets/jquery.sidr.light.css">
     <link rel='stylesheet' type="text/css" href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.css' />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/7.0.2/css/bootstrap-slider.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 </head>
 <style>
 body {
@@ -24,64 +24,27 @@ body {
     overflow: visible;
 }
 
+#sidebar {
+  position: relative;
+  width: 230px;
+  height: 100%;
+  max-width: 100%;
+  overflow-y: auto;
+  float: right;
+  z-index: 11;
+  -webkit-transition: all 1s ease-out;
+  -moz-transition: all 1s ease-out;
+  transition: all 1s ease-out;
+  background-color: white;
+}
+
 #ex1Slider .slider-selection {
     background: #BABABA;
 }
-
-#menu {
-    background: #fff;
-    position: absolute;
-    z-index: 1;
-    top: 10px;
-    left: 10px;
-    border-radius: 3px;
-    width: 120px;
-    border: 1px solid rgba(0, 0, 0, 0.4);
-    font-family: 'Open Sans', sans-serif;
-}
-
-#menu a {
-    font-size: 13px;
-    color: #404040;
-    display: block;
-    margin: 0;
-    padding: 0;
-    padding: 10px;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-    text-align: center;
-}
-
-#menu a:last-child {
-    border: none;
-}
-
-#menu a:hover {
-    background-color: #f8f8f8;
-    color: #404040;
-}
-
-#menu a.active {
-    background-color: #3887be;
-    color: #ffffff;
-}
-
-#menu a.active:hover {
-    background: #3074a4;
-}
-
-#sidebar {
-    position: absolute;
-    width: 220px;
-    height: 400px;
-    margin: 0;
-    background-color: white;
-    right: 10px;
-    z-index: 3;
-    -webkit-transition: all 1s ease-out;
-    -moz-transition: all 1s ease-out;
-    transition: all 1s ease-out;
-}
+div.slider.slider-horizontal {
+  width: 150px;
+  margin-left: 20px;
+  }
 
 .mapboxgl-popup {
     max-width: 400px;
@@ -90,6 +53,10 @@ body {
 
 .marker-title {
     font-weight: 700;
+}
+
+.centered-text {
+    text-align: center
 }
 </style>
 
@@ -122,15 +89,18 @@ body {
                                 <br>
                                 <b>Color Metric</b>
                                 <select id='color_metric' name="color_metric" style="font-size: 18px;">
-                                    <option value='DISTANCE'>Distance (m)</option>
-                                    <option value='TOTAL_ELEV'>Elevation Gain (m)</option>
-                                    <option value='ATH_CNT'># of Athletes</option>
-                                    <option value='ACT_TYPE'>Activity Type</option>
+                                    <option value='ELEV_GAIN'>Elevation Gain (m)</option>
+                                    <option value='ELEV_HIGH'>Elevation-High (m)</option>
+                                    <option value='ATH_CNT'>Athlete Count</option>
                                     <option value='EFFORT_CNT'>Effort Count</option>
-                                    <option value='ELEV_LOW'>Low Elevation</option>
-                                    <option value='AVG_GRADE'>Average Grade</option>
-                                    <option value='MAX_GRADE'>Max Grade</option>
+                                    <option value='CAT'>KOM Category</option>
+                                    <option value='DISTANCE'>Distance (m)</option>
+                                    <option value='AVG_GRADE'>Average Grade (%)</option>
                                 </select>
+                                <br>
+                                <br>
+                                <b>Heat Scale</b>
+                                <input type="text" id="scale" class="slider" data-slider-min="1" data-slider-value="28" data-slider-max="500" data-slider-step="1">
                                 <br>
                                 <br>
                                 <b>Line Color</b>
@@ -151,6 +121,54 @@ body {
     <nav id="menu"></nav>
     <div id="map"></div>
     <script>
+
+    var line_color_list = [
+        ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"],
+        ['#F52D29', '#E21EB4', '#01970B', '#07A991', '#1911C6'],
+        ['#DDD39B', '#E3D88D', '#EEE175', '#F8EB5A', '#FFF447'],
+        ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47'],
+        ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
+    ]
+
+    var line_style = {
+                    "id": "segment-",
+                    "source": 'all_segments',
+                    "source-layer": "adv_all_segments",
+                    "type": "line",
+                    "paint": {
+                        "line-opacity": 1,
+                        "line-width": 1,
+                        "line-color": 'red'
+                    }
+    }
+
+    //Global variables for heat-lines
+    var lineBreaks = [100, 1000, 1000, 10000, 100000];
+    var lineColors = line_color_list[0];
+    var lineFilters = [];
+    var lineLayers = [];
+    var linelayernames=[];
+    var line_params = { 'SEG_ID' : 'number',
+                        'ELEV_GAIN' : 'number',
+                        'ACT_TYPE' : 'string',
+                        'ELEV_HIGH' : 'number',
+                        'AVG_GRADE' : 'number',
+                        'NAME' : 'string',
+                        'ELEV_LOW' : 'number',
+                        'TOTAL_ELEV': 'number',
+                        'DISTANCE': 'number',
+                        'EFFORT_CNT' : 'number',
+                        'CAT' : 'number',
+                        'DATE_CREAT' : 'string',
+                        'MAX_GRADE' : 'number',
+                        'ATH_CNT' : 'number'
+                    }
+    var param_selector = document.getElementById("color_metric");
+    for (p=0; p<line_params.length; p++) {
+        var option = document.createElement("option-" + p);
+        option.text = line_params[i][0]
+        param.selector.add(option)
+    }
     // GLOBALS //
     $(document).ready(function() {
         mapboxgl.accessToken = 'pk.eyJ1IjoicnNiYXVtYW5uIiwiYSI6IjdiOWEzZGIyMGNkOGY3NWQ4ZTBhN2Y5ZGU2Mzg2NDY2In0.jycgv7qwF8MMIWt4cT0RaQ';
@@ -161,37 +179,10 @@ body {
             style: 'mapbox://styles/mapbox/dark-v8',
             center: [-99.23755081, 29.4465551723],
             zoom: 5,
-            buffer : 1,
+            buffer : 0,
             minZoom: 3,
             maxZoom: 22
         });
-
-        var line_color_list = [
-            ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"],
-            ['#F52D29', '#E21EB4', '#01970B', '#07A991', '#1911C6'],
-            ['#DDD39B', '#E3D88D', '#EEE175', '#F8EB5A', '#FFF447'],
-            ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47'],
-            ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
-        ]
-
-        var line_style = {
-                        "id": "segment-",
-                        "source": 'all_segments',
-                        "source-layer": "adv_all_segments",
-                        "type": "line",
-                        "paint": {
-                            "line-opacity": 1,
-                            "line-width": 1,
-                            "line-color": 'red'
-                        }
-        }
-
-        //Global variables for heat-lines
-        var lineBreaks = [100, 1000, 1000, 10000, 100000];
-        var lineColors = line_color_list[0];
-        var lineFilters = [];
-        var lineLayers = [];
-        var linelayernames=[];
 
         function calcBreaks(maxval, numbins) {
             //calculate breaks based on a selected bin size and number of bins
@@ -200,9 +191,9 @@ body {
             for (p = 1; p <= numbins; p++) {
                 lineBreaks.push(Math.round(binSize * p *10)/10);
             }
-            for (p = 0; p < breaks.length; p++) {
+            /*for (p = 0; p < lineBreaks.length; p++) {
                 calcLegends(p, 'heat-point');
-            }
+            }*/
         }
 
         function calcLineLayers() {
@@ -210,7 +201,6 @@ body {
             lineLayers = [];
             linelayernames = [];
             for (var p = 0; p < lineFilters.length; p++) {
-                console.log(lineFilters)
                 lineLayers.push({
                     "id": 'segment-' + p,
                     "type": 'line',
@@ -244,42 +234,48 @@ body {
             }
         }
 
+        var popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+
         map.on('load', function() {
 
             map.addSource('all_segments', {
                 type: 'vector',
                 url: 'mapbox://rsbaumann.ADV_all_segments'
             });
-            console.log(map.getSource('all_segments'))
-
-                calcLineFilters(lineBreaks, document.getElementById('line_color').value);
-                calcLineLayers();
-                console.log(lineLayers)
-                for (var p = 0; p < lineLayers.length; p++) {
-                    map.addLayer(lineLayers[p]);
-                };
+            //console.log(map.getSource('all_segments'))
+            let param_selector = document.getElementById("color_metric");
+            calcBreaks(500, 5)
+            calcLineFilters(lineBreaks, param_selector.value);
+            calcLineLayers();
+            for (var p = 0; p < lineLayers.length; p++) {
+                map.addLayer(lineLayers[p]);
+            };
 
             mouseOver(map, linelayernames);
             addPopup(map, linelayernames, popup);
         });
 
-        var popup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
 
-        function render() {
+        function render(layer) {
             map.setPitch(parseFloat($('#pitch').slider('getValue')))
-            for (i = 0; i < lineLayernames.length; i++) {
+            let param_selector = document.getElementById("color_metric");
+            calcBreaks(document.getElementById('scale').value, 5)
+            calcLineFilters(lineBreaks, param_selector.value);
+            calcLineLayers();
+            lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)]
+            for (i = 0; i < lineLayers.length; i++) {
                 let width = parseFloat($('#line_width').slider('getValue'))
                 let opacity = parseFloat($('#line_opacity').slider('getValue'))
-                let color = line_color[i]
+                let color = lineColors[i]
                 let lineOffset = parseFloat($('#line_offset').slider('getValue'))
-                console.log(lineLayernames[i])
-                map.setPaintProperty(lineLayernames, 'line-width', width)
-                map.setPaintProperty(lineLayernames, 'line-opacity', opacity)
-                map.setPaintProperty(lineLayernames, 'line-color', color)
-                map.setPaintProperty(lineLayernames, 'line-offset', lineOffset)
+                map.setFilter(linelayernames[i], lineFilters[i])
+                map.setPaintProperty(linelayernames[i], 'line-width', width)
+                map.setPaintProperty(linelayernames[i], 'line-opacity', opacity)
+                map.setPaintProperty(linelayernames[i], 'line-color', color)
+                map.setPaintProperty(linelayernames[i], 'line-offset', lineOffset)
             }
         }
 
@@ -313,7 +309,6 @@ body {
                 var feature = features[0];
                 for (o in feature) {
                     //To do - find list of geojson properties than can be displayed in the selected feature layer
-                    console.log(feature[o])
                 }
                 popup.setLngLat(e.lngLat)
                     //extend this to auto-display the selected feature layer's geojson data properies summarized
@@ -321,6 +316,12 @@ body {
                         '<ul class="list-group">' +
                         '<li class="list-group-item"> Act Type: ' + feature.properties.ACT_TYPE + " </li>" +
                         '<li class="list-group-item"> Distance: ' + feature.properties.DISTANCE + " </li>" +
+                        '<li class="list-group-item"> Athlete Count: ' + feature.properties.ATH_CNT + " </li>" +
+                        '<li class="list-group-item"> Effort Count: ' + feature.properties.EFFORT_CNT + " </li>" +
+                        '<li class="list-group-item"> Total Elev Gain ' + feature.properties.TOTAL_ELEV + " </li>" +
+                        '<li class="list-group-item"> Avg Grade: ' + feature.properties.AVG_GRADE + " </li>" +
+                        '<li class="list-group-item"> Max Grade: ' + feature.properties.MAX_GRADE + " </li>" +
+                        '<li class="list-group-item"> KOM Category: ' + feature.properties.CAT + " </li>" +
                         '</ul> </div>')
                     .addTo(mapid);
             });
@@ -361,8 +362,18 @@ body {
             $('#line_offset').slider('setValue', ev.value);
             render();
         });
+        $('#scale').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#scale').slider().on('slideStop', function(ev) {
+            $('#scale').slider('setValue', ev.value);
+            render();
+        });
 
         $('#line_color').change(render);
+        $('#color_metric').change(render);
 
     });
     </script>
