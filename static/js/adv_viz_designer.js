@@ -254,7 +254,6 @@ function set_visibility(mapid, id, onoff) {
 
 
 function render() {
-    //isMapLoaded(map, 0.5);
     if (document.getElementById("VizType").value == "heat-point") {
         try {
             set_visibility(map, 'linestring', 'off');
