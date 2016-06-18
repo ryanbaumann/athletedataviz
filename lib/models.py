@@ -6,12 +6,24 @@ from geoalchemy2.functions import GenericFunction
 from sqlalchemy_utils import URLType
 from sqlalchemy import PrimaryKeyConstraint
 
+
+def cv(val, type):
+    if val is None:
+        return 0
+    else:
+        if type == 'float':
+            return float(val)
+        else:
+            return int(val)
+
+
 class Athlete(db.Model):
     __tablename__ = 'Athlete'
 
     id = db.Column(db.BigInteger)
     data_source = db.Column(db.String(), index=True)
-    ath_id = db.Column(db.BigInteger, index=True, unique=True, primary_key=True)
+    ath_id = db.Column(db.BigInteger, index=True,
+                       unique=True, primary_key=True)
     last_updated_datetime_utc = db.Column(
         db.DateTime(), default=datetime.utcnow)
     api_code = db.Column(db.String(50))
@@ -56,8 +68,10 @@ class Activity(db.Model):
     __tablename__ = 'Activity'
 
     id = db.Column(db.BigInteger)
-    ath_id = db.Column(db.BigInteger, db.ForeignKey('Athlete.ath_id'), index=True)
-    act_id = db.Column(db.BigInteger, index=True, unique=True, primary_key=True)
+    ath_id = db.Column(db.BigInteger, db.ForeignKey(
+        'Athlete.ath_id'), index=True)
+    act_id = db.Column(db.BigInteger, index=True,
+                       unique=True, primary_key=True)
     last_updated_datetime_utc = db.Column(
         db.DateTime(), default=datetime.utcnow)
     act_type = db.Column(db.String(20), index=True)
@@ -102,27 +116,48 @@ class Activity(db.Model):
     act_segment_efforts = db.Column(JSON)
     act_photo_url_list = db.Column(JSON)
 
-
     def __init__(self, ath_id, act_id,
-                 act_type, act_name, act_description,
-                 act_startDate, act_dist, act_totalElevGain,
-                 act_avgSpd, act_calories):
+                 type, name, description,
+                 startDate, distance, totalElevGain,
+                 avgSpd, calories, polyline, achievement_count, athlete_count,
+                 avg_cadence, avg_heartrate, avg_temp, avg_watts, comment_count, commute,
+                 elapsed_time, gear_id, kilojoules, kudos_count, manual,
+                 max_heartrate, max_speed, moving_time, photo_count, workout_type):
 
         self.ath_id = ath_id
         self.act_id = act_id
-        self.act_type = act_type
-        self.act_name = act_name
-        self.act_description = act_description
-        self.act_startDate = act_startDate
-        self.act_dist = self.act_dist
-        self.act_totalElevGain = self.act_totalElevGain
-        self.act_avgSpd = act_avgSpd
-        self.act_calories = act_calories
+        self.act_type = type
+        self.act_name = name
+        self.act_description = description
+        self.act_startDate = startDate
+        self.act_dist = cv(distance, 'float')
+        self.act_totalElevGain = cv(totalElevGain, 'int')
+        self.act_avg_speed = cv(avgSpd, 'float')
+        self.act_calories = cv(calories, 'int')
+        self.polyline = polyline
+        self.act_achievement_count = cv(achievement_count, 'int')
+        self.act_athlete_count = cv(athlete_count, 'int')
+        self.act_avg_cadence = cv(avg_cadence, 'int')
+        self.act_avg_heartrate = cv(avg_heartrate, 'int')
+        self.act_avg_temp = cv(avg_temp, 'float')
+        self.act_avg_watts = cv(avg_watts, 'float')
+        self.act_comment_count = cv(comment_count, 'int')
+        self.act_commute = commute
+        self.act_elapsed_time = cv(elapsed_time, 'int')
+        self.act_gear_id = unicode(gear_id)
+        self.act_kilojoules = cv(kilojoules, 'int'),
+        self.act_kudos_count = cv(kudos_count, 'int')
+        self.act_manual = manual
+        self.act_max_heartrate = cv(max_heartrate, 'int')
+        self.act_max_speed = cv(max_speed, 'int')
+        self.act_moving_time = cv(moving_time, 'int')
+        self.act_total_photo_count = cv(photo_count, 'int')
+        self.act_workout_type = cv(workout_type, 'int')
 
     def __repr__(self):
         return """<ath_id %s, act_id %s,
                 act_name %s, act_startDate %s>""" % (self.ath_id, self.act_id,
-                                                   self.act_name, self.act_startDate)
+                                                     self.act_name, self.act_startDate)
 
 
 class Stream(db.Model):
@@ -175,7 +210,7 @@ class Stream(db.Model):
     def __repr__(self):
         return """<act_id %s, timestamp %s,
                 velocity_smooth %s, point %s>""" % (self.act_id, self.timestamp,
-                                                  self.velocity_smooth, self.point)
+                                                    self.velocity_smooth, self.point)
 
 '''
 class Stream_Act(db.Model):
@@ -199,6 +234,7 @@ class Stream_Act(db.Model):
         self.linestring = linestring
         self.multipoint = multipoint
 '''
+
 
 class Athlete_Fact(db.Model):
     __tablename__ = 'Athlete_Fact'

@@ -103,7 +103,6 @@ SHOP_URL = "https://%s:%s@athletedataviz.myshopify.com/admin" % \
 #  API   #
 ##########
 
-
 def output_html(data, code, headers=None):
     resp = Response(data, mimetype='text/html', headers=headers)
     resp.status_code = code
@@ -479,16 +478,23 @@ def delete_acts():
                 acts_dl_list += act
             for act in acts_dl_list:
                 # Delete the stream
-                Stream.query.filter_by(act_id=act).delete(
-                    synchronize_session='evaluate')
-                # Delete the activity
-                Activity.query.filter_by(act_id=act).delete(
-                    synchronize_session='evaluate')
+                try:
+                    Stream.query.filter_by(act_id=act).delete(
+                        synchronize_session='evaluate')
+                except:
+                    print 'error deleting stream!'
+                    raise
+                try:
+                    # Delete the activity
+                    Activity.query.filter_by(act_id=act).delete(
+                        synchronize_session='evaluate')
+                except:
+                    print 'error deleting activity!'
+                    raise
 
             db.session.commit()
             print "deleted activities from ath_id = " + str(session['ath_id'])
-            flash("deleted all activities for " + str(athlete.firstname) +
-                  " " + str(athlete.lastname))
+            flash("deleted all activities for " + str(session['ath_id']))
             db.session.close()
         except:
             print "error reading arguments from delete reuqest form!"
@@ -536,14 +542,33 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
 
                 new_act = Activity(ath_id=ath_id,
                                    act_id=act.id,
-                                   act_type=act.type,
-                                   act_name=act.name,
-                                   act_description=act.description,
-                                   act_startDate=act.start_date_local,
-                                   act_dist=act.distance,
-                                   act_totalElevGain=act.total_elevation_gain,
-                                   act_avgSpd=act.average_speed,
-                                   act_calories=act.calories
+                                   type=act.type,
+                                   name=act.name,
+                                   description=act.description,
+                                   startDate=act.start_date_local,
+                                   distance=act.distance,
+                                   totalElevGain=act.total_elevation_gain,
+                                   avgSpd=act.average_speed,
+                                   calories=act.calories,
+                                   polyline=act.map.polyline,
+                                   achievement_count=act.achievement_count,
+                                   athlete_count=act.athlete_count,
+                                   avg_cadence=act.average_cadence,
+                                   avg_heartrate=act.average_heartrate,
+                                   avg_temp=act.average_temp,
+                                   avg_watts=act.average_watts,
+                                   comment_count=act.comment_count,
+                                   commute=act.commute,
+                                   elapsed_time=act.elapsed_time.total_seconds(),
+                                   gear_id=act.gear_id,
+                                   kilojoules=act.kilojoules,
+                                   kudos_count=act.kudos_count,
+                                   manual=act.manual,
+                                   max_heartrate=act.max_heartrate,
+                                   max_speed=act.max_speed,
+                                   moving_time=act.moving_time.total_seconds(),
+                                   photo_count=act.photo_count,
+                                   workout_type=act.workout_type
                                    )
 
                 db.session.add(new_act)
@@ -556,6 +581,9 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
 
             except:
                 print "error entering activity or stream data into db!"
+                raise
+                pass
+                
     db.session.close()
     gc.collect()
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
@@ -568,7 +596,7 @@ def longtask():
     Begin the long task of downloading data from strava.  Accepts params from the form of 
     startDate, endDate, and activity limit from the page. 
     """
-    #clearCache(session['ath_id'])
+
     # Get the post data from the form via AJAX
     try:
         startDate = request.json['startDate']

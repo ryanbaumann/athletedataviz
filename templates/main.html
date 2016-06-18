@@ -131,11 +131,12 @@
     var domReady = function(callback) {
         document.readyState === "interactive" || document.readyState === "complete" ? callback() : document.addEventListener("DOMContentLoaded", callback);
     };
+    var current_act_url = "{{ current_act_url|safe }}"
     
      domReady(function() {
 
         function get_acts() {
-        $.get("{{ current_act_url|safe }}", function(data, status) {
+        $.get(current_act_url, function(data, status) {
             $('#act_table').html(data);
             });
         }

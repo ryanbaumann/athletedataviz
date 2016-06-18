@@ -10,40 +10,39 @@ var curStyle;
 var map;
 
 function addSegLayer(mapid, seg_url) {
-        if (mapid.getSource('segment')) {
-            try {
-                segment_src.setData(seg_url);
-                render();
-            } catch (err) {
-                console.log(err);
-            }
+    if (mapid.getSource('segment')) {
+        try {
+            segment_src.setData(seg_url);
+            render();
+        } catch (err) {
+            console.log(err);
         }
-        else {
-            try {
-                isMapLoaded(mapid, 300);
-                segment_src = new mapboxgl.GeoJSONSource({
-                    data: seg_url,
-                    maxzoom: 22,
-                    buffer: 10,
-                    tolerance: 1
-                });
-                mapid.addSource('segment', segment_src);
-            } catch (err) {
-                console.log(err);
-            }
-            try {
-                calcSegFilters(seg_breaks, 'dist');
-                calcSegLayers(seg_filters, lineColors);
-                for (var p = 0; p < seg_layers.length; p++) {
-                    mapid.addLayer(seg_layers[p]);
-                    calcLegends(p, 'segment');
-                };
-                addPopup(mapid, seg_layernames, segpopup);
-                render();   
-            } catch (err) {
-                console.log(err);
-            }
-        } 
+    } else {
+        try {
+            isMapLoaded(mapid, 300);
+            segment_src = new mapboxgl.GeoJSONSource({
+                data: seg_url,
+                maxzoom: 22,
+                buffer: 10,
+                tolerance: 1
+            });
+            mapid.addSource('segment', segment_src);
+        } catch (err) {
+            console.log(err);
+        }
+        try {
+            calcSegFilters(seg_breaks, 'dist');
+            calcSegLayers(seg_filters, lineColors);
+            for (var p = 0; p < seg_layers.length; p++) {
+                mapid.addLayer(seg_layers[p]);
+                calcLegends(p, 'segment');
+            };
+            addPopup(mapid, seg_layernames, segpopup);
+            render();
+        } catch (err) {
+            console.log(err);
+        }
+    }
 };
 
 function addLayerLinestring(mapid) {
@@ -86,12 +85,12 @@ function addLayerHeat(mapid) {
     } catch (err) {
         console.log(err);
     }
-    try { 
+    try {
         calcHeatLayers()
         mapid.addLayer(layers[0]);
         for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-point');
-            };
+        };
         addPopup(mapid, layernames, heatpopup);
     } catch (err) {
         console.log(err);
@@ -155,9 +154,8 @@ function calcLegends(p, id) {
         if ($('#legend-points-value-' + p).length > 0) {
             document.getElementById('legend-points-value-' + p).textContent = breaks[p];
             document.getElementById('legend-points-id-' + p).style.backgroundColor = colors[p];
-        }
-        else {
-            legend = document.getElementById('legend-points');      
+        } else {
+            legend = document.getElementById('legend-points');
             key.id = 'legend-points-id-' + p;
             key.style.backgroundColor = colors[p];
             value.id = 'legend-points-value-' + p;
@@ -167,13 +165,11 @@ function calcLegends(p, id) {
             data = document.getElementById('legend-points-value-' + p)
             data.textContent = breaks[p];
         }
-    }
-    else if (id == "heat-line") {
+    } else if (id == "heat-line") {
         if ($('#legend-lines-value-' + p).length > 0) {
             document.getElementById('legend-lines-value-' + p).textContent = lineBreaks[p];
             document.getElementById('legend-lines-id-' + p).style.backgroundColor = lineColors[p];
-        }
-        else {
+        } else {
             legend = document.getElementById('legend-lines');
             key.id = 'legend-lines-id-' + p;
             key.style.backgroundColor = lineColors[p];
@@ -184,13 +180,11 @@ function calcLegends(p, id) {
             data = document.getElementById('legend-lines-value-' + p)
             data.textContent = lineBreaks[p];
         }
-    }
-    else if (id == "segment") {
+    } else if (id == "segment") {
         if ($('#legend-seg-value-' + p).length > 0) {
             document.getElementById('legend-seg-value-' + p).textContent = seg_breaks[p];
             document.getElementById('legend-seg-id-' + p).style.backgroundColor = lineColors[p];
-        }
-        else {
+        } else {
             legend = document.getElementById('legend-seg');
             key.id = 'legend-seg-id-' + p;
             key.style.backgroundColor = lineColors[p];
@@ -212,7 +206,7 @@ function switchLayer() {
     } else {
         map.setStyle('mapbox://styles/mapbox/dark-v8');
     }
-    map.on('load', function() { 
+    map.on('load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
         addSegLayer(map, getURL(map, 'False'));
@@ -263,7 +257,7 @@ function render() {
             $('#legend-lines').hide();
             $('#legend-seg').hide();
             map.off('dragend')
-               .off('zoomend');
+                .off('zoomend');
         } catch (err) {
             console.log(err);
         }
@@ -287,7 +281,7 @@ function render() {
             $('#legend-points').hide();
             $('#legend-seg').hide();
             map.off('dragend')
-               .off('zoomend');
+                .off('zoomend');
         } catch (err) {
             console.log(err);
         }
@@ -310,7 +304,7 @@ function render() {
             $('#legend-points').hide();
             $('#legend-lines').hide();
             map.off('dragend')
-               .off('zoomend');
+                .off('zoomend');
             map.on('dragend', function() {
                     addSegLayer(map, getURL(map, 'False'));
                 })
@@ -323,14 +317,14 @@ function render() {
         try {
             if (map.getSource('segment')) {
                 set_visibility(map, 'segment', 'on');
+                addSegLayer(map, getURL(map, 'False'));
                 paintSegLayer(map, 'segment',
                     document.getElementById("line_color").value,
                     parseFloat($('#line_width').slider('getValue')),
                     parseFloat($('#line_opacity').slider('getValue')),
                     parseFloat($('#pitch').slider('getValue')));
                 $('#legend-seg').show();
-            }
-            else {
+            } else {
                 addSegLayer(map, getURL(map, 'False'));
             }
         } catch (err) {
@@ -342,19 +336,19 @@ function render() {
 function mouseOver(mapid, layer_list) {
     mapid.off('mousemove'); //Remove any previous mouseover event binds to the map
     mapid.on('mousemove', function(e) {
-        minpoint = new Array(e.point['x']-10, e.point['y']-10)
-        maxpoint = new Array(e.point['x']+10, e.point['y']+10)
-        var features = mapid.queryRenderedFeatures([minpoint, maxpoint], { layers : layer_list});
+        minpoint = new Array(e.point['x'] - 10, e.point['y'] - 10)
+        maxpoint = new Array(e.point['x'] + 10, e.point['y'] + 10)
+        var features = mapid.queryRenderedFeatures([minpoint, maxpoint], { layers: layer_list });
         // Change the cursor style as a UI indicator.
-         mapid.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+        mapid.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
     });
 }
 
 function addPopup(mapid, layer_list, popup) {
     mapid.on('click', function(e) {
-        minpoint = new Array(e.point['x']-10, e.point['y']-10)
-        maxpoint = new Array(e.point['x']+10, e.point['y']+10)
-        var features = mapid.queryRenderedFeatures([minpoint, maxpoint], { layers : layer_list});
+        minpoint = new Array(e.point['x'] - 10, e.point['y'] - 10)
+        maxpoint = new Array(e.point['x'] + 10, e.point['y'] + 10)
+        var features = mapid.queryRenderedFeatures([minpoint, maxpoint], { layers: layer_list });
         // Remove the popup if there are no features to display
         if (!features.length) {
             popup.remove();
@@ -362,24 +356,23 @@ function addPopup(mapid, layer_list, popup) {
         }
         var feature = features[0];
         if (document.getElementById("VizType").value == "heat-point") {
-            let watts = Math.round(feature.properties.p*10)/10
-            let hr = Math.round(feature.properties.h*10)/10
-            let cad = Math.round(feature.properties.c*10)/10
+            let watts = Math.round(feature.properties.p * 10) / 10
+            let hr = Math.round(feature.properties.h * 10) / 10
+            let cad = Math.round(feature.properties.c * 10) / 10
 
             popup.setLngLat(e.lngLat)
                 .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
                     '<ul class="list-group">' +
-                    '<li class="list-group-item"> Freq: ' + Math.round(feature.properties.d *10)/10 + " visits </li>" +
-                    '<li class="list-group-item"> Speed: ' + Math.round(feature.properties.s*10)/10 + " mph </li>" +
-                    '<li class="list-group-item"> Grade: ' + Math.round(feature.properties.g*10)/10 + " % </li>" +
+                    '<li class="list-group-item"> Freq: ' + Math.round(feature.properties.d * 10) / 10 + " visits </li>" +
+                    '<li class="list-group-item"> Speed: ' + Math.round(feature.properties.s * 10) / 10 + " mph </li>" +
+                    '<li class="list-group-item"> Grade: ' + Math.round(feature.properties.g * 10) / 10 + " % </li>" +
                     '<li class="list-group-item"> Power: ' + (watts = watts || 0) + " watts </li>" +
-                    '<li class="list-group-item"> Elevation: ' + Math.round(feature.properties.e*10)/10 + " ft </li>" +
+                    '<li class="list-group-item"> Elevation: ' + Math.round(feature.properties.e * 10) / 10 + " ft </li>" +
                     '<li class="list-group-item"> Heartrate: ' + (hr = hr || 0) + " BPM </li>" +
                     '<li class="list-group-item"> Cadence: ' + (cad = cad || 0) + " RPM </li>" +
                     '</ul> </div>')
-            .addTo(mapid);
-        }
-        else if (document.getElementById("VizType").value == "heat-line") {
+                .addTo(mapid);
+        } else if (document.getElementById("VizType").value == "heat-line") {
             popup.setLngLat(e.lngLat)
                 .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
                     '<ul class="list-group">' +
@@ -387,18 +380,17 @@ function addPopup(mapid, layer_list, popup) {
                     '<li class="list-group-item"> Type: ' + feature.properties.ty + " </li>" +
                     '<li class="list-group-item"> ID: ' + feature.properties.id + " </li>" +
                     '</ul> </div>')
-            .addTo(mapid);
-        }
-        else if (document.getElementById("VizType").value == "segment") {
+                .addTo(mapid);
+        } else if (document.getElementById("VizType").value == "segment") {
             popup.setLngLat(e.lngLat)
                 .setHTML('<div id="popup" class="popup" style="z-index: 10;"> <h5> Detail: </h5>' +
                     '<ul class="list-group">' +
                     '<li class="list-group-item"> Name: ' + feature.properties.name + " </li>" +
                     '<li class="list-group-item"> Type: ' + feature.properties.type + " </li>" +
-                    '<li class="list-group-item"> Dist: ' + Math.round(feature.properties.dist*10)/10 + " (mi) </li>" +
-                    '<li class="list-group-item"> Elev: ' + Math.round(feature.properties.elev*10)/10 + " (ft) </li>" +
+                    '<li class="list-group-item"> Dist: ' + Math.round(feature.properties.dist * 10) / 10 + " (mi) </li>" +
+                    '<li class="list-group-item"> Elev: ' + Math.round(feature.properties.elev * 10) / 10 + " (ft) </li>" +
                     '</ul> </div>')
-            .addTo(mapid);
+                .addTo(mapid);
         }
     });
 }
@@ -411,12 +403,12 @@ function addPopup(mapid, layer_list, popup) {
 function isMapLoaded(mapid, interval, segUrl) {
     //check if map is loaded every retry_interval seconds and display or hide loading bar
     var timer = setInterval(isLoaded, interval);
+
     function isLoaded() {
         if (mapid.loaded() && segUrl === undefined) {
             $("#loading").hide();
             clearInterval(timer);
-        }
-        else if (segUrl != undefined) {
+        } else if (segUrl != undefined) {
             $("#loading").show();
             if (mapid.loaded()) {
                 $("#loading").show();
@@ -425,8 +417,7 @@ function isMapLoaded(mapid, interval, segUrl) {
                     clearInterval(timer);
                 })
             }
-        }
-        else {
+        } else {
             $("#loading").show();
         };
     }
@@ -452,8 +443,9 @@ function hideLoading() {
 
 function getStravaLeaderboard(segid, token) {
     $.getJSON('https://www.strava.com/api/v3/segments/' + segid + '/leaderboard?' +
-        'access_token=' + token, function (data) {
-             console.log(data)
-         });
-    
+        'access_token=' + token,
+        function(data) {
+            console.log(data)
+        });
+
 }
