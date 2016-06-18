@@ -317,7 +317,6 @@ function render() {
         try {
             if (map.getSource('segment')) {
                 set_visibility(map, 'segment', 'on');
-                addSegLayer(map, getURL(map, 'False'));
                 paintSegLayer(map, 'segment',
                     document.getElementById("line_color").value,
                     parseFloat($('#line_width').slider('getValue')),

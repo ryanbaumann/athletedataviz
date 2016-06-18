@@ -153,6 +153,7 @@ class Activity(db.Model):
         self.act_moving_time = cv(moving_time, 'int')
         self.act_total_photo_count = cv(photo_count, 'int')
         self.act_workout_type = cv(workout_type, 'int')
+        print self.polyline
 
     def __repr__(self):
         return """<ath_id %s, act_id %s,

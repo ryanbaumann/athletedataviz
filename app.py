@@ -550,7 +550,7 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
                                    totalElevGain=act.total_elevation_gain,
                                    avgSpd=act.average_speed,
                                    calories=act.calories,
-                                   polyline=act.map.polyline,
+                                   polyline=act.map.summary_polyline,
                                    achievement_count=act.achievement_count,
                                    athlete_count=act.athlete_count,
                                    avg_cadence=act.average_cadence,
@@ -570,6 +570,7 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
                                    photo_count=act.photo_count,
                                    workout_type=act.workout_type
                                    )
+                print 'activity polyline is: ' + str(act.map.summary_polyline)
 
                 db.session.add(new_act)
                 db.session.commit()
