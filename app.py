@@ -55,8 +55,8 @@ if 'DYNO' in os.environ:
 #flask-assets
 assets = Environment(app)
 js_base = Bundle('js/jquery-2.2.4.min.js',
-            'js/mapbox-gl-js-0-21-0.js',
-            'js/mapbox-gl-geocoder-1-0-0.js',
+            'js/mapbox-gl-js-0-22-0.js',
+            'js/mapbox-gl-geocoder-1-3-0.js',
             'js/bootstrap.js',
             'js/bootstrap-slider.js',     
             'js/modernizr-2-8-3.js',
@@ -77,8 +77,8 @@ js_base = Bundle('js/jquery-2.2.4.min.js',
 css = Bundle('css/bootstrap.css',
              'css/font-awesome.min.css',
              'css/bootstrap-slider.css',
-             'css/mapbox-gl-js-0-21-0.css',
-             'css/mapbox-gl-geocoder-1-0-0.css',
+             'css/mapbox-gl-js-0-22-0.css',
+             'css/mapbox-gl-geocoder-1-3-0.css',
              'css/normalize.css',
              'css/style.css',
              filters='cssmin', output="gen/all.css")
