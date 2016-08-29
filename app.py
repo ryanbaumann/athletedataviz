@@ -55,7 +55,7 @@ if 'DYNO' in os.environ:
 #flask-assets
 assets = Environment(app)
 js_base = Bundle('js/jquery-2.2.4.min.js',
-            'js/mapbox-gl-js-0-22-0.js',
+            'js/mapbox-gl-js-0-23-0.js',
             'js/mapbox-gl-geocoder-1-3-0.js',
             'js/bootstrap.js',
             'js/bootstrap-slider.js',     
@@ -77,7 +77,7 @@ js_base = Bundle('js/jquery-2.2.4.min.js',
 css = Bundle('css/bootstrap.css',
              'css/font-awesome.min.css',
              'css/bootstrap-slider.css',
-             'css/mapbox-gl-js-0-22-0.css',
+             'css/mapbox-gl-js-0-23-0.css',
              'css/mapbox-gl-geocoder-1-3-0.css',
              'css/normalize.css',
              'css/style.css',
@@ -543,8 +543,8 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
                 new_act = Activity(ath_id=ath_id,
                                    act_id=act.id,
                                    type=act.type,
-                                   name=act.name,
-                                   description=act.description,
+                                   name=unicode(act.name),
+                                   description=unicode(act.description),
                                    startDate=act.start_date_local,
                                    distance=act.distance,
                                    totalElevGain=act.total_elevation_gain,
@@ -570,7 +570,6 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
                                    photo_count=act.photo_count,
                                    workout_type=act.workout_type
                                    )
-                print 'activity polyline is: ' + str(act.map.summary_polyline)
 
                 db.session.add(new_act)
                 db.session.commit()
