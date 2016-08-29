@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import os
-import json
+import os, json
 from stravalib import client, unithelper
 import pandas as pd
 from datetime import datetime, timedelta
@@ -43,7 +42,7 @@ def ParseActivity(client, act, types, resolution):
     # Parses an activity from an athlete into a dataframe.  Returns the
     # dataframe
     act_id = act.id
-    name = act.name
+    name = unicode(act.name)
     print str(act_id), str(act.name), act.start_date
     streams = GetStreams(client, act_id, types, resolution)
     df = pd.DataFrame()
@@ -363,6 +362,46 @@ def get_acts_centroid(engine, ath_id):
     return avg_long, avg_lat
 
 
+def get_heatmap_points(engine, ath_id):
+    args3 = """
+            Select row_to_json(fc)::json
+            FROM(
+            SELECT array_to_json(array_agg(f))::json as points
+            FROM(
+                SELECT 
+                round(st_y(point)::numeric,3) as lt, 
+                round(st_x(point)::numeric,3) as lg, 
+                round((density)::numeric,1) as d,
+                round((speed*2.23694)::numeric,1) as s,
+                round((grade)::numeric,1) as g
+                FROM 
+                "V_Point_Heatmap"
+                WHERE ath_id = %s
+                ) as f) as fc;""" % (str(ath_id))
+    args4 = """
+            Select row_to_json(fc)::json
+            FROM(
+            SELECT array_to_json(array_agg(f))::json as points
+            FROM(
+                SELECT 
+                round(st_y(point)::numeric,3) as lt, 
+                round(st_x(point)::numeric,3) as lg, 
+                round((density)::numeric,1) as d,
+                round((speed)::numeric,1) as s,
+                round((grade)::numeric,1) as g
+                FROM 
+                "Stream_HeatPoint"
+                WHERE ath_id = %s
+                ) as f) as fc;""" % (str(ath_id))
+
+    print "calculating heatmap points from db..."
+    result = engine.execute(args3)
+    for row in result:
+        data = row.values()
+    heatpoints = str(json.dumps(data)[1:-1])
+    return heatpoints
+
+
 def get_acts_html(engine, ath_id):
     args = """ 
             SELECT "act_startDate" as "Date",
@@ -379,14 +418,14 @@ def get_acts_html(engine, ath_id):
     return df
 
 
-def get_heatmap_points(engine, ath_id):
+def get_heatmap_lines(engine, ath_id):
     geojson_sql = """
                 SELECT row_to_json(fc) 
-                    FROM (SELECT 'FeatureCollection' As type, 
-                        array_to_json(array_agg(f)) As features
-                    FROM (SELECT 'Feature' As type, 
-                        st_asgeojson(lg.point, 6)::json AS geometry,
-                        (
+     FROM (SELECT 'FeatureCollection' As type, 
+                  array_to_json(array_agg(f)) As features
+           FROM (SELECT 'Feature' As type, 
+                  st_asgeojson(lg.point, 6)::json AS geometry,
+                  (
                   select row_to_json(t) 
                   FROM (SELECT round((lg.density)::numeric,1) as d,
                                 round((lg.speed*2.23694)::numeric,1) as s,
@@ -405,28 +444,3 @@ def get_heatmap_points(engine, ath_id):
 
     geojson_data = str(json.dumps(data)[1:-1])
     return geojson_data
-
-
-def get_heatmap_points_depricated(engine, ath_id):
-    args3 = """
-            Select row_to_json(fc)::json
-            FROM(
-            SELECT array_to_json(array_agg(f))::json as points
-            FROM(
-                SELECT 
-                round(st_y(point)::numeric,3) as lt, 
-                round(st_x(point)::numeric,3) as lg, 
-                round((density)::numeric,1) as d,
-                round((speed*2.23694)::numeric,1) as s,
-                round((grade)::numeric,1) as g
-                FROM 
-                "V_Point_Heatmap"
-                WHERE ath_id = %s
-                ) as f) as fc;""" % (str(ath_id))
-
-    print "calculating heatmap points from db..."
-    result = engine.execute(args3)
-    for row in result:
-        data = row.values()
-    heatpoints = str(json.dumps(data)[1:-1])
-    return heatpoints
