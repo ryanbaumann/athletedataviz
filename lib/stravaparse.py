@@ -42,7 +42,7 @@ def ParseActivity(client, act, types, resolution):
     # Parses an activity from an athlete into a dataframe.  Returns the
     # dataframe
     act_id = act.id
-    name = act.name
+    name = unicode(act.name)
     print str(act_id), str(act.name), act.start_date
     streams = GetStreams(client, act_id, types, resolution)
     df = pd.DataFrame()
