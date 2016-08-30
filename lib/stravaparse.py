@@ -5,7 +5,13 @@ from stravalib import client, unithelper
 import pandas as pd
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine
+from unidecode import unidecode
 
+def coerce_uni(string):
+    ''' coerce ascii2 unicode for a string'''
+    if string:
+        string = unicode(unidecode(string))
+    return string
 
 def GetActivities(client, startDate, endDate, limit):
     # Returns a list of Strava activity objects, up to the number specified by
@@ -42,8 +48,8 @@ def ParseActivity(client, act, types, resolution):
     # Parses an activity from an athlete into a dataframe.  Returns the
     # dataframe
     act_id = act.id
-    name = unicode(act.name)
-    print str(act_id), str(act.name), act.start_date
+    name = coerce_uni(act.name)
+    #print str(act_id), str(act.name), act.start_date
     streams = GetStreams(client, act_id, types, resolution)
     df = pd.DataFrame()
     # Write each row to a dataframe

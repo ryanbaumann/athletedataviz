@@ -16,6 +16,7 @@ from flask_sslify import SSLify
 from flask.ext.cors import CORS
 from lib.forms import OrderForm
 from flask.ext.assets import Environment, Bundle
+from unidecode import unidecode
 #import shopify
 
 #################
@@ -228,6 +229,12 @@ api.add_resource(Segment_Data, '/segment_data/')
 # helper #
 ##########
 
+def coerce_uni(string):
+    ''' coerce ascii2 unicode for a string'''
+    if string:
+        string = unicode(unidecode(string))
+    return string
+
 def clearCache(ath_id):
     """ Remove Data from Cache for user """
     try:
@@ -292,17 +299,17 @@ def homepage():
                 new_athlete = Athlete(data_source='strava',
                                       ath_id=athlete.id,
                                       api_code=session['access_token'],
-                                      first_name=unicode(athlete.firstname),
-                                      last_name=unicode(athlete.lastname),
-                                      city = unicode(athlete.city),
-                                      state = unicode(athlete.state),
-                                      country = unicode(athlete.country),
-                                      email = unicode(athlete.email),
-                                      email_language = unicode(athlete.email_language),
-                                      measurement_preference = unicode(athlete.measurement_preference),
-                                      date_preference = unicode(athlete.date_preference),
-                                      profile = unicode(athlete.profile),
-                                      profile_medium = unicode(athlete.profile_medium))
+                                      first_name=coerce_uni(athlete.firstname),
+                                      last_name=coerce_uni(athlete.lastname),
+                                      city = coerce_uni(athlete.city),
+                                      state = coerce_uni(athlete.state),
+                                      country = coerce_uni(athlete.country),
+                                      email = coerce_uni(athlete.email),
+                                      email_language = coerce_uni(athlete.email_language),
+                                      measurement_preference = coerce_uni(athlete.measurement_preference),
+                                      date_preference = coerce_uni(athlete.date_preference),
+                                      profile = coerce_uni(athlete.profile),
+                                      profile_medium = coerce_uni(athlete.profile_medium))
                 db.session.add(new_athlete)
             else:
                 print "athlete already in db - updating existing record"
@@ -321,7 +328,7 @@ def homepage():
                                act_limit=int(session.get('act_limit', 1)),
                                current_act_url=BASEPATH +
                                'current_acts/' + str(session['ath_id']),
-                               athlete_name = athlete.firstname + ' ' + athlete.lastname,
+                               athlete_name = coerce_uni(athlete.firstname) + ' ' + coerce_uni(athlete.lastname),
                                profile_url = athlete.profile)
 
 
@@ -446,7 +453,7 @@ def strava_mapbox():
                            'heat_points/' + str(session['ath_id']),
                            heatline_url = BASEPATH +
                            'heat_lines/' + str(session['ath_id']),
-                           ath_name = athlete.first_name + "_" + athlete.last_name + 
+                           ath_name = coerce_uni(athlete.first_name) + "_" + coerce_uni(athlete.last_name) + 
                                     '_' + datetime.utcnow().strftime('%y%m%d'),
                            seg_base_url = BASEPATH + str('segment_data/?'))
 
@@ -542,9 +549,9 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
 
                 new_act = Activity(ath_id=ath_id,
                                    act_id=act.id,
-                                   type=act.type,
-                                   name=unicode(act.name),
-                                   description=unicode(act.description),
+                                   type=coerce_uni(act.type),
+                                   name=coerce_uni(act.name),
+                                   description=coerce_uni(act.description),
                                    startDate=act.start_date_local,
                                    distance=act.distance,
                                    totalElevGain=act.total_elevation_gain,
@@ -715,7 +722,7 @@ def testmap():
                            'heat_points/' + str(session['ath_id']),
                            heatline2_url=BASEPATH +
                            'heat_lines2/' + str(session['ath_id']),
-                           ath_name=athlete.firstname + "_" + athlete.lastname + '_' + datetime.utcnow().strftime('%y%m%d'))
+                           ath_name=coerce_uni(athlete.firstname) + "_" + coerce_uni(athlete.lastname) + '_' + datetime.utcnow().strftime('%y%m%d'))
 
 #DEPRICATED @app.route("/submit_form", methods=["POST"])
 def submit_form():
