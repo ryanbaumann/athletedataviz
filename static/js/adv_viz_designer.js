@@ -12,7 +12,7 @@ var map;
 function addSegLayer(mapid, seg_url) {
     if (mapid.getSource('segment')) {
         try {
-            segment_src.setData(seg_url);
+            mapid.getSource('segment').setData(seg_url);
             render();
         } catch (err) {
             console.log(err);
@@ -20,13 +20,13 @@ function addSegLayer(mapid, seg_url) {
     } else {
         try {
             isMapLoaded(mapid, 300);
-            segment_src = new mapboxgl.GeoJSONSource({
+            mapid.addSource('segment', {
+                type: 'geojson',
                 data: seg_url,
                 maxzoom: 22,
                 buffer: 10,
                 tolerance: 1
             });
-            mapid.addSource('segment', segment_src);
         } catch (err) {
             console.log(err);
         }
@@ -46,15 +46,16 @@ function addSegLayer(mapid, seg_url) {
 };
 
 function addLayerLinestring(mapid) {
-    linestring_src = new mapboxgl.GeoJSONSource({
-        data: heatline_url,
-        maxzoom: 22,
-        buffer: 0,
-        buffer: 10,
-        tolerance: 1
-    });
+
     try {
-        mapid.addSource('linestring', linestring_src);
+        mapid.addSource('linestring', {
+            type: 'geojson',
+            data: heatline_url,
+            maxzoom: 22,
+            buffer: 0,
+            buffer: 10,
+            tolerance: 1
+        });
     } catch (err) {
         console.log(err);
     }
@@ -74,14 +75,15 @@ function addLayerLinestring(mapid) {
 //Add heat points function
 function addLayerHeat(mapid) {
     // Mapbox JS Api - import heatmap layer
-    heatpoint_src = new mapboxgl.GeoJSONSource({
-        data: heatpoint_url,
-        maxzoom: 22,
-        buffer: 10,
-        tolerance: 10
-    });
+
     try {
-        mapid.addSource('heatpoint', heatpoint_src);
+        mapid.addSource('heatpoint', {
+            type: 'geojson',
+            data: heatpoint_url,
+            maxzoom: 22,
+            buffer: 10,
+            tolerance: 10
+        });
     } catch (err) {
         console.log(err);
     }
