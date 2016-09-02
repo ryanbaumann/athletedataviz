@@ -112,7 +112,6 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         setTimeout(function() { 
             try {
                 var canvas = renderMap.getCanvas();
-                var gl = canvas.getContext("webgl", {antialias: true});
                 var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
                 img.width = targetDims['width'];
                 img.height = targetDims['height'];
