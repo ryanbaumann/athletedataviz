@@ -192,20 +192,20 @@ class Stream(db.Model):
     def __init__(self, act_id, timestamp, lat, long, elapsed_time, elapsed_dist, velocity_smooth,
                  altitude, grade_smooth, watts, temp, heartrate, cadence, moving, point):
 
-        self.act_id = act_id
+        self.act_id = cv(act_id, 'int')
         self.timestamp = timestamp
-        self.lat = lat
-        self.long = long
-        self.elapsed_time = elapsed_time
-        self.elapsed_dist = elapsed_dist
-        self.velocity_smooth = velocity_smooth
-        self.altitude = altitude
-        self.grade_smooth = grade_smooth
-        self.watts = watts
-        self.temp = temp
-        self.heartrate = heartrate
-        self.cadence = cadence
-        self.moving = moving,
+        self.lat = cv(lat, 'float')
+        self.long = cv(long, 'float')
+        self.elapsed_time = cv(elapsed_time, 'int')
+        self.elapsed_dist = cv(elapsed_dist, 'float')
+        self.velocity_smooth = cv(velocity_smooth, 'float')
+        self.altitude = cv(altitude, 'int')
+        self.grade_smooth = cv(grade_smooth, 'float')
+        self.watts = cv(watts, 'int')
+        self.temp = cv(temp, 'float')
+        self.heartrate = cv(heartrate, 'int')
+        self.cadence = cv(cadence, 'int')
+        self.moving = moving
         self.point = point
 
     def __repr__(self):
