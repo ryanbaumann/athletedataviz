@@ -8,7 +8,7 @@ from sqlalchemy import PrimaryKeyConstraint
 
 
 def cv(val, type):
-    if val is None:
+    if val is None or val is '':
         return 0
     else:
         if type == 'float':
