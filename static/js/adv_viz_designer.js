@@ -62,8 +62,8 @@ function addLayerLinestring(mapid) {
     try {
         calcLineFilters(lineBreaks, 'ty');
         calcLineLayers();
-        for (var p = 0; p < lineLayers.length; p++) {
-            mapid.addLayer(lineLayers[p]);
+        mapid.addLayer(lineLayers[0]);
+        for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-lines');
         };
         addPopup(map, linelayernames, linepopup);
@@ -219,23 +219,21 @@ function switchLayer() {
 
 function set_visibility(mapid, id, onoff) {
     if (id == 'heatpoints') {
-        for (var p = 0; p < layers.length; p++) {
             if (onoff == 'off') {
-                mapid.setLayoutProperty("heatpoints" + "-" + p, 'visibility', 'none');
+                mapid.setLayoutProperty("heatpoints" + "-" + 0, 'visibility', 'none');
             } else if (onoff == 'on') {
-                mapid.setLayoutProperty("heatpoints" + "-" + p, 'visibility', 'visible');
+                mapid.setLayoutProperty("heatpoints" + "-" + 0, 'visibility', 'visible');
                 mouseOver(mapid, layernames);
             }
-        };
+
     } else if (id == 'linestring') {
-        for (var p = 0; p < lineLayers.length; p++) {
             if (onoff == 'off') {
-                mapid.setLayoutProperty("linestring" + "-" + p, 'visibility', 'none');
+                mapid.setLayoutProperty("linestring" + "-" + 0, 'visibility', 'none');
             } else if (onoff == 'on') {
-                mapid.setLayoutProperty("linestring" + "-" + p, 'visibility', 'visible');
+                mapid.setLayoutProperty("linestring" + "-" + 0, 'visibility', 'visible');
                 mouseOver(mapid, linelayernames);
             }
-        };
+
     } else if (id == 'segment') {
         for (var p = 0; p < seg_layers.length; p++) {
             if (onoff == 'off') {
