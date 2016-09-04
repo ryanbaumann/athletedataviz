@@ -147,8 +147,8 @@
         });
         {% if session.access_token %}
             $('#act_table').on('load', get_acts());
-            var today = moment().format('YYYY-MM-DD');
-            var threeMonthsAgo = moment().subtract(90, 'days').format('YYYY-MM-DD');
+            var today = moment().add(1, 'days').format('YYYY-MM-DD');
+            var threeMonthsAgo = moment().subtract(60, 'days').format('YYYY-MM-DD');
             $('#startDate').val(threeMonthsAgo);
             $('#endDate').val(today);
         {% else %}
