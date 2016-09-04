@@ -140,6 +140,7 @@ def concatdf(df_lst):
 def cleandf(df_total):
     # Applies a number of functions to clean out a dataframe for final
     # processing
+    df_total['watts'].fillna(0, inplace=True)
     df_total.fillna('', inplace=True)
     df_total.reset_index(level=0, inplace=True)
     df_total['timestamp'] = map(
