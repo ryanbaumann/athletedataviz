@@ -69,7 +69,6 @@ function calcHeatLayers() {
 
 //Update heatpoints properties
 function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
-    //Update the break and filter settings
     mapid.setPitch(pitch);
     colors = color_list[parseFloat(document.getElementById('heat_color').value)];
     calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);

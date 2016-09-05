@@ -17,18 +17,12 @@ var linepopup = new mapboxgl.Popup({
     closeOnClick: false
 });
 
-function calcLineFilters(breaks, param) {
-    //calculate line filters to apply
-    lineFilters = [];
-    for (var p = 0; p < lineBreaks.length - 1; p++) {
-        lineFilters.push(['==', param, lineBreaks[p]])
-    }
-}
-
-function calc_stops(lineBreaks, lineColors) {
+function calc_stops(breaks, colors) {
+    //Given an array of breaks and colors, return a Style JSON stops array
+    //breaks and colors must be the same length
     let stops = []
-    for (var i = 0; i < lineBreaks.length; i++) {
-        stops.push([lineBreaks[i], lineColors[i]]);
+    for (var i = 0; i < breaks.length; i++) {
+        stops.push([breaks[i], colors[i]]);
     }
     return stops
 }
@@ -38,7 +32,7 @@ function calcLineLayers() {
     lineLayers = [];
     linelayernames = [];
     lineLayers.push({
-        id: 'linestring-' + 0,
+        id: 'linestring-0',
         type: 'line',
         source: 'linestring',
         paint: {
@@ -55,14 +49,22 @@ function calcLineLayers() {
     linelayernames.push('linestring-' + 0);
 }
 
-function paintLayer(mapid, color, width, opacity, pitch, layer) {
+function paintLineLayer(mapid, color, width, opacity, pitch, layer) {
     mapid.setPitch(pitch);
-    lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)]
-    calcLegends(p, 'heat-line');
-    mapid.setPaintProperty(layer + '-' + 0, 'line-color', calc_stops(lineBreaks, lineColors));
-    mapid.setPaintProperty(layer + '-' + 0, 'line-width', width);
-    mapid.setPaintProperty(layer + '-' + 0, 'line-opacity', opacity);
-    mapid.setPaintProperty(layer + '-' + 0, 'line-gap-width',
+    lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)];
+    for (p = 0; p < lineBreaks.length; p++) {
+        calcLegends(p, 'heat-line');
+    }
+    let color_stops = calc_stops(lineBreaks, lineColors);
+    let color_style = {
+                property: 'ty',
+                type: 'categorical',
+                stops: color_stops
+            }
+    mapid.setPaintProperty("linestring-0", 'line-color', color_style);
+    mapid.setPaintProperty("linestring-0", 'line-width', width);
+    mapid.setPaintProperty("linestring-0", 'line-opacity', opacity);
+    mapid.setPaintProperty("linestring-0", 'line-gap-width',
         parseFloat(document.getElementById("line_offset").value));
 }
 
