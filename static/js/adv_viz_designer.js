@@ -31,10 +31,9 @@ function addSegLayer(mapid, seg_url) {
             console.log(err);
         }
         try {
-            calcSegFilters(seg_breaks, 'dist');
             calcSegLayers(seg_filters, lineColors);
+            mapid.addLayer(seg_layers[0]);
             for (var p = 0; p < seg_layers.length; p++) {
-                mapid.addLayer(seg_layers[p]);
                 calcLegends(p, 'segment');
             };
             addPopup(mapid, seg_layernames, segpopup);
@@ -60,10 +59,9 @@ function addLayerLinestring(mapid) {
         console.log(err);
     }
     try {
-        calcLineFilters(lineBreaks, 'ty');
         calcLineLayers();
-        for (var p = 0; p < lineLayers.length; p++) {
-            mapid.addLayer(lineLayers[p]);
+        mapid.addLayer(lineLayers[0]);
+        for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-lines');
         };
         addPopup(map, linelayernames, linepopup);
@@ -108,10 +106,9 @@ function initVizMap() {
         try {
             // API tokens 
             mapboxgl.accessToken = mapboxgl_accessToken;
-            $('#legend-lines').hide();
+            //$('#legend-lines').hide();
             map = new mapboxgl.Map({
                 container: 'map',
-                /*rsbaumann/ciiia74pe00298ulxsin2emmn*/
                 style: 'mapbox://styles/mapbox/dark-v8',
                 center: mapboxgl.LngLat.convert(center_point),
                 zoom: 4,
@@ -219,31 +216,27 @@ function switchLayer() {
 
 function set_visibility(mapid, id, onoff) {
     if (id == 'heatpoints') {
-        for (var p = 0; p < layers.length; p++) {
-            if (onoff == 'off') {
-                mapid.setLayoutProperty("heatpoints" + "-" + p, 'visibility', 'none');
-            } else if (onoff == 'on') {
-                mapid.setLayoutProperty("heatpoints" + "-" + p, 'visibility', 'visible');
-                mouseOver(mapid, layernames);
-            }
-        };
+        if (onoff == 'off') {
+            mapid.setLayoutProperty("heatpoints-0", 'visibility', 'none');
+        } else if (onoff == 'on') {
+            mapid.setLayoutProperty("heatpoints-0", 'visibility', 'visible');
+            mouseOver(mapid, layernames);
+        }
+
     } else if (id == 'linestring') {
-        for (var p = 0; p < lineLayers.length; p++) {
-            if (onoff == 'off') {
-                mapid.setLayoutProperty("linestring" + "-" + p, 'visibility', 'none');
-            } else if (onoff == 'on') {
-                mapid.setLayoutProperty("linestring" + "-" + p, 'visibility', 'visible');
-                mouseOver(mapid, linelayernames);
-            }
-        };
+        if (onoff == 'off') {
+            mapid.setLayoutProperty("linestring-0", 'visibility', 'none');
+        } else if (onoff == 'on') {
+            mapid.setLayoutProperty("linestring-0", 'visibility', 'visible');
+            mouseOver(mapid, linelayernames);
+        }
+
     } else if (id == 'segment') {
-        for (var p = 0; p < seg_layers.length; p++) {
-            if (onoff == 'off') {
-                mapid.setLayoutProperty('segment' + "-" + p, 'visibility', 'none');
-            } else if (onoff == 'on') {
-                mapid.setLayoutProperty('segment' + "-" + p, 'visibility', 'visible');
-                mouseOver(mapid, seg_layernames);
-            }
+        if (onoff == 'off') {
+            mapid.setLayoutProperty('segment-0', 'visibility', 'none');
+        } else if (onoff == 'on') {
+            mapid.setLayoutProperty('segment-0', 'visibility', 'visible');
+            mouseOver(mapid, seg_layernames);
         }
     }
 };
@@ -277,9 +270,7 @@ function render() {
     } else if (document.getElementById("VizType").value == "heat-line") {
         try {
             set_visibility(map, 'heatpoints', 'off');
-            if (map.getSource('segment')) {
-                set_visibility(map, 'segment', 'off');
-            }
+            set_visibility(map, 'segment', 'off');
             $('#legend-points').hide();
             $('#legend-seg').hide();
             map.off('dragend')
@@ -289,7 +280,7 @@ function render() {
         }
         try {
             set_visibility(map, 'linestring', 'on');
-            paintLayer(map,
+            paintLineLayer(map,
                 document.getElementById("line_color").value,
                 parseFloat($('#line_width').slider('getValue')),
                 parseFloat($('#line_opacity').slider('getValue')),
@@ -337,8 +328,8 @@ function render() {
 function mouseOver(mapid, layer_list) {
     mapid.off('mousemove'); //Remove any previous mouseover event binds to the map
     mapid.on('mousemove', function(e) {
-        minpoint = new Array(e.point['x'] - 10, e.point['y'] - 10)
-        maxpoint = new Array(e.point['x'] + 10, e.point['y'] + 10)
+        minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
+        maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
         var features = mapid.queryRenderedFeatures([minpoint, maxpoint], { layers: layer_list });
         // Change the cursor style as a UI indicator.
         mapid.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
@@ -347,8 +338,8 @@ function mouseOver(mapid, layer_list) {
 
 function addPopup(mapid, layer_list, popup) {
     mapid.on('click', function(e) {
-        minpoint = new Array(e.point['x'] - 10, e.point['y'] - 10)
-        maxpoint = new Array(e.point['x'] + 10, e.point['y'] + 10)
+        minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
+        maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
         var features = mapid.queryRenderedFeatures([minpoint, maxpoint], { layers: layer_list });
         // Remove the popup if there are no features to display
         if (!features.length) {
