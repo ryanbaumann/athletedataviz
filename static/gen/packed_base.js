@@ -217,7 +217,7 @@ popup.setLngLat(e.lngLat).setHTML('<div id="popup" class="popup"> <h5> Detail: <
 '<li class="list-group-item"> Dist: '+Math.round(feature.properties.dist*10)/10+" (mi) </li>"+
 '<li class="list-group-item"> Elev: '+Math.round(feature.properties.elev*10)/10+" (ft) </li>"+
 '</ul> </div>').addTo(mapid);}});}
-function isMapLoaded(mapid,interval,segUrl){var timer=setInterval(isLoaded,interval);function isLoaded(){if(mapid.loaded()&&segUrl===undefined){$("#loading").hide();clearInterval(timer);}else if(segUrl!=undefined){$("#loading").show();if(mapid.loaded()){$("#loading").show();mapid.once('render',function(){$("#loading").hide();clearInterval(timer);})}}else{$("#loading").show();};}}
+function isMapLoaded(mapid,interval,segUrl){var timer=setInterval(isLoaded,interval);function isLoaded(){if(mapid.loaded()&&segUrl===undefined){$("#loading").hide();clearInterval(timer);}else if(segUrl!=undefined&&!mapid.loaded()){if(mapid.loaded()){$("#loading").show();mapid.once('render',function(){$("#loading").hide();clearInterval(timer);})}}else{$("#loading").show();};}}
 function fit(mapid,geojson_object){console.log(geojson_object)
 try{mapid.fitBounds(geojsonExtent(geojson_object));}catch(err){console.log(err);$("#loading").hide();$('#DownloadModal').modal("show");}}
 function hideLoading(){$("#loading").hide();}

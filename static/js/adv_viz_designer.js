@@ -409,8 +409,7 @@ function isMapLoaded(mapid, interval, segUrl) {
         if (mapid.loaded() && segUrl === undefined) {
             $("#loading").hide();
             clearInterval(timer);
-        } else if (segUrl != undefined) {
-            $("#loading").show();
+        } else if (segUrl != undefined && !mapid.loaded()) {
             if (mapid.loaded()) {
                 $("#loading").show();
                 mapid.once('render', function() {
