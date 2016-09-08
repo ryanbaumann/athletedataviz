@@ -31,9 +31,9 @@ function addSegLayer(mapid, seg_url) {
             console.log(err);
         }
         try {
-            calcSegLayers(seg_filters, lineColors);
+            calcSegLayers();
             mapid.addLayer(seg_layers[0]);
-            for (var p = 0; p < seg_layers.length; p++) {
+            for (var p = 0; p < seg_breaks.length; p++) {
                 calcLegends(p, 'segment');
             };
             addPopup(mapid, seg_layernames, segpopup);
@@ -395,49 +395,46 @@ function addPopup(mapid, layer_list, popup) {
 function isMapLoaded(mapid, interval, segUrl) {
     //check if map is loaded every retry_interval seconds and display or hide loading bar
     var timer = setInterval(isLoaded, interval);
-
+    let i = 0;
     function isLoaded() {
+        $("#loading").show();
+        i++;
         if (mapid.loaded() && segUrl === undefined) {
             $("#loading").hide();
             clearInterval(timer);
-        } else if (segUrl != undefined) {
-            $("#loading").show();
-            if (mapid.loaded()) {
-                $("#loading").show();
-                mapid.once('render', function() {
-                    $("#loading").hide();
-                    clearInterval(timer);
-                })
-            }
         } else {
-            $("#loading").show();
-        };
+            
+            if (i > 5) {
+                $("#loading").hide();
+                clearInterval(timer);
+            }
+        }
     }
 }
 
-function fit(mapid, geojson_object) {
-    //fit gl map to a geojson file bounds - depricated for now!
-    console.log(geojson_object)
-    try {
-        mapid.fitBounds(geojsonExtent(geojson_object));
-    } catch (err) {
-        //Note that the user did not have any data to load
-        console.log(err);
+    function fit(mapid, geojson_object) {
+        //fit gl map to a geojson file bounds - depricated for now!
+        console.log(geojson_object)
+        try {
+            mapid.fitBounds(geojsonExtent(geojson_object));
+        } catch (err) {
+            //Note that the user did not have any data to load
+            console.log(err);
+            $("#loading").hide();
+            $('#DownloadModal').modal("show");
+        }
+    }
+
+    function hideLoading() {
         $("#loading").hide();
-        $('#DownloadModal').modal("show");
     }
-}
-
-function hideLoading() {
-    $("#loading").hide();
-}
 
 
-function getStravaLeaderboard(segid, token) {
-    $.getJSON('https://www.strava.com/api/v3/segments/' + segid + '/leaderboard?' +
-        'access_token=' + token,
-        function(data) {
-            console.log(data)
-        });
+    function getStravaLeaderboard(segid, token) {
+        $.getJSON('https://www.strava.com/api/v3/segments/' + segid + '/leaderboard?' +
+            'access_token=' + token,
+            function(data) {
+                console.log(data)
+            });
 
-}
+    }
