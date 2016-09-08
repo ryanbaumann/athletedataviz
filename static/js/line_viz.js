@@ -11,58 +11,67 @@ var lineBreaks = ['Ride', 'Run', 'NordicSki', 'Hike', 'Other'];
 var lineColors = line_color_list[0];
 var lineFilters = [];
 var lineLayers = [];
-var linelayernames=[];
+var linelayernames = [];
 var linepopup = new mapboxgl.Popup({
     closeButton: false,
     closeOnClick: false
 });
 
-function calcLineFilters(breaks, param) {
-    //calculate line filters to apply
-    lineFilters = [];
-    for (var p = 0; p < lineBreaks.length - 1; p++) {
-        lineFilters.push(['==', param, lineBreaks[p]])
+function calc_stops(breaks, colors) {
+    //Given an array of breaks and colors, return a Style JSON stops array
+    //breaks and colors must be the same length
+    let stops = []
+    for (var i = 0; i < breaks.length; i++) {
+        stops.push([breaks[i], colors[i]]);
     }
+    return stops
 }
 
 function calcLineLayers() {
     //calculate line layers to create
     lineLayers = [];
     linelayernames = [];
-    for (var p = 0; p < lineFilters.length; p++) {
-        lineLayers.push({
-            id: 'linestring-' + p,
-            type: 'line',
-            source: 'linestring',
-            paint: {
-                "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-                "line-width": parseFloat(document.getElementById("line_width").value),
-                "line-color": lineColors[p],
-                "line-gap-width": 0
+    lineLayers.push({
+        id: 'linestring-0',
+        type: 'line',
+        source: 'linestring',
+        paint: {
+            "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+            "line-width": parseFloat(document.getElementById("line_width").value),
+            "line-color": {
+                property: 'ty',
+                type: 'categorical',
+                stops: calc_stops(lineBreaks, lineColors)
             },
-            filter: lineFilters[p]
-        });
-        linelayernames.push('linestring-' + p);
-    }
+            "line-gap-width": 0
+        }
+    });
+    linelayernames.push('linestring-' + 0);
 }
 
-function paintLayer(mapid, color, width, opacity, pitch, layer) {
-    lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)]
+function paintLineLayer(mapid, color, width, opacity, pitch, layer) {
     mapid.setPitch(pitch);
-    for (var p = 0; p < lineLayers.length; p++) {
+    lineColors = line_color_list[parseFloat(document.getElementById("line_color").value)];
+    for (p = 0; p < lineBreaks.length; p++) {
         calcLegends(p, 'heat-line');
-        mapid.setPaintProperty(layer + '-' + p, 'line-color', lineColors[p]);
-        mapid.setPaintProperty(layer + '-' + p, 'line-width', width);
-        mapid.setPaintProperty(layer + '-' + p, 'line-opacity', opacity);
-        mapid.setPaintProperty(layer + '-' + p, 'line-gap-width', 
-            parseFloat(document.getElementById("line_offset").value));
-    };
+    }
+    let color_stops = calc_stops(lineBreaks, lineColors);
+    let color_style = {
+                property: 'ty',
+                type: 'categorical',
+                stops: color_stops
+            }
+    mapid.setPaintProperty("linestring-0", 'line-color', color_style);
+    mapid.setPaintProperty("linestring-0", 'line-width', width);
+    mapid.setPaintProperty("linestring-0", 'line-opacity', opacity);
+    mapid.setPaintProperty("linestring-0", 'line-gap-width',
+        parseFloat(document.getElementById("line_offset").value));
 }
 
 function getDataLinestring(callback) {
-    $.getJSON( heatpoint_url , function(data) {
-        stravaHeatGeoJson = JSON.parse(data); 
-        r.resolve();
-    }),
-    callback(stravaHeatGeoJson);
+    $.getJSON(heatpoint_url, function(data) {
+            stravaHeatGeoJson = JSON.parse(data);
+            r.resolve();
+        }),
+        callback(stravaHeatGeoJson);
 };
