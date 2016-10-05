@@ -19,7 +19,7 @@ function addSegLayer(mapid, seg_url) {
         }
     } else {
         try {
-            isMapLoaded(mapid, 300);
+            isMapLoaded(mapid, 'segment');
             mapid.addSource('segment', {
                 type: 'geojson',
                 data: seg_url,
@@ -73,7 +73,6 @@ function addLayerLinestring(mapid) {
 //Add heat points function
 function addLayerHeat(mapid) {
     // Mapbox JS Api - import heatmap layer
-
     try {
         mapid.addSource('heatpoint', {
             type: 'geojson',
@@ -104,6 +103,7 @@ function initVizMap() {
         alert('Your browser does not support Mapbox GL.  Please try Chrome or Firefox.');
     } else {
         try {
+            $("#loading").show();
             // API tokens 
             mapboxgl.accessToken = mapboxgl_accessToken;
             //$('#legend-lines').hide();
@@ -199,12 +199,12 @@ function calcLegends(p, id) {
 
 function switchLayer() {
     layer = document.getElementById("mapStyle").value;
-    isMapLoaded(map, 300);
     if (layer != 'dark-nolabel') {
         map.setStyle('mapbox://styles/mapbox/' + layer + '-v9');
     } else {
         map.setStyle('mapbox://styles/mapbox/dark-v8');
     }
+    isMapLoaded(map, layer);
     map.on('load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
@@ -392,24 +392,14 @@ function addPopup(mapid, layer_list, popup) {
 
 //on change of VizType, show only menu options linked to selected viztype
 
-function isMapLoaded(mapid, interval, segUrl) {
+function isMapLoaded(mapid, source) {
+    $("#loading").show()
     //check if map is loaded every retry_interval seconds and display or hide loading bar
-    var timer = setInterval(isLoaded, interval);
-    let i = 0;
-    function isLoaded() {
-        $("#loading").show();
-        i++;
-        if (mapid.loaded() && segUrl === undefined) {
-            $("#loading").hide();
-            clearInterval(timer);
-        } else {
-            
-            if (i > 5) {
-                $("#loading").hide();
-                clearInterval(timer);
-            }
-        }
-    }
+    map.on('data', function(ev) {
+      if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
+                                     ev.source.id === 'heatpoint' ||
+                                     ev.source.id === 'linestring'))  {$("#loading").hide()};
+    });
 }
 
     function fit(mapid, geojson_object) {
