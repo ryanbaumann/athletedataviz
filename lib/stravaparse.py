@@ -87,7 +87,7 @@ def loop_activities(client, activities, already_dl_act_id_list, types):
     # entry for each activity
     df_lst = {}
     for act in activities:
-        if act.id not in already_dl_act_id_list:
+        if act.id not in already_dl_act_id_list and act.trainer==False and act.manual==False:
             df_lst[act.start_date] = ParseActivity(client, act, types)
     return df_lst
 
