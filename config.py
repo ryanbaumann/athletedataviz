@@ -32,6 +32,10 @@ class Config(object):
     # Database
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_POOL_SIZE = 30
+    SQLALCHEMY_POOL_TIMEOUT = 30
+    SQLALCHEMY_MAX_OVERFLOW = 120
+
 
     # CELERY
     CELERY_ACCEPT_CONTENT = ['json', 'pickle']
