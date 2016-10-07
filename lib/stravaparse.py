@@ -28,9 +28,10 @@ def GetActivities(client, startDate, endDate, limit):
 def GetStreams(client, activity, types, resolution):
     # Returns a Strava 'stream', which is timeseries data from an activity
     streams = client.get_activity_streams(activity,
-                                          types=types,
-                                          series_type='distance',
-                                          resolution=resolution)
+                                              types=types,
+                                              series_type='distance',
+                                              resolution=resolution)
+
     return streams
 
 
@@ -49,7 +50,11 @@ def ParseActivity(client, act, types, resolution):
     # dataframe
     act_id = act.id
     name = coerce_uni(act.name)
-    streams = GetStreams(client, act_id, types, resolution)
+    try:
+        streams = GetStreams(client, act_id, types, resolution)
+    except:
+        print 'no stream to retrieve!  Passing.'
+        return pd.DataFrame()
     df = pd.DataFrame()
     # Write each row to a dataframe
     for item in types:
