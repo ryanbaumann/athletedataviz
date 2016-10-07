@@ -522,6 +522,7 @@ def long_task(self, startDate, endDate, act_limit, ath_id, types, access_token, 
 
     # Get a list of activities, compare to what's in the DB, return only activities not in DB items
     acts_list = sp.GetActivities(client, startDate, endDate, act_limit)
+    acts_list = [act for act in acts_list if not (act.trainer) and not (act.manual)]
     # Return a list of already cached activities in the database
     acts_dl_list = []
     for act in Activity.query.filter_by\
