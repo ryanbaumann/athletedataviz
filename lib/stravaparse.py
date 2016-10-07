@@ -49,14 +49,17 @@ def ParseActivity(client, act, types, resolution):
     # dataframe
     act_id = act.id
     name = coerce_uni(act.name)
-    streams = GetStreams(client, act_id, types, resolution)
-    df = pd.DataFrame()
-    # Write each row to a dataframe
-    for item in types:
-        if item in streams.keys():
-            df[item] = pd.Series(streams[item].data, index=None)
-        df['act_id'] = act.id
-        df['act_startDate'] = pd.to_datetime(act.start_date_local)
+    if act.trainer==False and act.manual==False:
+        streams = GetStreams(client, act_id, types, resolution)
+        df = pd.DataFrame()
+        # Write each row to a dataframe
+        for item in types:
+            if item in streams.keys():
+                df[item] = pd.Series(streams[item].data, index=None)
+            df['act_id'] = act.id
+            df['act_startDate'] = pd.to_datetime(act.start_date_local)
+    else:
+       return 
     return df
 
 
@@ -88,7 +91,10 @@ def loop_activities(client, activities, already_dl_act_id_list, types):
     df_lst = {}
     for act in activities:
         if act.id not in already_dl_act_id_list and act.trainer==False and act.manual==False:
-            df_lst[act.start_date] = ParseActivity(client, act, types)
+            try:
+                df_lst[act.start_date] = ParseActivity(client, act, types)
+            except:
+                print 'error adding to list, moving on!'
     return df_lst
 
 
