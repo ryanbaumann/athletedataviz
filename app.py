@@ -644,7 +644,7 @@ def taskstatus(task_id):
             'state': task.state,
             'current': 0.01,
             'total': 1,
-            'status': 'starting...'
+            'status': 'waiting in line to download...'
         }
     elif task.state != 'FAILURE':
         response = {
