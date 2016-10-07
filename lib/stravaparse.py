@@ -53,12 +53,13 @@ def ParseActivity(client, act, types, resolution):
     df = pd.DataFrame()
     # Write each row to a dataframe
     for item in types:
-        if item in streams.keys():
-            df[item] = pd.Series(streams[item].data, index=None)
+        try:
+            if item in streams.keys():
+                df[item] = pd.Series(streams[item].data, index=None)
+        except:
+            pass
         df['act_id'] = act.id
         df['act_startDate'] = pd.to_datetime(act.start_date_local)
-    else:
-       return 
     return df
 
 
@@ -159,17 +160,17 @@ def cleandf(df_total):
 def process_activities(client, limit, types, engine, table_name):
     # Applies a number of functions to get and convert and clean
     activities = GetActivities(client, limit)
-    #Remove trainer and manual activities
-    activities = [act for act in activities if act.trainer==False and act.manual==False]
     already_dl_act_id_list = get_acts_in_db(engine, table_name)
     df_total = loop_activities(
         client, activities, already_dl_act_id_list, types)
     df_total = concatdf(df_total)
-
-    if not df_total.empty:
-        df_total = cleandf(df_total)
-    else:
-        print "no new data to clean"
+    try:
+        if not df_total.empty:
+            df_total = cleandf(df_total)
+        else:
+            print "no new data to clean"
+    except:
+        return pd.DataFrame()
 
     return df_total
 
