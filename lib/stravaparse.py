@@ -49,15 +49,14 @@ def ParseActivity(client, act, types, resolution):
     # dataframe
     act_id = act.id
     name = coerce_uni(act.name)
-    if act.trainer==False and act.manual==False:
-        streams = GetStreams(client, act_id, types, resolution)
-        df = pd.DataFrame()
-        # Write each row to a dataframe
-        for item in types:
-            if item in streams.keys():
-                df[item] = pd.Series(streams[item].data, index=None)
-            df['act_id'] = act.id
-            df['act_startDate'] = pd.to_datetime(act.start_date_local)
+    streams = GetStreams(client, act_id, types, resolution)
+    df = pd.DataFrame()
+    # Write each row to a dataframe
+    for item in types:
+        if item in streams.keys():
+            df[item] = pd.Series(streams[item].data, index=None)
+        df['act_id'] = act.id
+        df['act_startDate'] = pd.to_datetime(act.start_date_local)
     else:
        return 
     return df
