@@ -90,11 +90,8 @@ def loop_activities(client, activities, already_dl_act_id_list, types):
     # entry for each activity
     df_lst = {}
     for act in activities:
-        if act.id not in already_dl_act_id_list and act.trainer==False and act.manual==False:
-            try:
-                df_lst[act.start_date] = ParseActivity(client, act, types)
-            except:
-                print 'error adding to list, moving on!'
+        if act.id not in already_dl_act_id_list:
+            df_lst[act.start_date] = ParseActivity(client, act, types)
     return df_lst
 
 
@@ -163,10 +160,13 @@ def cleandf(df_total):
 def process_activities(client, limit, types, engine, table_name):
     # Applies a number of functions to get and convert and clean
     activities = GetActivities(client, limit)
+    #Remove trainer and manual activities
+    activities = [act for act in activities if act.trainer==False and act.manual==False]
     already_dl_act_id_list = get_acts_in_db(engine, table_name)
     df_total = loop_activities(
         client, activities, already_dl_act_id_list, types)
     df_total = concatdf(df_total)
+
     if not df_total.empty:
         df_total = cleandf(df_total)
     else:
