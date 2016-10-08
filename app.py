@@ -127,6 +127,15 @@ class Heat_Points(Resource):
     def __repr__(self):
         return "%s" % (self.__class__.__name__)
 
+class Elev_Poly(Resource):
+    def get(self, ath_id):
+        geojsonPoints = sp.get_evel_poly(
+            engine, int(ath_id))
+        gc.collect()
+        return output_json(geojsonPoints, 200, 600)
+
+    def __repr__(self):
+        return "%s" % (self.__class__.__name__)
 
 class Heat_Lines(Resource):
     def get(self, ath_id):
@@ -220,6 +229,7 @@ class Current_Acts(Resource):
         return "%s_%s" % (self.__class__.__name__, self.id)
 
 api.add_resource(Heat_Points, '/heat_points/<int:ath_id>')
+api.add_resource(Elev_Poly, '/elev_poly/<int:ath_id>')
 api.add_resource(Heat_Lines, '/heat_lines/<int:ath_id>')
 api.add_resource(Heat_Lines2, '/heat_lines2/<int:ath_id>')
 api.add_resource(Current_Acts, '/current_acts/<int:ath_id>')
@@ -451,6 +461,8 @@ def strava_mapbox():
                                'MAPBOX_GL_ACCESS_TOKEN'],
                            heatpoint_url = BASEPATH +
                            'heat_points/' + str(session['ath_id']),
+                           evelpoly_url = BASEPATH +
+                           'elev_poly/' + str(session['ath_id']),
                            heatline_url = BASEPATH +
                            'heat_lines/' + str(session['ath_id']),
                            ath_name = coerce_uni(athlete.first_name) + "_" + coerce_uni(athlete.last_name) + 

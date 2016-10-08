@@ -96,6 +96,51 @@ function addLayerHeat(mapid) {
     }
 };
 
+//Add heat points function
+function addLayerElev(mapid) {
+    // Mapbox JS Api - import heatmap layer
+    try {
+
+        mapid.addSource('elevation-poly', {
+            type: 'geojson',
+            data: evelpoly_url,
+            maxzoom: 20
+        });
+    } catch (err) {
+        console.log(err);
+    }
+
+    try {
+        mapid.addLayer({
+            "id": 'elevation',
+            "source": 'elevation-poly',
+            "type": "fill",
+            "paint": {
+                "fill-extrude-height": {
+                    "type": "exponential",
+                    "stops": [
+                        [0, 0],
+                        [2500, 5000]
+                    ],
+                    "property": "e"
+                },
+                "fill-color": {
+                    "type": "exponential",
+                    "stops": [
+                        [0, "#6BEBAE"],
+                        [2500, "#EC8E5D"]
+                    ],
+                    "property": "e"
+                },
+                "fill-opacity": 0.95
+            }
+        });
+
+    } catch (err) {
+        console.log(err);
+    }
+};
+
 
 /////  Main Function  ///////
 function initVizMap() {
@@ -134,6 +179,7 @@ function initVizMap() {
         addLayerHeat(map);
         addLayerLinestring(map);
         addSegLayer(map, getURL(map, 'False'));
+        addLayerElev(map);
         render();
     });
     map.once('load', function() {
@@ -394,37 +440,37 @@ function addPopup(mapid, layer_list, popup) {
 
 function isMapLoaded(mapid, source) {
     $("#loading").show()
-    //check if map is loaded every retry_interval seconds and display or hide loading bar
+        //check if map is loaded every retry_interval seconds and display or hide loading bar
     map.on('data', function(ev) {
-      if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
-                                     ev.source.id === 'heatpoint' ||
-                                     ev.source.id === 'linestring'))  {$("#loading").hide()};
+        if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
+                ev.source.id === 'heatpoint' ||
+                ev.source.id === 'linestring')) { $("#loading").hide() };
     });
 }
 
-    function fit(mapid, geojson_object) {
-        //fit gl map to a geojson file bounds - depricated for now!
-        console.log(geojson_object)
-        try {
-            mapid.fitBounds(geojsonExtent(geojson_object));
-        } catch (err) {
-            //Note that the user did not have any data to load
-            console.log(err);
-            $("#loading").hide();
-            $('#DownloadModal').modal("show");
-        }
-    }
-
-    function hideLoading() {
+function fit(mapid, geojson_object) {
+    //fit gl map to a geojson file bounds - depricated for now!
+    console.log(geojson_object)
+    try {
+        mapid.fitBounds(geojsonExtent(geojson_object));
+    } catch (err) {
+        //Note that the user did not have any data to load
+        console.log(err);
         $("#loading").hide();
+        $('#DownloadModal').modal("show");
     }
+}
+
+function hideLoading() {
+    $("#loading").hide();
+}
 
 
-    function getStravaLeaderboard(segid, token) {
-        $.getJSON('https://www.strava.com/api/v3/segments/' + segid + '/leaderboard?' +
-            'access_token=' + token,
-            function(data) {
-                console.log(data)
-            });
+function getStravaLeaderboard(segid, token) {
+    $.getJSON('https://www.strava.com/api/v3/segments/' + segid + '/leaderboard?' +
+        'access_token=' + token,
+        function(data) {
+            console.log(data)
+        });
 
-    }
+}

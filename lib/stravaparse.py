@@ -393,21 +393,6 @@ def get_heatmap_points(engine, ath_id):
                 "V_Point_Heatmap"
                 WHERE ath_id = %s
                 ) as f) as fc;""" % (str(ath_id))
-    args4 = """
-            Select row_to_json(fc)::json
-            FROM(
-            SELECT array_to_json(array_agg(f))::json as points
-            FROM(
-                SELECT 
-                round(st_y(point)::numeric,3) as lt, 
-                round(st_x(point)::numeric,3) as lg, 
-                round((density)::numeric,1) as d,
-                round((speed)::numeric,1) as s,
-                round((grade)::numeric,1) as g
-                FROM 
-                "Stream_HeatPoint"
-                WHERE ath_id = %s
-                ) as f) as fc;""" % (str(ath_id))
 
     print "calculating heatmap points from db..."
     result = engine.execute(args3)
@@ -453,6 +438,27 @@ def get_heatmap_lines(engine, ath_id):
                             FROM "V_Point_Heatmap" as lg WHERE ath_id = %s
                      ) as f) as fc"""  % (ath_id)
 
+    result = engine.execute(geojson_sql)
+    for row in result:
+        data = row.values()
+
+    geojson_data = str(json.dumps(data)[1:-1])
+    return geojson_data
+
+def get_evel_poly(engine, ath_id):
+    geojson_sql = """
+                SELECT row_to_json(fc) 
+     FROM (SELECT 'FeatureCollection' As type, 
+                  array_to_json(array_agg(f)) As features
+           FROM (SELECT 'Feature' As type, 
+                  st_asgeojson(lg.poly, 6)::json AS geometry,
+                  (
+                  select row_to_json(t) 
+                  FROM (SELECT round((lg.e*3.28084)::numeric,0) as e) as t
+                                 ) as properties
+                            FROM "V_Poly_Elev" as lg WHERE ath_id = %s
+                     ) as f) as fc"""  % (ath_id)
+    print geojson_sql
     result = engine.execute(geojson_sql)
     for row in result:
         data = row.values()
