@@ -28,7 +28,7 @@ var seg_params = {
 
 function addSegLayer(mapid) {
     try {
-        mapid.addSource('all_segments', {
+        mapid.addSource('segment', {
             type: 'vector',
             url: 'mapbox://rsbaumann.ADV_all_segments'
         });
@@ -37,24 +37,25 @@ function addSegLayer(mapid) {
     }
     try {
         mapid.addLayer({
-        "id": 'segment-0',
-        "type": 'line',
-        "source": 'all_segments',
-        "source-layer": "adv_all_segments",
-        "paint": {
-            "line-opacity": parseFloat(document.getElementById("line_opacity").value),
-            "line-width": parseFloat(document.getElementById("line_width").value),
-            "line-color": {
-                "property": 'dist',
-                "type": 'interval',
-                "stops": calc_stops(seg_breaks, lineColors)
-            },
-            "line-gap-width": 0
+            "id": 'segment-0',
+            "type": 'line',
+            "source": 'segment',
+            "source-layer": "adv_all_segments",
+            "paint": {
+                "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+                "line-width": parseFloat(document.getElementById("line_width").value),
+                "line-color": {
+                    "property": 'dist',
+                    "type": 'interval',
+                    "stops": calc_stops(seg_breaks, lineColors)
+                },
+                "line-gap-width": 0
+            }
+        });
+        for (p = 0; p <= seg_breaks; p++) {
+            calcLegends(p, 'segment');
         }
-    });
-        calcLegends(0, 'segment');
         addPopup(mapid, seg_layernames, segpopup);
-        render();
     } catch (err) {
         console.log(err);
     }
@@ -66,9 +67,8 @@ function addLayerLinestring(mapid) {
         mapid.addSource('linestring', {
             type: 'geojson',
             data: heatline_url,
-            maxzoom: 22,
             buffer: 50,
-            tolerance: 1
+            tolerance: 0.5
         });
     } catch (err) {
         console.log(err);
@@ -92,9 +92,8 @@ function addLayerHeat(mapid) {
         mapid.addSource('heatpoint', {
             type: 'geojson',
             data: heatpoint_url,
-            maxzoom: 22,
             buffer: 50,
-            tolerance: 1
+            tolerance: 2
         });
     } catch (err) {
         console.log(err);
@@ -339,6 +338,7 @@ function addPopup(mapid, layer_list, popup) {
         minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
         maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
         var features = mapid.queryRenderedFeatures([minpoint, maxpoint], { layers: layer_list });
+
         // Remove the popup if there are no features to display
         if (!features.length) {
             popup.remove();
