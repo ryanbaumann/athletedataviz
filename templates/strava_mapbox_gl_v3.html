@@ -58,13 +58,15 @@
                                 <br>
                                 <b>Segment Parameter</b>
                                 <select id='segParam' name="line_color" style="font-size: 18px;">
-                                    <option value="dist">Distance (mi)</option>
-                                    <option value="elev">Elevation (ft)</option>
+                                    <option value="ELEV_GAIN">Elev Gain (m)</option>
+                                    <option value="EFFORT_COUNT">Total Efforts</option>
+                                    <option value="ATH_CNT">Total Athletes</option>
+                                     <option value="AVG_GRADE">Avg Gradient (%)</option>
                                 </select>
                                 <br>
                                 <br>
                                 <b>Segment Scale</b>
-                                <input type="text" id="segScale" class="slider" data-slider-min="1" data-slider-value="10" data-slider-max="20" data-slider-step="1">
+                                <input type="text" id="segScale" class="slider" data-slider-min="1" data-slider-value="500" data-slider-max="5000" data-slider-step="1">
                                 <br>
                                 <br>
                             </div>
@@ -135,17 +137,18 @@
         </div>
     </div>
     <div id='map'></div>
+    </a>
     <div class='legend-container'>
         <div id='legend-points' class='legend'>
-            <h3>Legend</h3>
+            <h3><b>Legend</b></h3>
             <span id='legend-points-param' class='text-center'><b>Speed (mph)</b></span>
         </div>
         <div id='legend-lines' class='legend' style="display:none;">
-            <h3>Legend</h3>
+            <h3><b>Legend</b></h3>
             <span id='legend-lines-param' class='text-center'><b>Activity Type</b></span>
         </div>
         <div id='legend-seg' class='legend' style="display:none;">
-            <h3>Legend</h3>
+            <h3><b>Legend</b></h3>
             <span id='legend-seg-param' class='text-center'><b>Segment Value</b></span>
         </div>
     </div>

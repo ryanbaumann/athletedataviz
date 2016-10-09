@@ -1,12 +1,28 @@
 //Global variables for segments
 var seg_breaks = [3, 6, 9, 12, 16];
-var seg_layers = [];
-var seg_filters = [];
-var seg_layernames = [];
+var seg_layer = {};
+var seg_layernames = ['segment-0'];
 var segpopup = new mapboxgl.Popup({
     closeButton: false,
     closeOnClick: false
 });
+
+var seg_params = {
+    'SEG_ID': 'number',
+    'ELEV_GAIN': 'number',
+    'ACT_TYPE': 'string',
+    'ELEV_HIGH': 'number',
+    'AVG_GRADE': 'number',
+    'NAME': 'string',
+    'ELEV_LOW': 'number',
+    'TOTAL_ELEV': 'number',
+    'DISTANCE': 'number',
+    'EFFORT_CNT': 'number',
+    'CAT': 'number',
+    'DATE_CREAT': 'string',
+    'MAX_GRADE': 'number',
+    'ATH_CNT': 'number'
+}
 
 function updateSegLegend() {
     document.getElementById('legend-seg-param').textContent = $("#segParam option:selected").text();
@@ -20,31 +36,30 @@ function calcSegBreaks(maxval, numbins) {
         seg_breaks.push(Math.round(binSize * p * 10) / 10);
     }
     updateSegLegend();
-    for (p = 0; p < seg_layers.length; p++) {
+    for (p = 0; p <= seg_breaks.length; p++) {
         calcLegends(p, 'segment');
     }
 }
 
 function calcSegLayers() {
     //calculate line layers to create
-    seg_layers = [];
     seg_layernames = [];
-    seg_layers.push({
-        id: 'segment-0',
-        type: 'line',
-        source: 'segment',
-        paint: {
+    seg_layer = {
+        "id": 'segment-0',
+        "type": 'line',
+        "source": 'all_segments',
+        "source-layer": "adv_all_segments",
+        "paint": {
             "line-opacity": parseFloat(document.getElementById("line_opacity").value),
             "line-width": parseFloat(document.getElementById("line_width").value),
             "line-color": {
-                property: 'dist',
-                type: 'interval',
-                stops: calc_stops(seg_breaks, lineColors)
+                "property": 'dist',
+                "type": 'interval',
+                "stops": calc_stops(seg_breaks, lineColors)
             },
             "line-gap-width": 0
         }
-    });
-    seg_layernames.push('segment-0');
+    };
 }
 
 
@@ -88,19 +103,20 @@ function paintSegLayer(mapid, layer, color, width, opacity, pitch) {
     mapid.setPitch(pitch);
     let filter_param =
         calcSegBreaks(parseFloat($('#segScale').slider('getValue')), lineColors.length);
-    for (i = 0; i < seg_breaks.length; i++) {
+    for (p = 0; p <= seg_breaks; p++) {
         calcLegends(p, 'segment');
     }
     let color_stops = calc_stops(seg_breaks, lineColors);
     let color_style = {
         property: document.getElementById('segParam').value,
-        type: 'categorical',
+        type: 'interval',
         stops: color_stops
     };
-    mapid.setPaintProperty('segment-0', 'line-color', color_style);
-    mapid.setPaintProperty('segment-0', 'line-width', width);
-    mapid.setPaintProperty('segment-0', 'line-opacity', opacity);
-    mapid.setPaintProperty('segment-0', 'line-gap-width',
+    console.log(color_style)
+    mapid.setPaintProperty(layer, 'line-color', color_style);
+    mapid.setPaintProperty(layer, 'line-width', width);
+    mapid.setPaintProperty(layer, 'line-opacity', opacity);
+    mapid.setPaintProperty(layer, 'line-gap-width',
         parseFloat(document.getElementById("line_offset").value));
 
 }
