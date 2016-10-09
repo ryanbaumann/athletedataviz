@@ -1,2 +1,2 @@
 web: app.py
-worker: celery worker -A app.celery --loglevel=INFO -P eventlet --concurrency=4 --autoscale=6,2
+worker: celery worker -A app.celery 

@@ -1,6 +1,6 @@
 //Global variables for segments
 var seg_breaks = [3, 6, 9, 12, 16];
-var seg_layers = [];
+var seg_layer = {};
 var seg_filters = [];
 var seg_layernames = [];
 var segpopup = new mapboxgl.Popup({
@@ -20,30 +20,30 @@ function calcSegBreaks(maxval, numbins) {
         seg_breaks.push(Math.round(binSize * p * 10) / 10);
     }
     updateSegLegend();
-    for (p = 0; p < seg_layers.length; p++) {
+    for (p = 0; p <= seg_breaks; p++) {
         calcLegends(p, 'segment');
     }
 }
 
 function calcSegLayers() {
     //calculate line layers to create
-    seg_layers = [];
     seg_layernames = [];
-    seg_layers.push({
-        id: 'segment-0',
-        type: 'line',
-        source: 'segment',
-        paint: {
+    seg_layer = {
+        "id": 'segment-0',
+        "type": 'line',
+        "source": 'all_segments',
+        "source-layer": "adv_all_segments",
+        "paint": {
             "line-opacity": parseFloat(document.getElementById("line_opacity").value),
             "line-width": parseFloat(document.getElementById("line_width").value),
             "line-color": {
-                property: 'dist',
-                type: 'interval',
-                stops: calc_stops(seg_breaks, lineColors)
+                "property": 'dist',
+                "type": 'interval',
+                "stops": calc_stops(seg_breaks, lineColors)
             },
             "line-gap-width": 0
         }
-    });
+    };
     seg_layernames.push('segment-0');
 }
 
@@ -97,10 +97,10 @@ function paintSegLayer(mapid, layer, color, width, opacity, pitch) {
         type: 'categorical',
         stops: color_stops
     };
-    mapid.setPaintProperty('segment-0', 'line-color', color_style);
-    mapid.setPaintProperty('segment-0', 'line-width', width);
-    mapid.setPaintProperty('segment-0', 'line-opacity', opacity);
-    mapid.setPaintProperty('segment-0', 'line-gap-width',
+    mapid.setPaintProperty(layer, 'line-color', color_style);
+    mapid.setPaintProperty(layer, 'line-width', width);
+    mapid.setPaintProperty(layer, 'line-opacity', opacity);
+    mapid.setPaintProperty(layer, 'line-gap-width',
         parseFloat(document.getElementById("line_offset").value));
 
 }

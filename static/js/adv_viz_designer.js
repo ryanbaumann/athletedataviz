@@ -9,50 +9,65 @@ var map_style = 'dark-nolabel';
 var curStyle;
 var map;
 
-function addSegLayer(mapid, seg_url) {
-    if (mapid.getSource('segment')) {
-        try {
-            mapid.getSource('segment').setData(seg_url);
-            render();
-        } catch (err) {
-            console.log(err);
-        }
-    } else {
-        try {
-            isMapLoaded(mapid, 'segment');
-            mapid.addSource('segment', {
-                type: 'geojson',
-                data: seg_url,
-                maxzoom: 22,
-                buffer: 10,
-                tolerance: 1
-            });
-        } catch (err) {
-            console.log(err);
-        }
-        try {
-            calcSegLayers();
-            mapid.addLayer(seg_layers[0]);
-            for (var p = 0; p < seg_breaks.length; p++) {
-                calcLegends(p, 'segment');
-            };
-            addPopup(mapid, seg_layernames, segpopup);
-            render();
-        } catch (err) {
-            console.log(err);
-        }
+var seg_params = {
+    'SEG_ID': 'number',
+    'ELEV_GAIN': 'number',
+    'ACT_TYPE': 'string',
+    'ELEV_HIGH': 'number',
+    'AVG_GRADE': 'number',
+    'NAME': 'string',
+    'ELEV_LOW': 'number',
+    'TOTAL_ELEV': 'number',
+    'DISTANCE': 'number',
+    'EFFORT_CNT': 'number',
+    'CAT': 'number',
+    'DATE_CREAT': 'string',
+    'MAX_GRADE': 'number',
+    'ATH_CNT': 'number'
+}
+
+function addSegLayer(mapid) {
+    try {
+        mapid.addSource('all_segments', {
+            type: 'vector',
+            url: 'mapbox://rsbaumann.ADV_all_segments'
+        });
+    } catch (err) {
+        console.log(err);
     }
+    try {
+        mapid.addLayer({
+        "id": 'segment-0',
+        "type": 'line',
+        "source": 'all_segments',
+        "source-layer": "adv_all_segments",
+        "paint": {
+            "line-opacity": parseFloat(document.getElementById("line_opacity").value),
+            "line-width": parseFloat(document.getElementById("line_width").value),
+            "line-color": {
+                "property": 'dist',
+                "type": 'interval',
+                "stops": calc_stops(seg_breaks, lineColors)
+            },
+            "line-gap-width": 0
+        }
+    });
+        calcLegends(0, 'segment');
+        addPopup(mapid, seg_layernames, segpopup);
+        render();
+    } catch (err) {
+        console.log(err);
+    }
+
 };
 
 function addLayerLinestring(mapid) {
-
     try {
         mapid.addSource('linestring', {
             type: 'geojson',
             data: heatline_url,
             maxzoom: 22,
-            buffer: 0,
-            buffer: 10,
+            buffer: 50,
             tolerance: 1
         });
     } catch (err) {
@@ -78,8 +93,8 @@ function addLayerHeat(mapid) {
             type: 'geojson',
             data: heatpoint_url,
             maxzoom: 22,
-            buffer: 10,
-            tolerance: 10
+            buffer: 50,
+            tolerance: 1
         });
     } catch (err) {
         console.log(err);
@@ -106,7 +121,6 @@ function initVizMap() {
             $("#loading").show();
             // API tokens 
             mapboxgl.accessToken = mapboxgl_accessToken;
-            //$('#legend-lines').hide();
             map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/dark-v8',
@@ -133,7 +147,7 @@ function initVizMap() {
     map.on('style.load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
-        addSegLayer(map, getURL(map, 'False'));
+        addSegLayer(map);
         render();
     });
     map.once('load', function() {
@@ -208,7 +222,7 @@ function switchLayer() {
     map.on('load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
-        addSegLayer(map, getURL(map, 'False'));
+        addSegLayer(map);
         render();
     });
 
@@ -251,8 +265,6 @@ function render() {
             }
             $('#legend-lines').hide();
             $('#legend-seg').hide();
-            map.off('dragend')
-                .off('zoomend');
         } catch (err) {
             console.log(err);
         }
@@ -273,8 +285,6 @@ function render() {
             set_visibility(map, 'segment', 'off');
             $('#legend-points').hide();
             $('#legend-seg').hide();
-            map.off('dragend')
-                .off('zoomend');
         } catch (err) {
             console.log(err);
         }
@@ -296,29 +306,17 @@ function render() {
             set_visibility(map, 'linestring', 'off');
             $('#legend-points').hide();
             $('#legend-lines').hide();
-            map.off('dragend')
-                .off('zoomend');
-            map.on('dragend', function() {
-                    addSegLayer(map, getURL(map, 'False'));
-                })
-                .on('zoomend', function() {
-                    addSegLayer(map, getURL(map, 'False'));
-                });
         } catch (err) {
             console.log(err);
         }
         try {
-            if (map.getSource('segment')) {
-                set_visibility(map, 'segment', 'on');
-                paintSegLayer(map, 'segment',
-                    document.getElementById("line_color").value,
-                    parseFloat($('#line_width').slider('getValue')),
-                    parseFloat($('#line_opacity').slider('getValue')),
-                    parseFloat($('#pitch').slider('getValue')));
-                $('#legend-seg').show();
-            } else {
-                addSegLayer(map, getURL(map, 'False'));
-            }
+            set_visibility(map, 'segment', 'on');
+            paintSegLayer(map, 'segment-0',
+                document.getElementById("line_color").value,
+                parseFloat($('#line_width').slider('getValue')),
+                parseFloat($('#line_opacity').slider('getValue')),
+                parseFloat($('#pitch').slider('getValue')));
+            $('#legend-seg').show();
         } catch (err) {
             console.log(err);
         }
@@ -377,10 +375,14 @@ function addPopup(mapid, layer_list, popup) {
             popup.setLngLat(e.lngLat)
                 .setHTML('<div id="popup" class="popup" style="z-index: 10;"> <h5> Detail: </h5>' +
                     '<ul class="list-group">' +
-                    '<li class="list-group-item"> Name: ' + feature.properties.name + " </li>" +
-                    '<li class="list-group-item"> Type: ' + feature.properties.type + " </li>" +
-                    '<li class="list-group-item"> Dist: ' + Math.round(feature.properties.dist * 10) / 10 + " (mi) </li>" +
-                    '<li class="list-group-item"> Elev: ' + Math.round(feature.properties.elev * 10) / 10 + " (ft) </li>" +
+                    '<li class="list-group-item"> Act Type: ' + feature.properties.ACT_TYPE + " </li>" +
+                    '<li class="list-group-item"> Distance: ' + feature.properties.DISTANCE + " </li>" +
+                    '<li class="list-group-item"> Athlete Count: ' + feature.properties.ATH_CNT + " </li>" +
+                    '<li class="list-group-item"> Effort Count: ' + feature.properties.EFFORT_CNT + " </li>" +
+                    '<li class="list-group-item"> Total Elev Gain ' + feature.properties.TOTAL_ELEV + " </li>" +
+                    '<li class="list-group-item"> Avg Grade: ' + feature.properties.AVG_GRADE + " </li>" +
+                    '<li class="list-group-item"> Max Grade: ' + feature.properties.MAX_GRADE + " </li>" +
+                    '<li class="list-group-item"> KOM Category: ' + feature.properties.CAT + " </li>" +
                     '</ul> </div>')
                 .addTo(mapid);
         }
@@ -394,37 +396,37 @@ function addPopup(mapid, layer_list, popup) {
 
 function isMapLoaded(mapid, source) {
     $("#loading").show()
-    //check if map is loaded every retry_interval seconds and display or hide loading bar
+        //check if map is loaded every retry_interval seconds and display or hide loading bar
     map.on('data', function(ev) {
-      if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
-                                     ev.source.id === 'heatpoint' ||
-                                     ev.source.id === 'linestring'))  {$("#loading").hide()};
+        if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
+                ev.source.id === 'heatpoint' ||
+                ev.source.id === 'linestring')) { $("#loading").hide() };
     });
 }
 
-    function fit(mapid, geojson_object) {
-        //fit gl map to a geojson file bounds - depricated for now!
-        console.log(geojson_object)
-        try {
-            mapid.fitBounds(geojsonExtent(geojson_object));
-        } catch (err) {
-            //Note that the user did not have any data to load
-            console.log(err);
-            $("#loading").hide();
-            $('#DownloadModal').modal("show");
-        }
-    }
-
-    function hideLoading() {
+function fit(mapid, geojson_object) {
+    //fit gl map to a geojson file bounds - depricated for now!
+    console.log(geojson_object)
+    try {
+        mapid.fitBounds(geojsonExtent(geojson_object));
+    } catch (err) {
+        //Note that the user did not have any data to load
+        console.log(err);
         $("#loading").hide();
+        $('#DownloadModal').modal("show");
     }
+}
+
+function hideLoading() {
+    $("#loading").hide();
+}
 
 
-    function getStravaLeaderboard(segid, token) {
-        $.getJSON('https://www.strava.com/api/v3/segments/' + segid + '/leaderboard?' +
-            'access_token=' + token,
-            function(data) {
-                console.log(data)
-            });
+function getStravaLeaderboard(segid, token) {
+    $.getJSON('https://www.strava.com/api/v3/segments/' + segid + '/leaderboard?' +
+        'access_token=' + token,
+        function(data) {
+            console.log(data)
+        });
 
-    }
+}

@@ -6,6 +6,23 @@ var line_color_list = [
     ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
 ]
 
+var line_params = {
+    'SEG_ID': 'number',
+    'ELEV_GAIN': 'number',
+    'ACT_TYPE': 'string',
+    'ELEV_HIGH': 'number',
+    'AVG_GRADE': 'number',
+    'NAME': 'string',
+    'ELEV_LOW': 'number',
+    'TOTAL_ELEV': 'number',
+    'DISTANCE': 'number',
+    'EFFORT_CNT': 'number',
+    'CAT': 'number',
+    'DATE_CREAT': 'string',
+    'MAX_GRADE': 'number',
+    'ATH_CNT': 'number'
+}
+
 //Global variables for heat-lines
 var lineBreaks = ['Ride', 'Run', 'NordicSki', 'Hike', 'Other'];
 var lineColors = line_color_list[0];
