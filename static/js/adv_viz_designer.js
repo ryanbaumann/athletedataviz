@@ -115,7 +115,7 @@ function addLayerElev(mapid) {
     // Mapbox JS Api - import heatmap layer
     try {
 
-        mapid.addSource('elevation-poly', {
+        mapid.addSource('elevation', {
             type: 'geojson',
             data: evelpoly_url
         });
