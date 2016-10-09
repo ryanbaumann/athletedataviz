@@ -493,7 +493,9 @@ def demodesigner():
                                'MAPBOX_GL_ACCESS_TOKEN'],
                            mapbox_accessToken=app.config[
                                'MAPBOX_ACCESS_TOKEN'],
+                           bbox_url = BASEPATH + 'bbox/12904699',
                            heatpoint_url=BASEPATH + 'heat_points/12904699',
+                           evelpoly_url = BASEPATH +'elev_poly/12904699',
                            heatline_url=BASEPATH + 'heat_lines/12904699',
                            ath_name="ADV" + "_" + "Demo" + '_' + datetime.utcnow().strftime('%y%m%d'),
                            seg_base_url = BASEPATH + str('segment_data/?'))
