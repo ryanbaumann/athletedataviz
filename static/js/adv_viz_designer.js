@@ -51,8 +51,8 @@ function addSegLayer(mapid) {
                 },
                 "line-gap-width": 0
             }
-        });
-        for (p = 0; p <= seg_breaks; p++) {
+        }, 'waterway-label');
+        for (p = 0; p <= seg_breaks.length; p++) {
             calcLegends(p, 'segment');
         }
         addPopup(mapid, seg_layernames, segpopup);
@@ -75,7 +75,7 @@ function addLayerLinestring(mapid) {
     }
     try {
         calcLineLayers();
-        mapid.addLayer(lineLayers[0]);
+        mapid.addLayer(lineLayers[0], 'waterway-label');
         for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-lines');
         };
@@ -100,7 +100,7 @@ function addLayerHeat(mapid) {
     }
     try {
         calcHeatLayers()
-        mapid.addLayer(layers[0]);
+        mapid.addLayer(layers[0], 'waterway-label');
         for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-point');
         };
@@ -126,7 +126,7 @@ function addLayerElev(mapid) {
     try {
         mapid.addLayer({
             "id": 'elevation',
-            "source": 'elevation-poly',
+            "source": 'elevation',
             "type": "fill",
             "paint": {
                 "fill-extrude-height": {
@@ -147,7 +147,7 @@ function addLayerElev(mapid) {
                 },
                 "fill-opacity": 0.9
             }
-        });
+        }, 'waterway-label');
     } catch (err) {
         console.log(err);
     }
@@ -179,12 +179,6 @@ function initVizMap() {
             map.addControl(new mapboxgl.Geocoder({
                 position: 'bottom-left'
             }));
-            map.on('data', function(ev) {
-                if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
-                ev.source.id === 'heatpoint' ||
-                ev.source.id === 'linestring' ||
-                ev.source.id === 'elevation')) { $("#loading").hide() };
-    });
         } catch (err) {
             //Note that the user did not have any data to load
             console.log(err);
@@ -198,6 +192,7 @@ function initVizMap() {
         addLayerLinestring(map);
         addSegLayer(map);
         addLayerElev(map);
+        getBbox()
         render();
     });
     map.once('load', function() {
@@ -258,8 +253,7 @@ function calcLegends(p, id) {
             data = document.getElementById('legend-seg-value-' + p)
             data.textContent = seg_breaks[p];
         }
-    }
-    else if (id == "elevation") {
+    } else if (id == "elevation") {
         if ($('#legend-elevation-value-' + p).length > 0) {
             document.getElementById('legend-elevation-value-' + p).textContent = seg_breaks[p];
             document.getElementById('legend-elevation-id-' + p).style.backgroundColor = elev_colors[p];
@@ -284,19 +278,14 @@ function switchLayer() {
     } else {
         map.setStyle('mapbox://styles/mapbox/dark-v8');
     }
-    isMapLoaded(map, layer);
     map.on('load', function() {
         addLayerHeat(map);
         addLayerLinestring(map);
         addSegLayer(map);
         addLayerElev(map);
         render();
+        isMapLoaded(map);
     });
-    map.on('data', function(ev) {
-                if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
-                ev.source.id === 'heatpoint' ||
-                ev.source.id === 'linestring' ||
-                ev.source.id === 'elevation')) { $("#loading").hide() };
 
 }
 
@@ -416,7 +405,7 @@ function render() {
         }
         try {
             set_visibility(map, 'elevation', 'on');
-            paintElevLayer(map, 'elevation', 
+            paintElevLayer(map, 'elevation',
                 parseFloat($('#pitch').slider('getValue')),
                 parseFloat(document.getElementById("fill_opacity").value));
             //$('#legend-elev').show();
@@ -505,13 +494,25 @@ function addPopup(mapid, layer_list, popup) {
 
 //on change of VizType, show only menu options linked to selected viztype
 
-function isMapLoaded(mapid, source) {
+function isMapLoaded(mapid) {
     $("#loading").show()
+    mapid.on('data', function(ev) {
+        if (ev.dataType === 'style' && (ev.source.id === 'segment' ||
+                ev.source.id === 'heatpoint' ||
+                ev.source.id === 'linestring' ||
+                ev.source.id === 'elevation')) { $("#loading").hide() };
+    })
+};
+
+function getBbox() {
+    $.getJSON(bbox_url, function(data) {
+        console.log(data)
+        fit(map, data)
+    });
 }
 
 function fit(mapid, geojson_object) {
     //fit gl map to a geojson file bounds - depricated for now!
-    console.log(geojson_object)
     try {
         mapid.fitBounds(geojsonExtent(geojson_object));
     } catch (err) {

@@ -74,6 +74,7 @@ js_base = Bundle('js/jquery-2.2.4.min.js',
             'js/image_gl_canvas.js', 
             'js/upload_img.js',
             'js/elev-viz.js',
+            'js/geojson-extent.js',
             filters='jsmin', output='gen/packed_base.js')
 
 css = Bundle('css/bootstrap.css',
@@ -168,6 +169,15 @@ class Stream_Data(Resource):
     def __repr__(self):
         return "%s" % (self.__class__.__name__)
 
+class Bbox(Resource):
+    def get(self, ath_id):
+        geojson = sp.get_acts_bbox(
+            engine, int(ath_id))
+        return output_json(geojson, 200, 600)
+
+    def __repr__(self):
+        return "%s" % (self.__class__.__name__)
+
 
 class Segment_Data(Resource):
     def get(self):
@@ -231,6 +241,7 @@ class Current_Acts(Resource):
 
 api.add_resource(Heat_Points, '/heat_points/<int:ath_id>')
 api.add_resource(Elev_Poly, '/elev_poly/<int:ath_id>')
+api.add_resource(Bbox, '/bbox/<int:ath_id>')
 api.add_resource(Heat_Lines, '/heat_lines/<int:ath_id>')
 api.add_resource(Heat_Lines2, '/heat_lines2/<int:ath_id>')
 api.add_resource(Current_Acts, '/current_acts/<int:ath_id>')
@@ -460,6 +471,8 @@ def strava_mapbox():
     return render_template('strava_mapbox_gl_v3.html',
                            mapbox_gl_accessToken = app.config[
                                'MAPBOX_GL_ACCESS_TOKEN'],
+                           bbox_url = BASEPATH +
+                           'bbox/' + str(session['ath_id']),
                            heatpoint_url = BASEPATH +
                            'heat_points/' + str(session['ath_id']),
                            evelpoly_url = BASEPATH +

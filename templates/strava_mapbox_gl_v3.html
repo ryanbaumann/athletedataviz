@@ -22,7 +22,7 @@
                                 <option value="heat-point">heat-point</option>
                                 <option value="heat-line">heat-line</option>
                                 <option value="segment">Segments++</option>
-                                <option value="elevation">3D</option>
+                                <option value="elevation">3D (Desktop only)</option>
                             </select>
                             <br>
                             <br>
@@ -136,7 +136,7 @@
                                 <select id='fill_color' name="fill_color" style="font-size: 18px;">
                                     <option value=0>Blue-Red</option>
                                     <option value=1>Green-Red</option>
-                                    <option value=2>Purple Gradient</option>
+                                    <option value=2>Purples</option>
                                 </select>
                                 <br>
                                 <br>
@@ -149,7 +149,7 @@
                                 <br>
                                 <br>
                                 <b>Fill Color Scale</b>
-                                <input type="text" class="slider" id="fill_color_scale" data-slider-min="0" data-slider-value="5000" data-slider-max="15000" data-slider-step="50">
+                                <input type="text" class="slider" id="fill_color_scale" data-slider-min="0" data-slider-value="5000" data-slider-max="15000" data-slider-step="25">
                             </div>
                         </div>
                     </div>
@@ -250,6 +250,7 @@
 
     //initialize variables from server
     var center_point = [-89.6075530123, 40.776876321];
+    var bbox_url = '{{ bbox_url | safe}}';
     var evelpoly_url = '{{ evelpoly_url | safe}}';
     var seg_base_url = '{{ seg_base_url | safe}}';
     var heatpoint_url = '{{ heatpoint_url | safe}}';

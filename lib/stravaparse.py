@@ -458,8 +458,18 @@ def get_evel_poly(engine, ath_id):
                                  ) as properties
                             FROM "V_Poly_Elev" as lg WHERE ath_id = %s
                      ) as f) as fc"""  % (ath_id)
-    print geojson_sql
     result = engine.execute(geojson_sql)
+    for row in result:
+        data = row.values()
+
+    geojson_data = str(json.dumps(data)[1:-1])
+    return geojson_data
+
+def get_acts_bbox(engine, ath_id):
+    args = """SELECT  st_asgeojson(lg.bbox, 6)::json FROM "V_Stream_Extents" as lg WHERE ath_id = %s"""  % (ath_id)
+
+    # Second get a list of points to draw for the heatmap as geojson
+    result = engine.execute(args)
     for row in result:
         data = row.values()
 
