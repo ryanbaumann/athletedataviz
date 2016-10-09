@@ -9,6 +9,7 @@ __pycache__/
 *.zip
 .Python
 static/.webassets-cache
+img/
 env/
 bin/
 build/
@@ -23,6 +24,7 @@ redis/
 *.egg-info/
 .installed.cfg
 *.egg
+.env
 
 # Installer logs
 pip-log.txt
