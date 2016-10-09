@@ -179,6 +179,12 @@ function initVizMap() {
             map.addControl(new mapboxgl.Geocoder({
                 position: 'bottom-left'
             }));
+            map.on('data', function(ev) {
+                if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
+                ev.source.id === 'heatpoint' ||
+                ev.source.id === 'linestring' ||
+                ev.source.id === 'elevation')) { $("#loading").hide() };
+    });
         } catch (err) {
             //Note that the user did not have any data to load
             console.log(err);
@@ -496,13 +502,6 @@ function addPopup(mapid, layer_list, popup) {
 
 function isMapLoaded(mapid, source) {
     $("#loading").show()
-        //check if map is loaded every retry_interval seconds and display or hide loading bar
-    map.on('data', function(ev) {
-        if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
-                ev.source.id === 'heatpoint' ||
-                ev.source.id === 'linestring' ||
-                ev.source.id === 'elevation')) { $("#loading").hide() };
-    });
 }
 
 function fit(mapid, geojson_object) {
