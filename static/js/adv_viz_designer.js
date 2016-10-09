@@ -253,13 +253,12 @@ function calcLegends(p, id) {
             data.textContent = seg_breaks[p];
         }
     }
-
     else if (id == "elevation") {
-        if ($('#legend-elevation-' + p).length > 0) {
+        if ($('#legend-elevation-value-' + p).length > 0) {
             document.getElementById('legend-elevation-value-' + p).textContent = seg_breaks[p];
             document.getElementById('legend-elevation-id-' + p).style.backgroundColor = elev_colors[p];
         } else {
-            legend = document.getElementById('legend-seg');
+            legend = document.getElementById('legend-elevation');
             key.id = 'legend-elevation-id-' + p;
             key.style.backgroundColor = elev_colors[p];
             value.id = 'legend-elevation-value-' + p;
