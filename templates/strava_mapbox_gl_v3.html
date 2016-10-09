@@ -22,6 +22,7 @@
                                 <option value="heat-point">heat-point</option>
                                 <option value="heat-line">heat-line</option>
                                 <option value="segment">Segments++</option>
+                                <option value="elevation">3D</option>
                             </select>
                             <br>
                             <br>
@@ -61,7 +62,7 @@
                                     <option value="ELEV_GAIN">Elev Gain (m)</option>
                                     <option value="EFFORT_COUNT">Total Efforts</option>
                                     <option value="ATH_CNT">Total Athletes</option>
-                                     <option value="AVG_GRADE">Avg Gradient (%)</option>
+                                    <option value="AVG_GRADE">Avg Gradient (%)</option>
                                 </select>
                                 <br>
                                 <br>
@@ -130,6 +131,26 @@
                                 <br>
                                 <br>
                             </div>
+                            <div id="VizType_hide_elevation" class="collapse">
+                                <b>Fill Color</b>
+                                <select id='fill_color' name="fill_color" style="font-size: 18px;">
+                                    <option value=0>Blue-Red</option>
+                                    <option value=1>Green-Red</option>
+                                    <option value=2>Purple Gradient</option>
+                                </select>
+                                <br>
+                                <br>
+                                <b>Fill Opacity</b>
+                                <input type="text" class="slider" id="fill_opacity" data-slider-min="0.1" data-slider-value="0.9" data-slider-max="1" data-slider-step="0.1">
+                                <br>
+                                <br>
+                                <b>Fill Height</b>
+                                <input type="text" class="slider" id="fill_height" data-slider-min="0" data-slider-value="5000" data-slider-max="15000" data-slider-step="50">
+                                <br>
+                                <br>
+                                <b>Fill Color Scale</b>
+                                <input type="text" class="slider" id="fill_color_scale" data-slider-min="0" data-slider-value="5000" data-slider-max="15000" data-slider-step="50">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -150,6 +171,10 @@
         <div id='legend-seg' class='legend' style="display:none;">
             <h3><b>Legend</b></h3>
             <span id='legend-seg-param' class='text-center'><b>Segment Value</b></span>
+        </div>
+        <div id='legend-elevation' class='legend' style="display:none;">
+            <h3><b>Legend</b></h3>
+            <span id='legend-elev-param' class='text-center'><b>Elevation Value</b></span>
         </div>
     </div>
     <div id="loading">
@@ -225,6 +250,7 @@
 
     //initialize variables from server
     var center_point = [-89.6075530123, 40.776876321];
+    var evelpoly_url = '{{ evelpoly_url | safe}}';
     var seg_base_url = '{{ seg_base_url | safe}}';
     var heatpoint_url = '{{ heatpoint_url | safe}}';
     var heatline_url = '{{ heatline_url | safe}}';
@@ -241,16 +267,24 @@
         $('#VizType').change(function() {
             var selector = '#VizType_hide_' + $(this).val();
             if (document.getElementById("VizType").value == "segment") {
-                $('#VizType_hide_heat-line').collapse('show');
                 $(selector).collapse('show');
+                $('#VizType_hide_heat-line').collapse('hide');
                 $('#VizType_hide_heat-point').collapse('hide');
+                $('#VizType_hide_elevation').collapse('hide');
             } else if (document.getElementById("VizType").value == "heat-line") {
                 $(selector).collapse('show');
+                $('#VizType_hide_elevation').collapse('hide');
+                $('#VizType_hide_heat-point').collapse('hide');
+                $('#VizType_hide_segment').collapse('hide');
+            } else if (document.getElementById("VizType").value == "elevation") {
+                $(selector).collapse('show');
+                $('#VizType_hide_heat-line').collapse('hide');
                 $('#VizType_hide_heat-point').collapse('hide');
                 $('#VizType_hide_segment').collapse('hide');
             } else {
                 $(selector).collapse('show');
                 $('#VizType_hide_heat-line').collapse('hide');
+                $('#VizType_hide_elevation').collapse('hide');
                 $('#VizType_hide_segment').collapse('hide');
             }
         });
@@ -357,6 +391,33 @@
             $('#minOpacity').slider('setValue', ev.value);
             render();
         });
+        $('#fill_opacity').slider().on('slideStop', function(ev) {
+            $('#fill_opacity').slider('setValue', ev.value);
+            render();
+        });
+        $('#fill_opacity').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#fill_height').slider().on('slideStop', function(ev) {
+            $('#fill_height').slider('setValue', ev.value);
+            render();
+        });
+        $('#fill_height').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#fill_color_scale').slider({
+            formatter: function(value) {
+                return 'Value: ' + value;
+            }
+        });
+        $('#fill_color_scale').slider().on('slideStop', function(ev) {
+            $('#fill_color_scale').slider('setValue', ev.value);
+            render();
+        });
 
 
         $('#heat_color').change(render);
@@ -365,6 +426,7 @@
         $('#heattype').change(render);
         $('#segParam').change(render);
         $('#heat_color').change(render);
+        $('#fill_color').change(render);
         $('#line_color').change(render);
         $('#snap').on('click touch tap', generateMap);
 

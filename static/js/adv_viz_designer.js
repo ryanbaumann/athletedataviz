@@ -110,6 +110,50 @@ function addLayerHeat(mapid) {
     }
 };
 
+//Add heat points function
+function addLayerElev(mapid) {
+    // Mapbox JS Api - import heatmap layer
+    try {
+
+        mapid.addSource('elevation-poly', {
+            type: 'geojson',
+            data: evelpoly_url
+        });
+    } catch (err) {
+        console.log(err);
+    }
+
+    try {
+        mapid.addLayer({
+            "id": 'elevation',
+            "source": 'elevation-poly',
+            "type": "fill",
+            "paint": {
+                "fill-extrude-height": {
+                    "type": "exponential",
+                    "stops": [
+                        [0, 0],
+                        [2500, 5000]
+                    ],
+                    "property": "e"
+                },
+                "fill-color": {
+                    "type": "exponential",
+                    "stops": [
+                        [0, "#6BEBAE"],
+                        [2500, "#EC8E5D"]
+                    ],
+                    "property": "e"
+                },
+                "fill-opacity": 0.9
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+    addPopup(mapid, elev_layernames, elev_popup);
+};
+
 
 /////  Main Function  ///////
 function initVizMap() {
@@ -126,7 +170,7 @@ function initVizMap() {
                 center: mapboxgl.LngLat.convert(center_point),
                 zoom: 4,
                 minZoom: 3,
-                maxZoom: 20,
+                maxZoom: 22,
                 attributionControl: true
             });
             map.addControl(new mapboxgl.Navigation({
@@ -147,6 +191,7 @@ function initVizMap() {
         addLayerHeat(map);
         addLayerLinestring(map);
         addSegLayer(map);
+        addLayerElev(map);
         render();
     });
     map.once('load', function() {
@@ -208,6 +253,23 @@ function calcLegends(p, id) {
             data.textContent = seg_breaks[p];
         }
     }
+
+    else if (id == "elevation") {
+        if ($('#legend-elevation-' + p).length > 0) {
+            document.getElementById('legend-elevation-value-' + p).textContent = seg_breaks[p];
+            document.getElementById('legend-elevation-id-' + p).style.backgroundColor = elev_colors[p];
+        } else {
+            legend = document.getElementById('legend-seg');
+            key.id = 'legend-elevation-id-' + p;
+            key.style.backgroundColor = elev_colors[p];
+            value.id = 'legend-elevation-value-' + p;
+            item.appendChild(key);
+            item.appendChild(value);
+            legend.appendChild(item);
+            data = document.getElementById('legend-elevation-value-' + p)
+            data.textContent = elev_stops[p];
+        }
+    }
 }
 
 function switchLayer() {
@@ -222,6 +284,7 @@ function switchLayer() {
         addLayerHeat(map);
         addLayerLinestring(map);
         addSegLayer(map);
+        addLayerElev(map);
         render();
     });
 
@@ -251,6 +314,13 @@ function set_visibility(mapid, id, onoff) {
             mapid.setLayoutProperty('segment-0', 'visibility', 'visible');
             mouseOver(mapid, seg_layernames);
         }
+    } else if (id == 'elevation') {
+        if (onoff == 'off') {
+            mapid.setLayoutProperty('elevation', 'visibility', 'none');
+        } else if (onoff == 'on') {
+            mapid.setLayoutProperty('elevation', 'visibility', 'visible');
+            mouseOver(mapid, elev_layernames);
+        }
     }
 };
 
@@ -259,11 +329,11 @@ function render() {
     if (document.getElementById("VizType").value == "heat-point") {
         try {
             set_visibility(map, 'linestring', 'off');
-            if (map.getSource('segment')) {
-                set_visibility(map, 'segment', 'off');
-            }
+            set_visibility(map, 'segment', 'off');
+            set_visibility(map, 'elevation', 'off');
             $('#legend-lines').hide();
             $('#legend-seg').hide();
+            $('#legend-elevation').hide();
         } catch (err) {
             console.log(err);
         }
@@ -282,8 +352,10 @@ function render() {
         try {
             set_visibility(map, 'heatpoints', 'off');
             set_visibility(map, 'segment', 'off');
+            set_visibility(map, 'elevation', 'off');
             $('#legend-points').hide();
             $('#legend-seg').hide();
+            $('#legend-elevation').hide();
         } catch (err) {
             console.log(err);
         }
@@ -303,8 +375,10 @@ function render() {
         try {
             set_visibility(map, 'heatpoints', 'off');
             set_visibility(map, 'linestring', 'off');
+            set_visibility(map, 'elevation', 'off');
             $('#legend-points').hide();
             $('#legend-lines').hide();
+            $('#legend-elevation').hide();
         } catch (err) {
             console.log(err);
         }
@@ -316,6 +390,26 @@ function render() {
                 parseFloat($('#line_opacity').slider('getValue')),
                 parseFloat($('#pitch').slider('getValue')));
             $('#legend-seg').show();
+        } catch (err) {
+            console.log(err);
+        }
+    } else if (document.getElementById("VizType").value == "elevation") {
+        try {
+            set_visibility(map, 'heatpoints', 'off');
+            set_visibility(map, 'linestring', 'off');
+            set_visibility(map, 'segment', 'off');
+            $('#legend-points').hide();
+            $('#legend-lines').hide();
+            $('#legend-segment').hide();
+        } catch (err) {
+            console.log(err);
+        }
+        try {
+            set_visibility(map, 'elevation', 'on');
+            paintElevLayer(map, 'elevation', 
+                parseFloat($('#pitch').slider('getValue')),
+                parseFloat(document.getElementById("fill_opacity").value));
+            //$('#legend-elev').show();
         } catch (err) {
             console.log(err);
         }
@@ -385,6 +479,13 @@ function addPopup(mapid, layer_list, popup) {
                     '<li class="list-group-item"> KOM Category: ' + feature.properties.CAT + " </li>" +
                     '</ul> </div>')
                 .addTo(mapid);
+        } else if (document.getElementById("VizType").value == "elevation") {
+            popup.setLngLat(e.lngLat)
+                .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
+                    '<ul class="list-group">' +
+                    '<li class="list-group-item"> Elevation: ' + feature.properties.e + " </li>" +
+                    '</ul> </div>')
+                .addTo(mapid);
         }
     });
 }
@@ -400,7 +501,8 @@ function isMapLoaded(mapid, source) {
     map.on('data', function(ev) {
         if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
                 ev.source.id === 'heatpoint' ||
-                ev.source.id === 'linestring')) { $("#loading").hide() };
+                ev.source.id === 'linestring' ||
+                ev.source.id === 'elevation')) { $("#loading").hide() };
     });
 }
 
