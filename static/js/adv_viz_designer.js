@@ -292,6 +292,11 @@ function switchLayer() {
         addLayerElev(map);
         render();
     });
+    map.on('data', function(ev) {
+                if (ev.dataType === 'tile' && (ev.source.id === 'segment' ||
+                ev.source.id === 'heatpoint' ||
+                ev.source.id === 'linestring' ||
+                ev.source.id === 'elevation')) { $("#loading").hide() };
 
 }
 
