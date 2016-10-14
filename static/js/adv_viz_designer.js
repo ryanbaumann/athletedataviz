@@ -173,7 +173,7 @@ function initVizMap() {
                 maxZoom: 22,
                 attributionControl: true
             });
-            map.addControl(new mapboxgl.Navigation({
+            map.addControl(new mapboxgl.NavigationControl({
                 position: 'top-left'
             }));
             map.addControl(new mapboxgl.Geocoder({
