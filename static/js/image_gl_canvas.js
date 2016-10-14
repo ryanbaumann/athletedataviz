@@ -1,5 +1,3 @@
-
-
 /**
  * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
  * images to fit into a certain area.
@@ -36,6 +34,11 @@ function generateMap() {
     $("#loading").show();
     //Get the current map style
     var style = map.getStyle();
+    if (style.sources['mapbox://mapbox.satellite']) {
+        console.log('deleteing')
+        delete style.sources['mapbox://mapbox.satellite']['tileSize']
+        delete style.sources['mapbox://mapbox.satellite']['tiles']
+    }
     //Set image quality
     var width = 10;
     var height = 8;
@@ -92,7 +95,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     $("#snapshot_img").addClass("center-block");
     //hide the loading bar, and begin creating the image in the background
     $("#loading").hide();
-    
+
 
     // Create backcanvas map for high-rez image
     var renderMap = new mapboxgl.Map({
@@ -109,7 +112,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
 
     renderMap.on('load', function createImage() {
         //Prevent map from grabbing image before lines are pained on new canvas by waiting 0.5 sec
-        setTimeout(function() { 
+        setTimeout(function() {
             try {
                 var canvas = renderMap.getCanvas();
                 var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
@@ -128,12 +131,12 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                 //Now create the high rez image and upload it to the server
                 if (canvas.toBlob) {
                     canvas.toBlob(
-                        function (blob) {
+                        function(blob) {
                             // Do something with the blob object,
                             randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
                             filename = "ADV_" + ath_name + "_" + randNum + ".jpg";
                             console.log('creating file...');
-                            file = new File([blob], filename , {type: "image/jpeg"});
+                            file = new File([blob], filename, { type: "image/jpeg" });
                             console.log('getting file to server...');
                             imgBlob = blob;
                             get_signed_request(file);
@@ -141,8 +144,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                         },
                         'image/jpeg', 0.99
                     );
-                }
-                else {} 
+                } else {}
             } catch (err) {
                 console.log(err);
                 window.alert("Please try a different browser - Chrome, Firefox, and Opera are supported for design ordering and sharing!");
