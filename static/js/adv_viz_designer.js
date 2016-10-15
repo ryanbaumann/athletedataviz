@@ -26,6 +26,7 @@ var seg_params = {
     'ATH_CNT': 'number'
 }
 
+
 function addSegLayer(mapid) {
     try {
         mapid.addSource('segment', {
