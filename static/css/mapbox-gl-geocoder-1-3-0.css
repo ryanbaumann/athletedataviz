@@ -10,7 +10,7 @@
 .mapboxgl-ctrl-geocoder {
   font:15px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   position:relative;
-  background-color:white;
+  background-color: #202020;
   width:33.3333%;
   min-width:240px;
   max-width:360px;

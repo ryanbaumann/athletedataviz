@@ -31,7 +31,7 @@ function paintElevLayer(mapid, layer, pitch, fill_opacity) {
                 stops: height_stops
             }
 
-    mapid.setPaintProperty(layer, 'fill-color', fill_color_style);
-    mapid.setPaintProperty(layer, 'fill-extrude-height', fill_extrude_height_style);
-    mapid.setPaintProperty(layer, 'fill-opacity', fill_opacity);
+    mapid.setPaintProperty(layer, 'fill-extrusion-color', fill_color_style);
+    mapid.setPaintProperty(layer, 'fill-extrusion-height', fill_extrude_height_style);
+    mapid.setPaintProperty(layer, 'fill-extrusion-opacity', fill_opacity);
 }
