@@ -26,6 +26,26 @@ var seg_params = {
     'ATH_CNT': 'number'
 }
 
+var buildings_baselayer =  {
+        'id': '3d-buildings',
+        'source': 'composite',
+        'source-layer': 'building',
+        'filter': ['==', 'extrude', 'true'],
+        'type': 'fill-extrusion',
+        'minzoom': 15,
+        'paint': {
+            'fill-extrusion-color': '#aaa',
+            'fill-extrusion-height': {
+                'type': 'identity',
+                'property': 'height'
+            },
+            'fill-extrusion-base': {
+                'type': 'identity',
+                'property': 'min_height'
+            },
+            'fill-extrusion-opacity': .6
+        }
+    };
 
 function addSegLayer(mapid) {
     try {
@@ -53,6 +73,7 @@ function addSegLayer(mapid) {
                 "line-gap-width": 0
             }
         }, 'waterway-label');
+        //mapid.addLayer(buildings_baselayer, 'waterway-label');
         for (p = 0; p <= seg_breaks.length; p++) {
             calcLegends(p, 'segment');
         }
@@ -77,6 +98,7 @@ function addLayerLinestring(mapid) {
     try {
         calcLineLayers();
         mapid.addLayer(lineLayers[0], 'waterway-label');
+        //mapid.addLayer(buildings_baselayer, 'waterway-label');
         for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-lines');
         };
@@ -102,6 +124,7 @@ function addLayerHeat(mapid) {
     try {
         calcHeatLayers()
         mapid.addLayer(layers[0], 'waterway-label');
+        //mapid.addLayer(buildings_baselayer, 'waterway-label');
         for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-point');
         };
@@ -128,9 +151,9 @@ function addLayerElev(mapid) {
         mapid.addLayer({
             "id": 'elevation',
             "source": 'elevation',
-            "type": "fill",
+            "type": "fill-extrusion",
             "paint": {
-                "fill-extrude-height": {
+                "fill-extrusion-height": {
                     "type": "exponential",
                     "stops": [
                         [0, 0],
@@ -138,7 +161,7 @@ function addLayerElev(mapid) {
                     ],
                     "property": "e"
                 },
-                "fill-color": {
+                "fill-extrusion-color": {
                     "type": "exponential",
                     "stops": [
                         [0, "#6BEBAE"],
@@ -146,9 +169,10 @@ function addLayerElev(mapid) {
                     ],
                     "property": "e"
                 },
-                "fill-opacity": 0.9
+                "fill-extrusion-opacity": 0.9
             }
         }, 'waterway-label');
+        mapid.addLayer(buildings_baselayer, 'waterway-label');
     } catch (err) {
         console.log(err);
     }
@@ -177,9 +201,9 @@ function initVizMap() {
             map.addControl(new mapboxgl.NavigationControl({
                 position: 'top-left'
             }));
-            map.addControl(new mapboxgl.Geocoder({
+            /*map.addControl(new mapboxgl.Geocoder({
                 position: 'bottom-left'
-            }));
+            }));*/
         } catch (err) {
             //Note that the user did not have any data to load
             console.log(err);
