@@ -185,7 +185,6 @@ function addLayerElev(mapid) {
 };
 
 function initLayers() {
-    isMapLoaded(map);
     //Ensure that map is loaded quickly by first rendering the currently selected layer
     let functions = [addLayerHeat, addLayerLinestring,
         addSegLayer, addLayerElev
@@ -203,14 +202,12 @@ function initLayers() {
         functions[3](map);
         functions.splice(3, 1)
     }
-
-    $("#loading").hide(function() {
-        for (i = 0; i < functions.length; i++)
-            functions[i](map)
-        render();
-    });
-
-}
+    for (i = 0; i < functions.length; i++) {
+        functions[i](map)
+    }
+    render();
+   $("#loading").hide();
+};
 
 /////  Main Function  ///////
 function initVizMap() {
@@ -231,7 +228,7 @@ function initVizMap() {
                 attributionControl: true
             });
             map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-            map.addControl(new MapboxGeocoder({ accessToken: mapboxgl.accessToken }), 'top-left' );
+            map.addControl(new MapboxGeocoder({ accessToken: mapboxgl.accessToken }), 'top-left');
         } catch (err) {
             //Note that the user did not have any data to load
             console.log(err);
@@ -488,45 +485,45 @@ function addPopup(mapid, layer_list, popup) {
             let cad = Math.round(feature.properties.c * 10) / 10
 
             popup.setLngLat(e.lngLat)
-                .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
-                    '<ul class="list-group">' +
-                    '<li class="list-group-item"> Freq: ' + Math.round(feature.properties.d * 10) / 10 + " visits </li>" +
-                    '<li class="list-group-item"> Speed: ' + Math.round(feature.properties.s * 10) / 10 + " mph </li>" +
-                    '<li class="list-group-item"> Grade: ' + Math.round(feature.properties.g * 10) / 10 + " % </li>" +
-                    '<li class="list-group-item"> Power: ' + (watts = watts || 0) + " watts </li>" +
-                    '<li class="list-group-item"> Elevation: ' + Math.round(feature.properties.e * 10) / 10 + " ft </li>" +
-                    '<li class="list-group-item"> Heartrate: ' + (hr = hr || 0) + " BPM </li>" +
-                    '<li class="list-group-item"> Cadence: ' + (cad = cad || 0) + " RPM </li>" +
+                .setHTML('<div id="popup"> <h4> Detail: </h4>' +
+                    '<ul>' +
+                    '<li> Freq: ' + Math.round(feature.properties.d * 10) / 10 + " visits </li>" +
+                    '<li> Speed: ' + Math.round(feature.properties.s * 10) / 10 + " mph </li>" +
+                    '<li> Grade: ' + Math.round(feature.properties.g * 10) / 10 + " % </li>" +
+                    '<li> Power: ' + (watts = watts || 0) + " watts </li>" +
+                    '<li"> Elevation: ' + Math.round(feature.properties.e * 10) / 10 + " ft </li>" +
+                    '<li> Heartrate: ' + (hr = hr || 0) + " BPM </li>" +
+                    '<li> Cadence: ' + (cad = cad || 0) + " RPM </li>" +
                     '</ul> </div>')
                 .addTo(mapid);
         } else if (document.getElementById("VizType").value == "heat-line") {
             popup.setLngLat(e.lngLat)
-                .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
-                    '<ul class="list-group">' +
-                    '<li class="list-group-item"> Name: ' + feature.properties.na + " </li>" +
-                    '<li class="list-group-item"> Type: ' + feature.properties.ty + " </li>" +
-                    '<li class="list-group-item"> ID: ' + feature.properties.id + " </li>" +
+                .setHTML('<div id="popup"> <h4> Detail: </h4>' +
+                    '<ul>' +
+                    '<li> Name: ' + feature.properties.na + " </li>" +
+                    '<li> Type: ' + feature.properties.ty + " </li>" +
+                    '<li> ID: ' + feature.properties.id + " </li>" +
                     '</ul> </div>')
                 .addTo(mapid);
         } else if (document.getElementById("VizType").value == "segment") {
             popup.setLngLat(e.lngLat)
-                .setHTML('<div id="popup" class="popup" style="z-index: 10;"> <h5> Detail: </h5>' +
-                    '<ul class="list-group">' +
-                    '<li class="list-group-item"> Act Type: ' + feature.properties.ACT_TYPE + " </li>" +
-                    '<li class="list-group-item"> Distance: ' + feature.properties.DISTANCE + " </li>" +
-                    '<li class="list-group-item"> Athlete Count: ' + feature.properties.ATH_CNT + " </li>" +
-                    '<li class="list-group-item"> Effort Count: ' + feature.properties.EFFORT_CNT + " </li>" +
-                    '<li class="list-group-item"> Total Elev Gain ' + feature.properties.TOTAL_ELEV + " </li>" +
-                    '<li class="list-group-item"> Avg Grade: ' + feature.properties.AVG_GRADE + " </li>" +
-                    '<li class="list-group-item"> Max Grade: ' + feature.properties.MAX_GRADE + " </li>" +
-                    '<li class="list-group-item"> KOM Category: ' + feature.properties.CAT + " </li>" +
+                .setHTML('<div id="popup"> <h4> Detail: </h4>' +
+                    '<ul>' +
+                    '<li> Act Type: ' + feature.properties.ACT_TYPE + " </li>" +
+                    '<li> Distance: ' + feature.properties.DISTANCE + " </li>" +
+                    '<li> Athlete Count: ' + feature.properties.ATH_CNT + " </li>" +
+                    '<li> Effort Count: ' + feature.properties.EFFORT_CNT + " </li>" +
+                    '<li"> Total Elev Gain ' + feature.properties.TOTAL_ELEV + " </li>" +
+                    '<li"> Avg Grade: ' + feature.properties.AVG_GRADE + " </li>" +
+                    '<li"> Max Grade: ' + feature.properties.MAX_GRADE + " </li>" +
+                    '<li"> KOM Category: ' + feature.properties.CAT + " </li>" +
                     '</ul> </div>')
                 .addTo(mapid);
         } else if (document.getElementById("VizType").value == "elevation") {
             popup.setLngLat(e.lngLat)
-                .setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>' +
-                    '<ul class="list-group">' +
-                    '<li class="list-group-item"> Elevation: ' + feature.properties.e + " </li>" +
+                .setHTML('<div id="popup"> <h4> Detail: </h4>' +
+                    '<ul>' +
+                    '<li> Elevation: ' + feature.properties.e + " </li>" +
                     '</ul> </div>')
                 .addTo(mapid);
         }

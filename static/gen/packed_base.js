@@ -183,12 +183,10 @@ try{calcLineLayers();mapid.addLayer(lineLayers[0],'waterway-label');for(var p=0;
 try{calcHeatLayers()
 mapid.addLayer(layers[0],'waterway-label');for(var p=0;p<breaks.length;p++){calcLegends(p,'heat-point');};addPopup(mapid,layernames,heatpopup);}catch(err){console.log(err);}};function addLayerElev(mapid){try{mapid.addSource('elevation',{type:'geojson',data:evelpoly_url});}catch(err){console.log(err);}
 try{mapid.addLayer({"id":'elevation',"source":'elevation',"type":"fill-extrusion","paint":{"fill-extrusion-height":{"type":"exponential","stops":[[0,0],[2500,5000]],"property":"e"},"fill-extrusion-color":{"type":"exponential","stops":[[0,"#6BEBAE"],[2500,"#EC8E5D"]],"property":"e"},"fill-extrusion-opacity":0.9}},'waterway-label');mapid.addLayer(buildings_baselayer,'waterway-label');}catch(err){console.log(err);}
-addPopup(mapid,elev_layernames,elev_popup);};function initLayers(){isMapLoaded(map);let functions=[addLayerHeat,addLayerLinestring,addSegLayer,addLayerElev]
+addPopup(mapid,elev_layernames,elev_popup);};function initLayers(){let functions=[addLayerHeat,addLayerLinestring,addSegLayer,addLayerElev]
 if(document.getElementById("VizType").value=="heat-point"){functions[0](map);functions.splice(0,1)}else if(document.getElementById("VizType").value=="heat-line"){functions[1](map);functions.splice(1,1)}else if(document.getElementById("VizType").value=="segment"){functions[2](map);functions.splice(2,1)}else if(document.getElementById("VizType").value=="elevation"){functions[3](map);functions.splice(3,1)}
-$("#loading").hide(function(){for(i=0;i<functions.length;i++)
-functions[i](map)
-render();});}
-function initVizMap(){if(!mapboxgl.supported()){alert('Your browser does not support Mapbox GL.  Please try Chrome or Firefox.');}else{try{$("#loading").show();mapboxgl.accessToken=mapboxgl_accessToken;map=new mapboxgl.Map({container:'map',style:'mapbox://styles/mapbox/dark-v8',center:mapboxgl.LngLat.convert(center_point),zoom:4,minZoom:3,maxZoom:22,attributionControl:true});map.addControl(new mapboxgl.NavigationControl(),'top-right');map.addControl(new MapboxGeocoder({accessToken:mapboxgl.accessToken}),'top-left');}catch(err){console.log(err);$("#loading").hide();$('#DownloadModal').modal("show");}}
+for(i=0;i<functions.length;i++){functions[i](map)}
+render();$("#loading").hide();};function initVizMap(){if(!mapboxgl.supported()){alert('Your browser does not support Mapbox GL.  Please try Chrome or Firefox.');}else{try{$("#loading").show();mapboxgl.accessToken=mapboxgl_accessToken;map=new mapboxgl.Map({container:'map',style:'mapbox://styles/mapbox/dark-v8',center:mapboxgl.LngLat.convert(center_point),zoom:4,minZoom:3,maxZoom:22,attributionControl:true});map.addControl(new mapboxgl.NavigationControl(),'top-right');map.addControl(new MapboxGeocoder({accessToken:mapboxgl.accessToken}),'top-left');}catch(err){console.log(err);$("#loading").hide();$('#DownloadModal').modal("show");}}
 map.once('load',function(){getBbox();initLayers();});}
 function calcLegends(p,id){var item=document.createElement('div');var key=document.createElement('span');key.className='legend-key';var value=document.createElement('span');if(id=="heat-point"){if($('#legend-points-value-'+p).length>0){document.getElementById('legend-points-value-'+p).textContent=breaks[p];document.getElementById('legend-points-id-'+p).style.backgroundColor=colors[p];}else{legend=document.getElementById('legend-points');key.id='legend-points-id-'+p;key.style.backgroundColor=colors[p];value.id='legend-points-value-'+p;item.appendChild(key);item.appendChild(value);legend.appendChild(item);data=document.getElementById('legend-points-value-'+p)
 data.textContent=breaks[p];}}else if(id=="heat-line"){if($('#legend-lines-value-'+p).length>0){document.getElementById('legend-lines-value-'+p).textContent=lineBreaks[p];document.getElementById('legend-lines-id-'+p).style.backgroundColor=lineColors[p];}else{legend=document.getElementById('legend-lines');key.id='legend-lines-id-'+p;key.style.backgroundColor=lineColors[p];value.id='legend-lines-value-'+p;item.appendChild(key);item.appendChild(value);legend.appendChild(item);data=document.getElementById('legend-lines-value-'+p)
@@ -211,33 +209,33 @@ var features=mapid.queryRenderedFeatures([minpoint,maxpoint],{layers:layer_list}
 var feature=features[0];if(document.getElementById("VizType").value=="heat-point"){let watts=Math.round(feature.properties.p*10)/10
 let hr=Math.round(feature.properties.h*10)/10
 let cad=Math.round(feature.properties.c*10)/10
-popup.setLngLat(e.lngLat).setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>'+
-'<ul class="list-group">'+
-'<li class="list-group-item"> Freq: '+Math.round(feature.properties.d*10)/10+" visits </li>"+
-'<li class="list-group-item"> Speed: '+Math.round(feature.properties.s*10)/10+" mph </li>"+
-'<li class="list-group-item"> Grade: '+Math.round(feature.properties.g*10)/10+" % </li>"+
-'<li class="list-group-item"> Power: '+(watts=watts||0)+" watts </li>"+
-'<li class="list-group-item"> Elevation: '+Math.round(feature.properties.e*10)/10+" ft </li>"+
-'<li class="list-group-item"> Heartrate: '+(hr=hr||0)+" BPM </li>"+
-'<li class="list-group-item"> Cadence: '+(cad=cad||0)+" RPM </li>"+
-'</ul> </div>').addTo(mapid);}else if(document.getElementById("VizType").value=="heat-line"){popup.setLngLat(e.lngLat).setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>'+
-'<ul class="list-group">'+
-'<li class="list-group-item"> Name: '+feature.properties.na+" </li>"+
-'<li class="list-group-item"> Type: '+feature.properties.ty+" </li>"+
-'<li class="list-group-item"> ID: '+feature.properties.id+" </li>"+
-'</ul> </div>').addTo(mapid);}else if(document.getElementById("VizType").value=="segment"){popup.setLngLat(e.lngLat).setHTML('<div id="popup" class="popup" style="z-index: 10;"> <h5> Detail: </h5>'+
-'<ul class="list-group">'+
-'<li class="list-group-item"> Act Type: '+feature.properties.ACT_TYPE+" </li>"+
-'<li class="list-group-item"> Distance: '+feature.properties.DISTANCE+" </li>"+
-'<li class="list-group-item"> Athlete Count: '+feature.properties.ATH_CNT+" </li>"+
-'<li class="list-group-item"> Effort Count: '+feature.properties.EFFORT_CNT+" </li>"+
-'<li class="list-group-item"> Total Elev Gain '+feature.properties.TOTAL_ELEV+" </li>"+
-'<li class="list-group-item"> Avg Grade: '+feature.properties.AVG_GRADE+" </li>"+
-'<li class="list-group-item"> Max Grade: '+feature.properties.MAX_GRADE+" </li>"+
-'<li class="list-group-item"> KOM Category: '+feature.properties.CAT+" </li>"+
-'</ul> </div>').addTo(mapid);}else if(document.getElementById("VizType").value=="elevation"){popup.setLngLat(e.lngLat).setHTML('<div id="popup" class="popup"> <h5> Detail: </h5>'+
-'<ul class="list-group">'+
-'<li class="list-group-item"> Elevation: '+feature.properties.e+" </li>"+
+popup.setLngLat(e.lngLat).setHTML('<div id="popup"> <h4> Detail: </h4>'+
+'<ul>'+
+'<li> Freq: '+Math.round(feature.properties.d*10)/10+" visits </li>"+
+'<li> Speed: '+Math.round(feature.properties.s*10)/10+" mph </li>"+
+'<li> Grade: '+Math.round(feature.properties.g*10)/10+" % </li>"+
+'<li> Power: '+(watts=watts||0)+" watts </li>"+
+'<li"> Elevation: '+Math.round(feature.properties.e*10)/10+" ft </li>"+
+'<li> Heartrate: '+(hr=hr||0)+" BPM </li>"+
+'<li> Cadence: '+(cad=cad||0)+" RPM </li>"+
+'</ul> </div>').addTo(mapid);}else if(document.getElementById("VizType").value=="heat-line"){popup.setLngLat(e.lngLat).setHTML('<div id="popup"> <h4> Detail: </h4>'+
+'<ul>'+
+'<li> Name: '+feature.properties.na+" </li>"+
+'<li> Type: '+feature.properties.ty+" </li>"+
+'<li> ID: '+feature.properties.id+" </li>"+
+'</ul> </div>').addTo(mapid);}else if(document.getElementById("VizType").value=="segment"){popup.setLngLat(e.lngLat).setHTML('<div id="popup"> <h4> Detail: </h4>'+
+'<ul>'+
+'<li> Act Type: '+feature.properties.ACT_TYPE+" </li>"+
+'<li> Distance: '+feature.properties.DISTANCE+" </li>"+
+'<li> Athlete Count: '+feature.properties.ATH_CNT+" </li>"+
+'<li> Effort Count: '+feature.properties.EFFORT_CNT+" </li>"+
+'<li"> Total Elev Gain '+feature.properties.TOTAL_ELEV+" </li>"+
+'<li"> Avg Grade: '+feature.properties.AVG_GRADE+" </li>"+
+'<li"> Max Grade: '+feature.properties.MAX_GRADE+" </li>"+
+'<li"> KOM Category: '+feature.properties.CAT+" </li>"+
+'</ul> </div>').addTo(mapid);}else if(document.getElementById("VizType").value=="elevation"){popup.setLngLat(e.lngLat).setHTML('<div id="popup"> <h4> Detail: </h4>'+
+'<ul>'+
+'<li> Elevation: '+feature.properties.e+" </li>"+
 '</ul> </div>').addTo(mapid);}});}
 function isMapLoaded(mapid){$("#loading").show()
 mapid.on('data',function(ev){if(ev.dataType==='source'){if(ev.source.id==='segment'||ev.source.id==='heatpoint'||ev.source.id==='linestring'||ev.source.id==='elevation'){$("#loading").hide()};}});};function getBbox(){$.getJSON(bbox_url,function(data){fit(map,data)});}

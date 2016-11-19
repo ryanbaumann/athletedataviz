@@ -10,7 +10,8 @@
 .mapboxgl-ctrl-geocoder {
   font:15px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
   position:relative;
-  background-color:white;
+  background-color:#202020;
+  color:#fff;
   width:33.3333%;
   min-width:240px;
   max-width:360px;
@@ -25,14 +26,14 @@
   background-color:transparent;
   height:40px;
   margin:0;
-  color:rgba(0,0,0,.5);
+  color:#fff;
   padding:10px 10px 10px 40px;
   text-overflow:ellipsis;
   white-space:nowrap;
   overflow:hidden;
   }
   .mapboxgl-ctrl-geocoder input:focus {
-    color:rgba(0,0,0,.75);
+    color:#fff;
     outline:0;
     box-shadow:none;
     outline:thin dotted\8;

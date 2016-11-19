@@ -665,7 +665,8 @@ form input#submit:hover {
 
 .legend {
     font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-    background-color: #fff;
+    background-color: #202020;
+    color: #fff;
     padding: 10px;
     border-radius: 3px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
@@ -683,3 +684,112 @@ form input#submit:hover {
     margin-right: 5px;
 }
 
+
+/* Absolute containers
+------------------------------------------------------- */
+
+.pin-top,
+.pin-right,
+.pin-bottom,
+.pin-left,
+.pin-topleft,
+.pin-topright,
+.pin-bottomleft,
+.pin-bottomright {
+    position: absolute;
+}
+
+.pin-bottom {
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.pin-top {
+    top: 0;
+    right: 0;
+    left: 0;
+}
+
+.pin-left {
+    top: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.pin-right {
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.pin-bottomright {
+    bottom: 0;
+    right: 0;
+}
+
+.pin-bottomleft {
+    bottom: 0;
+    left: 0;
+}
+
+.pin-topright {
+    top: 0;
+    right: 0;
+}
+
+.pin-topleft {
+    top: 0;
+    left: 0;
+}
+
+.z1 {
+    z-index: 1;
+}
+
+.pad1 {
+    padding: 10px;
+}
+
+
+/* Dark attribution */
+
+.mapboxgl-ctrl.mapboxgl-ctrl-attrib {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.mapboxgl-ctrl.mapboxgl-ctrl-attrib a {
+    color: #fff;
+}
+
+
+/* Dark popup */
+
+.mapboxgl-popup-content {
+    background-color: #202020;
+    color: #fff;
+}
+
+.mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+    border-top-color: #202020;
+}
+
+.mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+    border-bottom-color: #202020;
+}
+
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+    border-left-color: #202020;
+}
+
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+    border-right-color: #202020;
+}
+
+.mapboxgl-ctrl-group {
+    -webkit-filter: invert(100%);
+}
