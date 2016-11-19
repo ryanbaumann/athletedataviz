@@ -80,7 +80,6 @@ function addSegLayer(mapid) {
         }, 'waterway-label');
         //mapid.addLayer(buildings_baselayer, 'waterway-label');
         for (p = 0; p < lineColors.length; p++) {
-            console.log(p)
             calcLegends(p, 'segment');
         }
         addPopup(mapid, seg_layernames, segpopup);
@@ -187,6 +186,7 @@ function addLayerElev(mapid) {
 
 function initLayers() {
     isMapLoaded(map);
+    //Ensure that map is loaded quickly by first rendering the currently selected layer
     let functions = [addLayerHeat, addLayerLinestring,
         addSegLayer, addLayerElev
     ]
