@@ -4,7 +4,7 @@
 <!-- Sidebar -->
 <div id="container">
     <div id="sidebar">
-        <div class="sidebar-wrapper">
+        <div class="sidebar-wrapper ">
             <div class="panel panel-default" id="features">
                 <div class="panel-heading">
                     <h3 class="panel-title">Designer Toolbar</h3>
@@ -423,7 +423,7 @@
 
         $('#heat_color').change(render);
         $('#VizType').change(render);
-        $('#mapStyle').change(switchLayer);
+        $('#mapStyle').change(function() {switchLayer(map)});
         $('#heattype').change(render);
         $('#segParam').change(render);
         $('#heat_color').change(render);
