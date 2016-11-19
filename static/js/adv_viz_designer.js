@@ -26,6 +26,31 @@ var seg_params = {
     'ATH_CNT': 'number'
 }
 
+var buildings_baselayer = {
+    'id': '3d-buildings',
+    'source': 'composite',
+    'source-layer': 'building',
+    'filter': ['==', 'extrude', 'true'],
+    'type': 'fill-extrusion',
+    'minzoom': 15,
+    'paint': {
+        'fill-extrusion-color': '#aaa',
+        'fill-extrusion-height': {
+            'type': 'identity',
+            'property': 'height'
+        },
+        'fill-extrusion-base': {
+            'type': 'identity',
+            'property': 'min_height'
+        },
+        'fill-extrusion-opacity': .6
+    }
+};
+
+function addBuildingsLayer(mapid) {
+    mapid.addLayer(buildings_baselayer,
+        'waterway-label')
+}
 
 function addSegLayer(mapid) {
     try {
@@ -53,7 +78,8 @@ function addSegLayer(mapid) {
                 "line-gap-width": 0
             }
         }, 'waterway-label');
-        for (p = 0; p <= seg_breaks.length; p++) {
+        //mapid.addLayer(buildings_baselayer, 'waterway-label');
+        for (p = 0; p < lineColors.length; p++) {
             calcLegends(p, 'segment');
         }
         addPopup(mapid, seg_layernames, segpopup);
@@ -77,6 +103,7 @@ function addLayerLinestring(mapid) {
     try {
         calcLineLayers();
         mapid.addLayer(lineLayers[0], 'waterway-label');
+        //mapid.addLayer(buildings_baselayer, 'waterway-label');
         for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-lines');
         };
@@ -102,6 +129,7 @@ function addLayerHeat(mapid) {
     try {
         calcHeatLayers()
         mapid.addLayer(layers[0], 'waterway-label');
+        //mapid.addLayer(buildings_baselayer, 'waterway-label');
         for (var p = 0; p < breaks.length; p++) {
             calcLegends(p, 'heat-point');
         };
@@ -128,9 +156,9 @@ function addLayerElev(mapid) {
         mapid.addLayer({
             "id": 'elevation',
             "source": 'elevation',
-            "type": "fill",
+            "type": "fill-extrusion",
             "paint": {
-                "fill-extrude-height": {
+                "fill-extrusion-height": {
                     "type": "exponential",
                     "stops": [
                         [0, 0],
@@ -138,7 +166,7 @@ function addLayerElev(mapid) {
                     ],
                     "property": "e"
                 },
-                "fill-color": {
+                "fill-extrusion-color": {
                     "type": "exponential",
                     "stops": [
                         [0, "#6BEBAE"],
@@ -146,15 +174,43 @@ function addLayerElev(mapid) {
                     ],
                     "property": "e"
                 },
-                "fill-opacity": 0.9
+                "fill-extrusion-opacity": 0.9
             }
         }, 'waterway-label');
+        mapid.addLayer(buildings_baselayer, 'waterway-label');
     } catch (err) {
         console.log(err);
     }
     addPopup(mapid, elev_layernames, elev_popup);
 };
 
+function initLayers() {
+    isMapLoaded(map);
+    //Ensure that map is loaded quickly by first rendering the currently selected layer
+    let functions = [addLayerHeat, addLayerLinestring,
+        addSegLayer, addLayerElev
+    ]
+    if (document.getElementById("VizType").value == "heat-point") {
+        functions[0](map);
+        functions.splice(0, 1)
+    } else if (document.getElementById("VizType").value == "heat-line") {
+        functions[1](map);
+        functions.splice(1, 1)
+    } else if (document.getElementById("VizType").value == "segment") {
+        functions[2](map);
+        functions.splice(2, 1)
+    } else if (document.getElementById("VizType").value == "elevation") {
+        functions[3](map);
+        functions.splice(3, 1)
+    }
+
+    $("#loading").hide(function() {
+        for (i = 0; i < functions.length; i++)
+            functions[i](map)
+        render();
+    });
+
+}
 
 /////  Main Function  ///////
 function initVizMap() {
@@ -174,12 +230,8 @@ function initVizMap() {
                 maxZoom: 22,
                 attributionControl: true
             });
-            map.addControl(new mapboxgl.NavigationControl({
-                position: 'top-left'
-            }));
-            map.addControl(new mapboxgl.Geocoder({
-                position: 'bottom-left'
-            }));
+            map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+            map.addControl(new MapboxGeocoder({ accessToken: mapboxgl.accessToken }), 'top-left' );
         } catch (err) {
             //Note that the user did not have any data to load
             console.log(err);
@@ -188,16 +240,9 @@ function initVizMap() {
         }
     }
 
-    map.on('style.load', function() {
-        addLayerHeat(map);
-        addLayerLinestring(map);
-        addSegLayer(map);
-        addLayerElev(map);
-        getBbox()
-        render();
-    });
     map.once('load', function() {
-        $("#loading").hide();
+        getBbox();
+        initLayers();
     });
 }
 
@@ -272,20 +317,16 @@ function calcLegends(p, id) {
     }
 }
 
-function switchLayer() {
+function switchLayer(mapid) {
     layer = document.getElementById("mapStyle").value;
     if (layer != 'dark-nolabel') {
-        map.setStyle('mapbox://styles/mapbox/' + layer + '-v9');
+        mapid.setStyle('mapbox://styles/mapbox/' + layer + '-v9');
     } else {
-        map.setStyle('mapbox://styles/mapbox/dark-v8');
+        mapid.setStyle('mapbox://styles/mapbox/dark-v8');
     }
-    map.on('load', function() {
-        addLayerHeat(map);
-        addLayerLinestring(map);
-        addSegLayer(map);
-        addLayerElev(map);
-        render();
-        isMapLoaded(map);
+
+    mapid.once('style.load', function() {
+        initLayers();
     });
 
 }
@@ -428,6 +469,8 @@ function mouseOver(mapid, layer_list) {
 }
 
 function addPopup(mapid, layer_list, popup) {
+    //Hide all existing popups
+
     mapid.on('click', function(e) {
         minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
         maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
@@ -498,16 +541,19 @@ function addPopup(mapid, layer_list, popup) {
 function isMapLoaded(mapid) {
     $("#loading").show()
     mapid.on('data', function(ev) {
-        if (ev.dataType === 'style' && (ev.source.id === 'segment' ||
+        if (ev.dataType === 'source') {
+            if (ev.source.id === 'segment' ||
                 ev.source.id === 'heatpoint' ||
                 ev.source.id === 'linestring' ||
-                ev.source.id === 'elevation')) { $("#loading").hide() };
-    })
+                ev.source.id === 'elevation') {
+                $("#loading").hide()
+            };
+        }
+    });
 };
 
 function getBbox() {
     $.getJSON(bbox_url, function(data) {
-        console.log(data)
         fit(map, data)
     });
 }
