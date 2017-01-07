@@ -58,6 +58,7 @@ assets = Environment(app)
 js_base = Bundle('js/jquery-2.2.4.min.js',
             'js/mapbox-gl.js',
             'js/mapbox-gl-geocoder.js',
+            'js/chroma.min.js',
             'js/bootstrap.js',
             'js/bootstrap-slider.js',     
             'js/modernizr-2-8-3.js',
