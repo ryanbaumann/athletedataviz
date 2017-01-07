@@ -513,10 +513,10 @@ function addPopup(mapid, layer_list, popup) {
                     '<li> Distance: ' + feature.properties.DISTANCE + " </li>" +
                     '<li> Athlete Count: ' + feature.properties.ATH_CNT + " </li>" +
                     '<li> Effort Count: ' + feature.properties.EFFORT_CNT + " </li>" +
-                    '<li"> Total Elev Gain ' + feature.properties.TOTAL_ELEV + " </li>" +
-                    '<li"> Avg Grade: ' + feature.properties.AVG_GRADE + " </li>" +
-                    '<li"> Max Grade: ' + feature.properties.MAX_GRADE + " </li>" +
-                    '<li"> KOM Category: ' + feature.properties.CAT + " </li>" +
+                    '<li> Total Elev Gain ' + feature.properties.TOTAL_ELEV + " </li>" +
+                    '<li> Avg Grade: ' + feature.properties.AVG_GRADE + " </li>" +
+                    '<li> Max Grade: ' + feature.properties.MAX_GRADE + " </li>" +
+                    '<li> KOM Category: ' + feature.properties.CAT + " </li>" +
                     '</ul> </div>')
                 .addTo(mapid);
         } else if (document.getElementById("VizType").value == "elevation") {
@@ -538,7 +538,7 @@ function addPopup(mapid, layer_list, popup) {
 function isMapLoaded(mapid) {
     $("#loading").show()
     mapid.on('data', function(ev) {
-        if (ev.dataType === 'source') {
+        if (ev.dataType === 'tile') {
             if (ev.source.id === 'segment' ||
                 ev.source.id === 'heatpoint' ||
                 ev.source.id === 'linestring' ||
