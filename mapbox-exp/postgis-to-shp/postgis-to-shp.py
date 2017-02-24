@@ -118,6 +118,47 @@ if __name__ == "__main__":
     from boto.s3.key import Key
     from boto import s3
     import json
+    '''
+    AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    S3_BUCKET = 'athletedataviz-assets'
+    foldername = r'analytics/'
+    mime_type = r'.zip'
+
+    conn = s3.connect_to_region('us-east-1',
+                                    aws_access_key_id=data['accessKeyId'],
+                                    aws_secret_access_key=data[
+                                        'secretAccessKey'],
+                                    security_token=data['sessionToken']
+                                    )
+
+    mybucket = conn.get_bucket(data['bucket'],
+                                   validate=False,
+                                   headers={
+                                       'x-amz-security-token': str(data['sessionToken'])}
+                                   )
+
+    try:
+        k = Key(mybucket)
+        k.key = data['key']
+        os.chdir(data_dir)
+        k.set_contents_from_filename(act_out_file_name + '.zip')
+        k.set_contents_from_filename(seg_out_file_name + '.zip')
+        logging.info('successfully staged zip files on AWS S3 bucket')
+    except Exception as e:
+        logging.exception('error uploading files to S3 staging bucket')
+        pass
+
+    with open(seg_out_file_name + '.zip', 'r') as src:
+    	    amz_headers = "x-amz-acl:public-read"
+            object_name = foldername + urllib.quote_plus(request.args.get('ADV_all_segments'))
+            string_to_sign = "PUT\n\n%s\n%d\n%s\n/%s/%s" % (
+        		mime_type, expires, amz_headers, S3_BUCKET, object_name)
+
+    with open(act_out_file_name + '.zip', 'r') as src:
+        upload_resp_act = service.upload(src, 'ADV_all_activities')
+
+    
 
     logging.info('uploading files to mapbox api')
     token = os.environ['ADV_Mapbox_Uploads_Token']
@@ -195,6 +236,7 @@ if __name__ == "__main__":
     except Exception as e:
         logging.exception('error validating Mapbox API upload status')
         pass
+	'''
 
     logging.info('program complete - exiting')
     print 'program complete - exiting'

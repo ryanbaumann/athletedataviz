@@ -1,7 +1,8 @@
 var color_list = [
-    ['blue', 'cyan', 'lime', 'yellow', 'red'],
-    ['purple', 'pink', 'blue', 'yellow', 'orange'],
-    ['green', 'aquamarine', 'blanchedalmond', 'coral', 'red']
+    ['#d7191c','#fdae61','#ffffbf','#a6d96a','#1a9641'],
+    ['#2c7bb6', '#abd9e9', '#ffffbf', '#fdae61', '#d7191c']
+    ['#feebe2','#fbb4b9','#f768a1','#c51b8a','#7a0177'],
+    ['#e66101','#fdb863','#f7f7f7','#b2abd2','#5e3c99']
 ]
 
 

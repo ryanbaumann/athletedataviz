@@ -206,7 +206,7 @@ function initLayers() {
         functions[i](map)
     }
     render();
-   $("#loading").hide();
+    $("#loading").hide();
 };
 
 /////  Main Function  ///////
@@ -321,9 +321,9 @@ function switchLayer(mapid) {
     } else {
         mapid.setStyle('mapbox://styles/mapbox/dark-v8');
     }
-
     mapid.once('style.load', function() {
         initLayers();
+        isMapLoaded(map)
     });
 
 }
@@ -364,6 +364,7 @@ function set_visibility(mapid, id, onoff) {
 
 
 function render() {
+    isMapLoaded(map)
     if (document.getElementById("VizType").value == "heat-point") {
         try {
             set_visibility(map, 'linestring', 'off');
@@ -537,16 +538,17 @@ function addPopup(mapid, layer_list, popup) {
 
 function isMapLoaded(mapid) {
     $("#loading").show()
-    mapid.on('data', function(ev) {
-        if (ev.dataType === 'source') {
-            if (ev.source.id === 'segment' ||
-                ev.source.id === 'heatpoint' ||
-                ev.source.id === 'linestring' ||
-                ev.source.id === 'elevation') {
-                $("#loading").hide()
-            };
-        }
-    });
+    map.on('render', afterChangeComplete);
+
+    function afterChangeComplete() {
+        if (!map.loaded()) {
+            return } // still not loaded; bail out.
+
+        // now that the map is loaded, it's safe to query the features:
+        $("#loading").hide();
+
+        map.off('render', afterChangeComplete); // remove this handler now that we're done.
+    }
 };
 
 function getBbox() {
