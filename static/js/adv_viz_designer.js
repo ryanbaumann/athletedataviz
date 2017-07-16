@@ -94,8 +94,8 @@ function addLayerLinestring(mapid) {
         mapid.addSource('linestring', {
             type: 'geojson',
             data: heatline_url,
-            buffer: 50,
-            tolerance: 0.5
+            buffer: 1,
+            maxzoom: 12
         });
     } catch (err) {
         console.log(err);
@@ -120,8 +120,8 @@ function addLayerHeat(mapid) {
         mapid.addSource('heatpoint', {
             type: 'geojson',
             data: heatpoint_url,
-            buffer: 50,
-            tolerance: 2
+            buffer: 1,
+            maxzoom: 12
         });
     } catch (err) {
         console.log(err);
@@ -146,7 +146,9 @@ function addLayerElev(mapid) {
 
         mapid.addSource('elevation', {
             type: 'geojson',
-            data: evelpoly_url
+            data: evelpoly_url,
+            buffer: 10,
+            maxzoom: 12
         });
     } catch (err) {
         console.log(err);
