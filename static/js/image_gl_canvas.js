@@ -34,12 +34,7 @@ function generateMap() {
     $("#loading").show();
     //Get the current map style
     var style = map.getStyle();
-    console.log(style)
-    if (style.sources['mapbox://mapbox.satellite']) {
-        console.log('deleteing')
-        delete style.sources['mapbox://mapbox.satellite']['tileSize']
-        delete style.sources['mapbox://mapbox.satellite']['tiles']
-    }
+
     //Set image quality
     var width = 10;
     var height = 8;
