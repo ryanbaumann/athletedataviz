@@ -22,18 +22,20 @@
                                 <option value="heat-point">heat-point</option>
                                 <option value="heat-line">heat-line</option>
                                 <option value="segment">Segments++</option>
-                                <option value="elevation">3D (Desktop only)</option>
+                                <option value="elevation">3D Extrusion</option>
                             </select>
                             <br>
                             <br>
                             <b>Map Style</b>
                             <select id='mapStyle' name="mapStyle" value="dark" style="font-size: 20px;">
-                                <option value="dark-nolabel">Dark v1</option>
-                                <option value="dark">Dark v2</option>
-                                <option value="outdoors">Outdoors</option>
-                                <option value="streets">Streets</option>
-                                <option value="light">Light</option>
-                                <option value="satellite-streets">Satellite-Lines</option>
+                                <option value="mapbox://styles/mapbox/dark-v9">Dark</option>
+                                <option value="mapbox://styles/mapbox/light-v9">Light</option>
+                                <option value="mapbox://styles/mapbox/outdoors-v10">Outdoors</option>
+                                <option value="mapbox://styles/mapbox/streets-v10">Streets</option>
+                                <option value="mapbox://styles/mapbox/satellite-streets-v10">Satellite</option>
+                                <option value="mapbox://styles/rsbaumann/cj3s8yky0000q2rnh6e4cfn1a">Moonlight</option>
+                                <option value="mapbox://styles/rsbaumann/cj5pi1j1b0x6z2sr1kjbad9ge">Standard</option>
+                                <option value="mapbox://styles/rsbaumann/cj5pi3ax70x8b2st4iwf52zav">North Star</option>
                             </select>
                             <br>
                             <br>
@@ -72,11 +74,10 @@
                             <div id="VizType_hide_heat-line" class="collapse">
                                 <b>Line Color</b>
                                 <select id='line_color' name="line_color" style="font-size: 18px;">
-                                    <option value=0>Teal-Pink-Green</option>
-                                    <option value=1>Red-Ora-Blu</option>
-                                    <option value=2>Yellows</option>
-                                    <option value=3>Greens</option>
-                                    <option value=4>Reds</option>
+                                    <option value=0>Dark</option>
+                                    <option value=1>Set</option>
+                                    <option value=2>Paired</option>
+                                    <option value=3>Accent</option>
                                 </select>
                                 <br>
                                 <br>
@@ -106,9 +107,16 @@
                                 <br>
                                 <b>Heat Color</b>
                                 <select id='heat_color' name="heat_color" style="font-size: 18px;">
-                                    <option value="0">Blu-Gre-Yel-Red</option>
-                                    <option value="1">Pur-Blu-Yel-Ora</option>
-                                    <option value="2">Gre-Red</option>
+                                    <option value="0">Yellow Green Blue</option>
+                                    <option value="1">Red Purple</option>
+                                    <option value="2">Yellow Orange Red</option>
+                                    <option value="3">Yellow Orange Blue</option>
+                                    <option value="4">Red Blue</option>
+                                    <option value="5">Red Yellow Green</option>
+                                    <option value="6">Blues</option>
+                                    <option value="7">Greens</option>
+                                    <option value="8">Purples</option>
+                                    <option value="9">Oranges</option>
                                 </select>
                                 <br>
                                 <br>
@@ -132,9 +140,12 @@
                             <div id="VizType_hide_elevation" class="collapse">
                                 <b>Fill Color</b>
                                 <select id='fill_color' name="fill_color" style="font-size: 18px;">
-                                    <option value=0>Blue-Red</option>
-                                    <option value=1>Green-Red</option>
+                                    <option value=0>Blues</option>
+                                    <option value=1>Greens</option>
                                     <option value=2>Purples</option>
+                                    <option value=3>Oranges</option>
+                                    <option value=4>Red Yellow Green</option>
+                                    <option value=5>Spectral</option>
                                 </select>
                                 <br>
                                 <br>
@@ -420,7 +431,7 @@
 
         $('#heat_color').change(render);
         $('#VizType').change(render);
-        $('#mapStyle').change(function() {switchLayer(map)});
+        $('#mapStyle').change(function() { switchLayer(map) });
         $('#heattype').change(render);
         $('#segParam').change(render);
         $('#heat_color').change(render);

@@ -1,4 +1,4 @@
-
+﻿
 /*Move data into archive table*/
 INSERT INTO "Stream_Archive"
 SELECT * FROM "Stream" 
@@ -8,7 +8,7 @@ AND
 "Stream".act_id IN (
 	SELECT "Activity".act_id
 	from "Athlete" INNER JOIN "Activity" on "Athlete".ath_id = "Activity".ath_id
-	Where "Athlete".last_updated_datetime_utc < current_date - interval '3' day and "Athlete".ath_id != 12904699
+	Where "Athlete".last_updated_datetime_utc < current_date - interval '2' day and "Athlete".ath_id != 12904699
 );
 
 /*Remopve data from primary stream table*/
@@ -17,7 +17,7 @@ Where "Stream".act_id in (
 
 	SELECT "Activity".act_id
 	from "Athlete" INNER JOIN "Activity" on "Athlete".ath_id = "Activity".ath_id
-	Where "Athlete".last_updated_datetime_utc < current_date - interval '3' day and "Athlete".ath_id != 12904699
+	Where "Athlete".last_updated_datetime_utc < current_date - interval '2' day and "Athlete".ath_id != 12904699
 );
 
 /*Vacuum table*/
