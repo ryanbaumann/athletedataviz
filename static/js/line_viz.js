@@ -1,9 +1,8 @@
 var line_color_list = [
-    ['#00FFFF', '#33FF00', '#FFFF00', "#FF0099", "Red"],
-    ['#F52D29', '#E21EB4', '#01970B', '#07A991', '#1911C6'],
-    ['#DDD39B', '#E3D88D', '#EEE175', '#F8EB5A', '#FFF447'],
-    ['#ABDD9B', '#9EE38D', '#86EE75', '#67F85A', '#50FF47'],
-    ['#EE9990', '#E57B73', '#D74E48', '#CA211D', '#C10301']
+    chroma.scale('Dark2').colors(5),
+    chroma.scale('Set1').colors(5),
+    chroma.scale('Paired').colors(5),
+    chroma.scale('Accent').colors(5)
 ]
 
 //Global variables for heat-lines
@@ -16,16 +15,6 @@ var linepopup = new mapboxgl.Popup({
     closeButton: false,
     closeOnClick: false
 });
-
-function calc_stops(breaks, colors) {
-    //Given an array of breaks and colors, return a Style JSON stops array
-    //breaks and colors must be the same length
-    let stops = []
-    for (var i = 0; i < breaks.length; i++) {
-        stops.push([breaks[i], colors[i]]);
-    }
-    return stops
-}
 
 function calcLineLayers() {
     //calculate line layers to create

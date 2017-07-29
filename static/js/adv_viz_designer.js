@@ -5,7 +5,7 @@ var linestring_src;
 var heatpoint_src;
 var segment_src;
 var VizType = 'heat-point';
-var map_style = 'dark-nolabel';
+var map_style = 'mapbox://styles/mapbox/dark-v9';
 var curStyle;
 var map;
 
@@ -50,6 +50,16 @@ var buildings_baselayer = {
 function addBuildingsLayer(mapid) {
     mapid.addLayer(buildings_baselayer,
         'waterway-label')
+}
+
+function calc_stops(breaks, colors) {
+    //Given an array of breaks and colors, return a Style JSON stops array
+    //breaks and colors must be the same length
+    let stops = []
+    for (var i = 0; i < breaks.length; i++) {
+        stops.push([breaks[i], colors[i]]);
+    }
+    return stops
 }
 
 function addSegLayer(mapid) {
@@ -222,12 +232,11 @@ function initVizMap() {
             mapboxgl.accessToken = mapboxgl_accessToken;
             map = new mapboxgl.Map({
                 container: 'map',
-                style: 'mapbox://styles/mapbox/dark-v8',
+                style: 'mapbox://styles/mapbox/dark-v9',
                 center: mapboxgl.LngLat.convert(center_point),
                 zoom: 4,
-                minZoom: 3,
+                minZoom: 2,
                 maxZoom: 22,
-                attributionControl: true
             });
             map.addControl(new mapboxgl.NavigationControl(), 'top-right');
             map.addControl(new MapboxGeocoder({ accessToken: mapboxgl.accessToken }), 'top-left');
@@ -318,11 +327,7 @@ function calcLegends(p, id) {
 
 function switchLayer(mapid) {
     layer = document.getElementById("mapStyle").value;
-    if (layer != 'dark-nolabel') {
-        mapid.setStyle('mapbox://styles/mapbox/' + layer + '-v9');
-    } else {
-        mapid.setStyle('mapbox://styles/mapbox/dark-v8');
-    }
+    mapid.setStyle(layer);
     mapid.once('style.load', function() {
         initLayers();
         isMapLoaded(map)
@@ -544,7 +549,8 @@ function isMapLoaded(mapid) {
 
     function afterChangeComplete() {
         if (!map.loaded()) {
-            return } // still not loaded; bail out.
+            return
+        } // still not loaded; bail out.
 
         // now that the map is loaded, it's safe to query the features:
         $("#loading").hide();

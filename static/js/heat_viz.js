@@ -5,7 +5,11 @@ var color_list = [
     chroma.scale('YlOrRd').mode('lab').colors(5),
     chroma.scale('YlOrBr').mode('lab').colors(5),
     chroma.scale('RdBu').mode('lab').colors(5),
-    chroma.scale('RdYlGn').mode('lab').colors(5)
+    chroma.scale('RdYlGn').mode('lab').colors(5),
+    chroma.scale('Blues').mode('lab').colors(5),
+    chroma.scale('Greens').mode('lab').colors(5),
+    chroma.scale('Purples').mode('lab').colors(5),
+    chroma.scale('Oranges').mode('lab').colors(5)
 ]
 
 
@@ -48,11 +52,9 @@ function calcHeatLayers() {
         paint: {
             "circle-radius": {
                 stops: [
-                    [0, 0.1],
-                    [4, 0.5],
-                    [8, 2],
-                    [10, 4],
-                    [22, 20]
+                    [4, 0.1],
+                    [10, 1],
+                    [20, 10]
                 ]
             },
             "circle-color": {
@@ -82,11 +84,9 @@ function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
     circle_radius_style = {
         "base": radius,
         "stops": [
-            [12, radius_values[0]],
-            [14, radius_values[1]],
-            [16, radius_values[2]],
-            [18, radius_values[3]],
-            [20, radius_values[3]]
+            [4, radius_values[0]],
+            [10, radius_values[1]],
+            [20, radius_values[4]],
         ]
     };
     circle_color_style = {
