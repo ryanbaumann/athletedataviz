@@ -74,6 +74,25 @@ function calcHeatLayers() {
     layernames.push('heatpoints-0');
 }
 
+var heatParamConfig = {
+    "s": {"low": 5, "high": 60, "step": 1},
+    "d": {"low": 5, "high": 100, "step": 1},
+    "g": {"low": 5, "high": 25, "step": 0.25},
+    "p": {"low": 100, "high": 1000, "step": 10},
+    "e": {"low": 100, "high": 20000, "step": 100},
+    "h": {"low": 40, "high": 220, "step": 5},
+    "c": {"low": 30, "high": 160, "step": 5}
+}
+
+function setHeatRange() {
+    var config = heatParamConfig[$('#heattype').val()]
+    $('#scale').slider({
+        min: config["low"],
+        max: config["high"],
+        step: config["step"]
+    })
+}
+
 //Update heatpoints properties
 function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
     mapid.setPitch(pitch);

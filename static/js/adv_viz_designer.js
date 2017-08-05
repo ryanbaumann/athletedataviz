@@ -63,15 +63,15 @@ function calc_stops(breaks, colors) {
 }
 
 function addSegLayer(mapid) {
-    try {
+
+    if (!map.getSource('segment')) {
         mapid.addSource('segment', {
             type: 'vector',
             url: 'mapbox://rsbaumann.ADV_all_segments'
         });
-    } catch (err) {
-        console.log(err);
     }
-    try {
+
+    if (!map.getLayer('segment-0')) {
         mapid.addLayer({
             "id": 'segment-0',
             "type": 'line',
@@ -88,65 +88,58 @@ function addSegLayer(mapid) {
                 "line-gap-width": 0
             }
         }, 'waterway-label');
+
         //mapid.addLayer(buildings_baselayer, 'waterway-label');
         for (p = 0; p < lineColors.length; p++) {
             calcLegends(p, 'segment');
         }
+
         addPopup(mapid, seg_layernames, segpopup);
-    } catch (err) {
-        console.log(err);
     }
 
 };
 
 function addLayerLinestring(mapid) {
-    try {
+
+    if (!map.getSource('linestring')) {
         mapid.addSource('linestring', {
             type: 'geojson',
             data: heatline_url,
             buffer: 1,
             maxzoom: 12
         });
-    } catch (err) {
-        console.log(err);
     }
-    try {
-        calcLineLayers();
-        mapid.addLayer(lineLayers[0], 'waterway-label');
-        //mapid.addLayer(buildings_baselayer, 'waterway-label');
-        for (var p = 0; p < breaks.length; p++) {
-            calcLegends(p, 'heat-lines');
-        };
-        addPopup(map, linelayernames, linepopup);
-    } catch (err) {
-        console.log(err);
-    }
+
+    calcLineLayers();
+    mapid.addLayer(lineLayers[0], 'waterway-label');
+    //mapid.addLayer(buildings_baselayer, 'waterway-label');
+    for (var p = 0; p < breaks.length; p++) {
+        calcLegends(p, 'heat-lines');
+    };
+    addPopup(map, linelayernames, linepopup);
+
 };
 
 //Add heat points function
 function addLayerHeat(mapid) {
     // Mapbox JS Api - import heatmap layer
-    try {
+    if (!map.getSource('heatpoint')) {
         mapid.addSource('heatpoint', {
             type: 'geojson',
             data: heatpoint_url,
             buffer: 1,
             maxzoom: 12
         });
-    } catch (err) {
-        console.log(err);
     }
-    try {
-        calcHeatLayers()
-        mapid.addLayer(layers[0], 'waterway-label');
-        //mapid.addLayer(buildings_baselayer, 'waterway-label');
-        for (var p = 0; p < breaks.length; p++) {
-            calcLegends(p, 'heat-point');
-        };
-        addPopup(mapid, layernames, heatpopup);
-    } catch (err) {
-        console.log(err);
-    }
+
+    calcHeatLayers()
+    mapid.addLayer(layers[0], 'waterway-label');
+
+    for (var p = 0; p < breaks.length; p++) {
+        calcLegends(p, 'heat-point');
+    };
+    addPopup(mapid, layernames, heatpopup);
+
 };
 
 //Add heat points function
@@ -369,10 +362,10 @@ function set_visibility(mapid, id, onoff) {
     }
 };
 
-
 function render() {
-    isMapLoaded(map)
+    isMapLoaded(map);
     if (document.getElementById("VizType").value == "heat-point") {
+        setHeatRange();
         try {
             set_visibility(map, 'linestring', 'off');
             set_visibility(map, 'segment', 'off');
@@ -464,13 +457,14 @@ function render() {
 
 function mouseOver(mapid, layer_list) {
     mapid.off('mousemove'); //Remove any previous mouseover event binds to the map
-    mapid.on('mousemove', function(e) {
+    var onMove = function(e) {
         minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
         maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
         var features = mapid.queryRenderedFeatures([minpoint, maxpoint], { layers: layer_list });
         // Change the cursor style as a UI indicator.
         mapid.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
-    });
+    }
+    mapid.on('mousemove', _.debounce(onMove, 12));
 }
 
 function addPopup(mapid, layer_list, popup) {
