@@ -334,7 +334,7 @@ function set_visibility(mapid, id, onoff) {
             mapid.setLayoutProperty("heatpoints-0", 'visibility', 'none');
         } else if (onoff == 'on') {
             mapid.setLayoutProperty("heatpoints-0", 'visibility', 'visible');
-            mouseOver(mapid, layernames);
+            //mouseOver(mapid, layernames);
         }
 
     } else if (id == 'linestring') {
@@ -378,7 +378,7 @@ function render() {
         }
         try {
             set_visibility(map, 'heatpoints', 'on');
-            paintCircleLayer(map, 'heatpoints',
+            paintHeatmapLayer(map, 'heatpoints',
                 parseFloat($('#minOpacity').slider('getValue')),
                 parseFloat($('#radius').slider('getValue')),
                 parseFloat($('#blur').slider('getValue')),
@@ -482,7 +482,7 @@ function addPopup(mapid, layer_list, popup) {
         }
         var feature = features[0];
         if (document.getElementById("VizType").value == "heat-point") {
-            let watts = Math.round(feature.properties.p * 10) / 10
+            /*let watts = Math.round(feature.properties.p * 10) / 10
             let hr = Math.round(feature.properties.h * 10) / 10
             let cad = Math.round(feature.properties.c * 10) / 10
 
@@ -497,7 +497,7 @@ function addPopup(mapid, layer_list, popup) {
                     '<li> Heartrate: ' + (hr = hr || 0) + " BPM </li>" +
                     '<li> Cadence: ' + (cad = cad || 0) + " RPM </li>" +
                     '</ul> </div>')
-                .addTo(mapid);
+                .addTo(mapid);*/
         } else if (document.getElementById("VizType").value == "heat-line") {
             popup.setLngLat(e.lngLat)
                 .setHTML('<div id="popup"> <h4> Detail: </h4>' +
