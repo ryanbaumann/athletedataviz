@@ -5,7 +5,7 @@ var linestring_src;
 var heatpoint_src;
 var segment_src;
 var VizType = 'heat-point';
-var map_style = 'mapbox://styles/mapbox/dark-v9';
+var map_style = 'mapbox://styles/mapbox/dark-v9?optimize=true';
 var curStyle;
 var map;
 
@@ -225,7 +225,7 @@ function initVizMap() {
             mapboxgl.accessToken = mapboxgl_accessToken;
             map = new mapboxgl.Map({
                 container: 'map',
-                style: 'mapbox://styles/mapbox/dark-v9',
+                style: 'mapbox://styles/mapbox/dark-v9?optimize=true',
                 center: mapboxgl.LngLat.convert(center_point),
                 zoom: 4,
                 minZoom: 2,
