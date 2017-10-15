@@ -493,7 +493,7 @@ function addPopup(mapid, layer_list, popup) {
                     '<li> Speed: ' + Math.round(feature.properties.s * 10) / 10 + " mph </li>" +
                     '<li> Grade: ' + Math.round(feature.properties.g * 10) / 10 + " % </li>" +
                     '<li> Power: ' + (watts = watts || 0) + " watts </li>" +
-                    '<li"> Elevation: ' + Math.round(feature.properties.e * 10) / 10 + " ft </li>" +
+                    '<li> Elevation: ' + Math.round(feature.properties.e * 10) / 10 + " ft </li>" +
                     '<li> Heartrate: ' + (hr = hr || 0) + " BPM </li>" +
                     '<li> Cadence: ' + (cad = cad || 0) + " RPM </li>" +
                     '</ul> </div>')

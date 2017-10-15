@@ -5,19 +5,18 @@ from datetime import datetime
 from flask import Flask, request, flash, url_for, redirect, \
     render_template, session, jsonify, Response, json, send_from_directory
 from flask_restful import Resource, Api, reqparse
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from lib import stravaparse as sp
 from lib import segmentParse as seg_sp
 from sqlalchemy import create_engine
 from celery import Celery
-from flask.ext.compress import Compress
-from flask.ext.cache import Cache
+from flask_compress import Compress
+from flask_cache import Cache
 from flask_sslify import SSLify
-from flask.ext.cors import CORS
+from flask_cors import CORS
 from lib.forms import OrderForm
-from flask.ext.assets import Environment, Bundle
+from flask_assets import Environment, Bundle
 from unidecode import unidecode
-#import shopify
 
 #################
 # configuration #
