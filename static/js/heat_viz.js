@@ -1,4 +1,3 @@
-
 var color_list = [
     chroma.scale('YlGnBu').mode('lab').colors(5),
     chroma.scale('RdPu').mode('lab').colors(5),
@@ -47,41 +46,59 @@ function calcHeatLayers() {
     layernames = [];
     layers.push({
         id: 'heatpoints-0',
-        type: 'circle',
+        type: 'heatmap',
         source: 'heatpoint',
         paint: {
-            "circle-radius": {
+            "heatmap-radius": {
                 stops: [
-                    [4, 0.1],
-                    [10, 1],
+                    [0, 1],
+                    [10, 5],
                     [20, 10]
                 ]
             },
-            "circle-color": {
-                property: 's',
+            "heatmap-color": {
                 stops: [
-                    [breaks[0], colors[0]],
-                    [breaks[1], colors[1]],
-                    [breaks[2], colors[2]],
-                    [breaks[3], colors[3]],
-                    [breaks[4], colors[4]]
+                    [0, "rgba(0,0,0,0)"],
+                    [0.2, colors[0]],
+                    [0.4, colors[1]],
+                    [0.6, colors[2]],
+                    [0.8, colors[3]],
+                    [1, colors[4]],
                 ]
             },
-            "circle-opacity": 0.8,
-            "circle-blur": 0.5
+            "heatmap-intensity": {
+                "stops": [
+                    [0, 0.1],
+                    [10, 1],
+                    [20, 5]
+                ]
+            },
+            "heatmap-weight": {
+                "property": "s",
+                "type": "exponential",
+                "stops": [
+                    [0, 0],
+                    [breaks[0], 0.2],
+                    [breaks[1], 0.4],
+                    [breaks[2], 0.6],
+                    [breaks[3], 0.8],
+                    [breaks[4], 1]
+                ]
+            },
+            "heatmap-opacity": 0.8,
         }
     });
     layernames.push('heatpoints-0');
 }
 
 var heatParamConfig = {
-    "s": {"low": 5, "high": 60, "step": 1},
-    "d": {"low": 5, "high": 100, "step": 1},
-    "g": {"low": 5, "high": 25, "step": 0.25},
-    "p": {"low": 100, "high": 1000, "step": 10},
-    "e": {"low": 100, "high": 20000, "step": 100},
-    "h": {"low": 40, "high": 220, "step": 5},
-    "c": {"low": 30, "high": 160, "step": 5}
+    "s": { "low": 5, "high": 60, "step": 1 },
+    "d": { "low": 5, "high": 100, "step": 1 },
+    "g": { "low": 5, "high": 25, "step": 0.25 },
+    "p": { "low": 100, "high": 1000, "step": 10 },
+    "e": { "low": 100, "high": 20000, "step": 100 },
+    "h": { "low": 40, "high": 220, "step": 5 },
+    "c": { "low": 30, "high": 160, "step": 5 }
 }
 
 function setHeatRange() {
@@ -94,33 +111,58 @@ function setHeatRange() {
 }
 
 //Update heatpoints properties
-function paintCircleLayer(mapid, layer, opacity, radius, blur, pitch) {
-    mapid.setPitch(pitch);
+function paintHeatmapLayer(mapid, layer, opacity, radius, blur, pitch) {
+    
     colors = color_list[parseFloat(document.getElementById('heat_color').value)];
+    let heatmap_color_style = {
+        "stops": [
+            [0, "rgba(0,0,0,0)"],
+            [0.2, colors[0]],
+            [0.4, colors[1]],
+            [0.6, colors[2]],
+            [0.8, colors[3]],
+            [1, colors[4]],
+        ]
+    };
+    mapid.setPaintProperty(layer + '-' + 0, 'heatmap-color', heatmap_color_style);
+
     calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);
-    circle_color_property = document.getElementById('heattype').value
-    radius_values = [radius * 1, radius * 2, radius * 4, radius * 6, radius * 8]
-    circle_radius_style = {
+    let heatmap_color_property = document.getElementById('heattype').value
+
+    let heatmap_radius_style = {
         "base": radius,
         "stops": [
-            [4, radius_values[0]],
-            [10, radius_values[1]],
-            [20, radius_values[4]],
+            [0, 1 * radius],
+            [10, 5 * radius],
+            [20, 10 * radius]
         ]
     };
-    circle_color_style = {
-        "property": circle_color_property,
+
+    let heatmap_intensity_style = {
         "stops": [
-            [breaks[0], colors[0]],
-            [breaks[1], colors[1]],
-            [breaks[2], colors[2]],
-            [breaks[3], colors[3]],
-            [breaks[4], colors[4]]
+            [0, blur / 10],
+            [10, blur / 5],
+            [20, blur / 2]
         ]
-    };
-    mapid.setPaintProperty(layer + '-' + 0, 'circle-radius', circle_radius_style);
-    mapid.setPaintProperty(layer + '-' + 0, 'circle-color', circle_color_style);
-    mapid.setPaintProperty(layer + '-' + 0, 'circle-blur', blur);
-    mapid.setPaintProperty(layer + '-' + 0, 'circle-opacity', opacity);
+    }
+
+    let heatmap_weight_style = {
+        "property": heatmap_color_property,
+        "type": "exponential",
+        "stops": [
+            [0, 0],
+            [breaks[0], 0.2],
+            [breaks[1], 0.4],
+            [breaks[2], 0.6],
+            [breaks[3], 0.8],
+            [breaks[4], 1]
+        ]
+    }
+
+    mapid.setPaintProperty(layer + '-' + 0, 'heatmap-radius', heatmap_radius_style);
+    mapid.setPaintProperty(layer + '-' + 0, 'heatmap-weight', heatmap_weight_style);
+    mapid.setPaintProperty(layer + '-' + 0, 'heatmap-intensity', heatmap_intensity_style);
+    mapid.setPaintProperty(layer + '-' + 0, 'heatmap-opacity', opacity);
+    mapid.setPitch(pitch);
 
 }

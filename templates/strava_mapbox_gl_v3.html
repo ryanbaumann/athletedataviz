@@ -124,8 +124,8 @@
                                 <input type="text" id="scale" class="slider" data-slider-min="1" data-slider-value="28" data-slider-max="500" data-slider-step="1">
                                 <br>
                                 <br>
-                                <b>Heat Blur</b>
-                                <input type="text" id="blur" class="slider" data-slider-min="0" data-slider-value="0.5" data-slider-max="10" data-slider-step="0.25">
+                                <b>Heat Intensity</b>
+                                <input type="text" id="blur" class="slider" data-slider-min="0.25" data-slider-value="5" data-slider-max="20" data-slider-step="0.25">
                                 <br>
                                 <br>
                                 <b>Heat Radius</b>
@@ -429,7 +429,6 @@
         });
 
 
-        $('#heat_color').change(render);
         $('#VizType').change(render);
         $('#mapStyle').change(function() { switchLayer(map) });
         $('#heattype').change(render);
@@ -437,7 +436,7 @@
         $('#heat_color').change(render);
         $('#fill_color').change(render);
         $('#line_color').change(render);
-        $('#snap').on('click touch tap', generateMap);
+        $('#snap').on('click', generateMap);
 
         $("#sidebar-toggle-btn").click(function() {
             $("#sidebar").toggle();
