@@ -40,6 +40,18 @@ function calcBreaks(maxval, numbins) {
     }
 }
 
+function generateColorExpression(my_colors) {
+    return ['interpolate', ['linear'],
+        ['heatmap-density'],
+        0, ["rgba", 0, 0, 0, 0],
+        0.2, my_colors[0],
+        0.4, my_colors[1],
+        0.6, my_colors[2],
+        0.8, my_colors[3],
+        1, my_colors[4]
+    ]
+}
+
 function calcHeatLayers() {
     //create layers with filters
     layers = [];
@@ -49,43 +61,31 @@ function calcHeatLayers() {
         type: 'heatmap',
         source: 'heatpoint',
         paint: {
-            "heatmap-radius": {
-                stops: [
-                    [0, 1],
-                    [10, 5],
-                    [20, 10]
-                ]
-            },
-            "heatmap-color": {
-                stops: [
-                    [0, "rgba(0,0,0,0)"],
-                    [0.2, colors[0]],
-                    [0.4, colors[1]],
-                    [0.6, colors[2]],
-                    [0.8, colors[3]],
-                    [1, colors[4]],
-                ]
-            },
-            "heatmap-intensity": {
-                "stops": [
-                    [0, 0.1],
-                    [10, 1],
-                    [20, 5]
-                ]
-            },
-            "heatmap-weight": {
-                "property": "s",
-                "type": "exponential",
-                "stops": [
-                    [0, 0],
-                    [breaks[0], 0.2],
-                    [breaks[1], 0.4],
-                    [breaks[2], 0.6],
-                    [breaks[3], 0.8],
-                    [breaks[4], 1]
-                ]
-            },
-            "heatmap-opacity": 0.8,
+            "heatmap-radius": [
+                    'interpolate', ['exponential', 1.5],
+                    ['zoom'],
+                    0, 1,
+                    10, 5,
+                    20, 20
+                ],
+            "heatmap-color": generateColorExpression(colors),
+            "heatmap-intensity": [
+                    'interpolate', ['exponential', 1.5],
+                    ['zoom'],
+                    0, 0.1,
+                    10, 1,
+                    20, 5
+                ],
+            "heatmap-weight":  [
+                'interpolate', ['linear'], ['get', 's'],
+                    0, 0,
+                    breaks[0], 0.2,
+                    breaks[1], 0.4,
+                    breaks[2], 0.6,
+                    breaks[3], 0.8,
+                    breaks[4], 1
+                ],
+            "heatmap-opacity": 0.8
         }
     });
     layernames.push('heatpoints-0');
@@ -114,18 +114,6 @@ function setHeatRange() {
 function paintHeatmapLayer(mapid, layer, opacity, radius, blur, pitch) {
     
     colors = color_list[parseFloat(document.getElementById('heat_color').value)];
-    let heatmap_color_style = {
-        "stops": [
-            [0, "rgba(0,0,0,0)"],
-            [0.2, colors[0]],
-            [0.4, colors[1]],
-            [0.6, colors[2]],
-            [0.8, colors[3]],
-            [1, colors[4]],
-        ]
-    };
-    mapid.setPaintProperty(layer + '-' + 0, 'heatmap-color', heatmap_color_style);
-
     calcBreaks(parseFloat($('#scale').slider('getValue')), colors.length);
     let heatmap_color_property = document.getElementById('heattype').value
 
@@ -158,7 +146,8 @@ function paintHeatmapLayer(mapid, layer, opacity, radius, blur, pitch) {
             [breaks[4], 1]
         ]
     }
-
+    
+    mapid.setPaintProperty(layer + '-' + 0, 'heatmap-color', generateColorExpression(colors));
     mapid.setPaintProperty(layer + '-' + 0, 'heatmap-radius', heatmap_radius_style);
     mapid.setPaintProperty(layer + '-' + 0, 'heatmap-weight', heatmap_weight_style);
     mapid.setPaintProperty(layer + '-' + 0, 'heatmap-intensity', heatmap_intensity_style);

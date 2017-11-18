@@ -363,7 +363,6 @@ function set_visibility(mapid, id, onoff) {
 };
 
 function render() {
-    isMapLoaded(map);
     if (document.getElementById("VizType").value == "heat-point") {
         setHeatRange();
         try {
@@ -481,24 +480,8 @@ function addPopup(mapid, layer_list, popup) {
             return;
         }
         var feature = features[0];
-        if (document.getElementById("VizType").value == "heat-point") {
-            /*let watts = Math.round(feature.properties.p * 10) / 10
-            let hr = Math.round(feature.properties.h * 10) / 10
-            let cad = Math.round(feature.properties.c * 10) / 10
 
-            popup.setLngLat(e.lngLat)
-                .setHTML('<div id="popup"> <h4> Detail: </h4>' +
-                    '<ul>' +
-                    '<li> Freq: ' + Math.round(feature.properties.d * 10) / 10 + " visits </li>" +
-                    '<li> Speed: ' + Math.round(feature.properties.s * 10) / 10 + " mph </li>" +
-                    '<li> Grade: ' + Math.round(feature.properties.g * 10) / 10 + " % </li>" +
-                    '<li> Power: ' + (watts = watts || 0) + " watts </li>" +
-                    '<li> Elevation: ' + Math.round(feature.properties.e * 10) / 10 + " ft </li>" +
-                    '<li> Heartrate: ' + (hr = hr || 0) + " BPM </li>" +
-                    '<li> Cadence: ' + (cad = cad || 0) + " RPM </li>" +
-                    '</ul> </div>')
-                .addTo(mapid);*/
-        } else if (document.getElementById("VizType").value == "heat-line") {
+        if (document.getElementById("VizType").value == "heat-line") {
             popup.setLngLat(e.lngLat)
                 .setHTML('<div id="popup"> <h4> Detail: </h4>' +
                     '<ul>' +
@@ -539,17 +522,15 @@ function addPopup(mapid, layer_list, popup) {
 
 function isMapLoaded(mapid) {
     $("#loading").show()
-    map.on('render', afterChangeComplete);
+    map.on('data', afterChangeComplete);
 
-    function afterChangeComplete() {
-        if (!map.loaded()) {
+    function afterChangeComplete(e) {
+        if ( (!e.type == 'source') && (!e.isSourceLoaded()) && (e.sourceId != 'composite') ) {
             return
         } // still not loaded; bail out.
-
         // now that the map is loaded, it's safe to query the features:
         $("#loading").hide();
-
-        map.off('render', afterChangeComplete); // remove this handler now that we're done.
+        map.off('data', afterChangeComplete); // remove this handler now that we're done.
     }
 };
 
