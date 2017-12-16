@@ -51,6 +51,26 @@ function generateMap() {
         bearing, pitch, style);
 }
 
+function dataURItoBlob(dataURI) {
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to a typed array
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], {type:mimeString});
+}
+
 
 function createPrintMap(width, height, dpi, format, unit, zoom, center,
     bearing, pitch, style) {
@@ -68,6 +88,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     hidden.className = 'hidden-map';
     document.body.appendChild(hidden);
     var container = document.createElement('div');
+    container.id = 'hidden-map';
     container.style.width = toPixels(width);
     container.style.height = toPixels(height);
     hidden.appendChild(container);
@@ -107,54 +128,64 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     });
 
     renderMap.on('load', function createImage() {
-        //Prevent map from grabbing image before lines are pained on new canvas by waiting 0.5 sec
-        setTimeout(function() {
-            try {
-                var canvas = renderMap.getCanvas();
-                var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
-                img.width = targetDims['width'];
-                img.height = targetDims['height'];
-                img.href = img.src;
-                img.id = 'snapshot_img';
-                var imgsrc = canvas.toDataURL("image/jpeg", 0.8);
-                var file;
-                img.class = "img-responsive center-block";
-                img.src = imgsrc;
-                //put the new image in the div
-                snapshot.innerHTML = '';
-                snapshot.appendChild(img);
-                $("#snapshot_img").addClass("img-responsive center-block");
-                //Now create the high rez image and upload it to the server
-                if (canvas.toBlob) {
-                    canvas.toBlob(
-                        function(blob) {
-                            // Do something with the blob object,
-                            randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
-                            filename = "ADV_" + ath_name + "_" + randNum + ".jpg";
-                            console.log('creating file...');
-                            file = new File([blob], filename, { type: "image/jpeg" });
-                            console.log('getting file to server...');
-                            imgBlob = blob;
-                            get_signed_request(file);
+        try {
+            var canvas = renderMap.getCanvas();
+            var targetDims = calculateAspectRatioFit(canvas.width, canvas.height, w, h);
+            img.width = targetDims['width'];
+            img.height = targetDims['height'];
+            img.href = img.src;
+            img.id = 'snapshot_img';
+            img.class = "img-responsive center-block";
+            mergeImages([{
+                        src: canvas.toDataURL("image/jpeg", 0.93),
+                        x: 0,
+                        y: 0
+                    },
+                    {
+                        src: '/static/img/api_logo_pwrdBy_strava_horiz_gray.png',
+                        x: 0,
+                        y: canvas.height - 63
+                    },
+                    {
+                        src: '/static/img/OSM-mapbox-attribution.png',
+                        x: canvas.width - 263,
+                        y: canvas.height - 24
+                    },
+                    {
+                        src: '/static/img/mapbox-logo.png',
+                        x: 0,
+                        y: canvas.height - 100
+                    }
+                ], {
+                    format: "image/jpeg"
+                })
+                .then(function(b64) {
+                    snapshot.innerHTML = '';
+                    snapshot.appendChild(img);
+                    $("#snapshot_img").addClass("img-responsive center-block");
+                    img.src = b64;
 
-                        },
-                        'image/jpeg', 0.99
-                    );
-                } else {}
-            } catch (err) {
-                console.log(err);
-                window.alert("Please try a different browser - Chrome, Firefox, and Opera are supported for design ordering and sharing!");
-                document.getElementById('spinner').style.display = 'none';
-                document.getElementById('snap').classList.remove('disabled');
+                    //Upload image to the server
+                    randNum = Math.floor(Math.random() * (1000000 - 100 + 1)) + 100;
+                    filename = "ADV_" + ath_name + "_" + randNum + ".jpg";
+                    var blob = dataURItoBlob(b64);
+                    var file = new File([blob], filename, { type: "image/jpeg" });
+                    get_signed_request(file, blob);
+                });
+
+        } catch (err) {
+            console.log(err);
+            window.alert("Please try a different browser - Chrome, Firefox, and Opera are supported for design ordering and sharing!");
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('snap').classList.remove('disabled');
+        }
+        renderMap.remove();
+        hidden.parentNode.removeChild(hidden);
+        Object.defineProperty(window, 'devicePixelRatio', {
+            get: function() {
+                return actualPixelRatio
             }
-            renderMap.remove();
-            hidden.parentNode.removeChild(hidden);
-            Object.defineProperty(window, 'devicePixelRatio', {
-                get: function() {
-                    return actualPixelRatio
-                }
-            });
-        }, 500);
+        });
     });
 
 }
