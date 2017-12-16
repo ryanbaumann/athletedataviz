@@ -454,6 +454,14 @@
             copyToClipboard(imgurl);
         });
 
+        var logo = document.createElement("img");
+        logo.src = "/static/img/api_logo_pwrdBy_strava_horiz_gray.png";
+        logo.classList.add('img-responsive');
+        logo.id = 'powered-by-strava';
+        logo.style.float = "left";
+        var bottom_left_el = document.getElementsByClassName('mapboxgl-ctrl-bottom-left')[0];
+        bottom_left_el.appendChild(logo);
+        var mapboxLogoEl = document.getElementsByClassName('mapboxgl-ctrl-logo');
     });
     </script>
     {% endblock %}
