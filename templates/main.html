@@ -139,14 +139,16 @@ domReady(function() {
     $('#dl_form').submit(function() {
         start_long_task();
         return false;
-    }); { % if session.access_token % }
-    $('#act_table').on('load', get_acts());
-    var today = moment().add(1, 'days').format('YYYY-MM-DD');
-    var threeMonthsAgo = moment().subtract(60, 'days').format('YYYY-MM-DD');
-    $('#startDate').val(threeMonthsAgo);
-    $('#endDate').val(today); { %
-        else % }
-    $("#loginModal").modal("show"); { % endif % }
+    }); 
+    {% if session.access_token %}
+        $('#act_table').on('load', get_acts());
+        var today = moment().add(1, 'days').format('YYYY-MM-DD');
+        var threeMonthsAgo = moment().subtract(60, 'days').format('YYYY-MM-DD');
+        $('#startDate').val(threeMonthsAgo);
+        $('#endDate').val(today);
+    {% else %}
+        $("#loginModal").modal("show");
+    {% endif %}
 });
 </script>
 {% endblock %}
