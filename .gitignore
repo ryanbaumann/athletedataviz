@@ -9,7 +9,6 @@ __pycache__/
 *.zip
 .Python
 static/.webassets-cache
-img/
 env/
 bin/
 build/
