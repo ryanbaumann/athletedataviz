@@ -148,12 +148,12 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
                     },
                     {
                         src: '/static/img/OSM-mapbox-attribution.png',
-                        x: canvas.width - 263,
-                        y: canvas.height - 24
+                        x: canvas.width - 275,
+                        y: canvas.height - 25
                     },
                     {
                         src: '/static/img/mapbox-logo.png',
-                        x: 0,
+                        x: 5,
                         y: canvas.height - 100
                     }
                 ], {

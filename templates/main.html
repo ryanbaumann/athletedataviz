@@ -9,7 +9,7 @@
             </div>
             {% endfor %}
             <div id="greeting" class="text-center">
-            {% if session.access_token %}
+                {% if session.access_token %}
                 <div class="col-sm-6 text-center">
                     <h1>Welcome {{ athlete_name }}! </h1>
                 </div>
@@ -17,21 +17,20 @@
                 <div class="col-sm-6 text-center">
                     <img class="img-responsive center-block" src="{{ profile_url }}" alt="img5">
                 </div>
-            {% else %}
+                {% else %}
                 <h3> Please login to continue! </h3>
                 <a href="{{auth_url | safe}}">
                 <img class="img-responsive center-block" src="/static/img/ConnectWithStrava.png" alt="Connect with Strava" title="Connect with Strava"></a>
                 <br>
                 <h4> Don't have a Strava Account? </h4>
-                <a type="button" class="btn btn-primary" href="{{ url_for('demodesigner') }}" >Try a Demo!</a>
-            {% endif %}
+                <a type="button" class="btn btn-primary" href="{{ url_for('demodesigner') }}">Try a Demo!</a> {% endif %}
             </div>
             <div class="col-sm-6 text-center">
-                 <h3> 1) Get your Activities </h3>
-                 <p> Select a date range to get Activities from Strava.</p>
-                  {% if session.access_token %}
+                <h3> 1) Get your Activities </h3>
+                <p> Select a date range to get Activities from Strava.</p>
+                {% if session.access_token %}
                 <form class="form-inline" id="dl_form" action="#">
-                <!--<span class="help-block">Enter a Date Range.  Then click "Get Data"</span>-->
+                    <!--<span class="help-block">Enter a Date Range.  Then click "Get Data"</span>-->
                     <div class="form-group">
                         <label for="startDate">Start Date</label>
                         <input type="date" class="form-control" min="2012-00-01" max="2017-00-01" value="2015-01-01" id="startDate">
@@ -40,13 +39,13 @@
                         <label for="endDate">End Date</label>
                         <input type="date" class="form-control" min="2005-00-00" max="2025-00-30" value="2016-01-01" id="endDate">
                     </div>
-                    <br> <br>
-                    <button id= 'dl_data_btn' type="submit" class="btn btn-primary text-center" id="getData">Get Data</button>
+                    <br>
+                    <br>
+                    <button id='dl_data_btn' type="submit" class="btn btn-primary text-center" id="getData">Get Data</button>
                 </form>
                 <div id="progress">&nbsp; </div>
                 {% else %}
-                <strong> Login to try the activity downloader! </strong>
-                {% endif %}
+                <strong> Login to try the activity downloader! </strong> {% endif %}
             </div>
             <div class="col-sm-6 text-center">
                 <h3> 2) Design your Viz! </h3>
@@ -58,13 +57,11 @@
                     </form>
                 </div>
                 {% else %}
-                <strong> Login to try the viz designer! </strong>
-                {% endif %}
+                <strong> Login to try the viz designer! </strong> {% endif %}
             </div>
         </div>
     </div>
-    <br>
-    {% if session.access_token %}
+    <br> {% if session.access_token %}
     <br>
     <div class="row">
         <div class="col-sm-6 text-center">
@@ -76,16 +73,16 @@
         </div>
         <div class="col-sm-6 text-center">
             <h3> Delete your Data </h3>
-            <p> Want to wipe your data on ADV?  This will do the trick! </p>
+            <p> Want to wipe your data on ADV? This will do the trick! </p>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"> Delete my Data </button>
             <br>
         </div>
     </div>
     {% endif %}
+    <div class="fixed-bottom">
+        <img class="img-responsive" type="image/png" src="/static/img/api_logo_pwrdBy_strava_horiz_light.png">
+    </div>
 </div>
-
-
-
 <!-- Modals -->
 <div class="modal fade bs-example-modal-sm text-center" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog modal-sm" role="document">
@@ -101,60 +98,55 @@
             <div class="modal-footer text-center">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <form class="form-horizontal" action="delete_acts" method="POST">
-                    <button  type="submit" class="btn btn-danger">Confirm Deletion</button>
+                    <button type="submit" class="btn btn-danger">Confirm Deletion</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
 <div class="modal fade text-center" id="loginModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Login to AthleteDataViz</h4>
-      </div>
-      <div class="modal-body">
-        <h4> Connect to Strava </h4>
-        <a href="{{auth_url | safe}}">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Login to AthleteDataViz</h4>
+            </div>
+            <div class="modal-body">
+                <h4> Connect to Strava </h4>
+                <a href="{{auth_url | safe}}">
         <img class="img-responsive center-block" src="/static/img/ConnectWithStrava.png" alt="Connect with Strava" title="Connect with Strava"></a>
-        <br>
-        <h4> Don't have a Strava Account? </h4>
-        <a type="button" class="btn btn-primary" href="{{ url_for('demodesigner') }}" >Try a Demo!</a>
-      </div>
+                <br>
+                <h4> Don't have a Strava Account? </h4>
+                <a type="button" class="btn btn-primary" href="{{ url_for('demodesigner') }}">Try a Demo!</a>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
-
 <script>
-    var domReady = function(callback) {
-        document.readyState === "interactive" || document.readyState === "complete" ? callback() : document.addEventListener("DOMContentLoaded", callback);
-    };
-    var current_act_url = "{{ current_act_url|safe }}"
-    
-     domReady(function() {
+var domReady = function(callback) {
+    document.readyState === "interactive" || document.readyState === "complete" ? callback() : document.addEventListener("DOMContentLoaded", callback);
+};
+var current_act_url = "{{ current_act_url|safe }}"
 
-        function get_acts() {
+domReady(function() {
+
+    function get_acts() {
         $.get(current_act_url, function(data, status) {
             $('#act_table').html(data);
-            });
-        }
-
-        $('#dl_form').submit(function() {
-            start_long_task();
-            return false;
         });
-        {% if session.access_token %}
-            $('#act_table').on('load', get_acts());
-            var today = moment().add(1, 'days').format('YYYY-MM-DD');
-            var threeMonthsAgo = moment().subtract(60, 'days').format('YYYY-MM-DD');
-            $('#startDate').val(threeMonthsAgo);
-            $('#endDate').val(today);
-        {% else %}
-            $("#loginModal").modal("show");
-        {% endif %}
-    });
+    }
 
+    $('#dl_form').submit(function() {
+        start_long_task();
+        return false;
+    }); { % if session.access_token % }
+    $('#act_table').on('load', get_acts());
+    var today = moment().add(1, 'days').format('YYYY-MM-DD');
+    var threeMonthsAgo = moment().subtract(60, 'days').format('YYYY-MM-DD');
+    $('#startDate').val(threeMonthsAgo);
+    $('#endDate').val(today); { %
+        else % }
+    $("#loginModal").modal("show"); { % endif % }
+});
 </script>
 {% endblock %}
