@@ -24,6 +24,9 @@ function calcLineLayers() {
         id: 'linestring-0',
         type: 'line',
         source: 'linestring',
+        layout: {
+            "line-join": "round"
+        },
         paint: {
             "line-opacity": parseFloat(document.getElementById("line_opacity").value),
             "line-width": parseFloat(document.getElementById("line_width").value),

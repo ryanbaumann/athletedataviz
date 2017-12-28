@@ -81,7 +81,7 @@ class StagingConfig(Config):
 
 class DevelopmentConfig(Config):
     HOST_NAME = r'localhost:33507'
-    APP_NAME = r'webdev6'
+    APP_NAME = r'athletedataviz-pro'
     HEADER = r'http://'
     DEVELOPMENT = True
     DEBUG = True

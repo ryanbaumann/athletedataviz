@@ -49,7 +49,7 @@
 .mapboxgl-ctrl { clear:both; pointer-events:auto }
 .mapboxgl-ctrl-top-left .mapboxgl-ctrl { margin:10px 0 0 10px; float:left; }
 .mapboxgl-ctrl-top-right .mapboxgl-ctrl{ margin:10px 10px 0 0; float:right; }
-.mapboxgl-ctrl-bottom-left .mapboxgl-ctrl { margin:0 0 -15px 15px; }
+.mapboxgl-ctrl-bottom-left .mapboxgl-ctrl { margin:0 0 10px 10px; float:left; }
 .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl { margin:0 10px 10px 0; float:right; }
 
 .mapboxgl-ctrl-group {
@@ -223,6 +223,7 @@ a.mapboxgl-ctrl-logo {
     border-color: #333;
     padding: 0 5px;
     color: #333;
+    box-sizing: border-box;
 }
 
 .mapboxgl-popup {
