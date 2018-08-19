@@ -47,9 +47,41 @@ var buildings_baselayer = {
     }
 };
 
+var hillshade_baselayer = {
+    "id": "hillshade",
+    "type": "hillshade",
+    "source": 'hillshade',
+    "paint": {
+        "hillshade-exaggeration": [
+            'interpolate', ['exponential', 1.2],
+            ['zoom'],
+            0, 1,
+            16, 0.5
+        ]
+    }
+};
+
 function addBuildingsLayer(mapid) {
-    mapid.addLayer(buildings_baselayer,
-        'waterway-label')
+    var mystyle = document.getElementById("mapStyle").value;
+    if (["mapbox://styles/mapbox/dark-v9?optimize=true", "mapbox://styles/mapbox/light-v9?optimize=true",
+            "mapbox://styles/mapbox/outdoors-v10?optimize=true", "mapbox://styles/rsbaumann/cj5pi3ax70x8b2st4iwf52zav?optimize=true"
+        ].indexOf(mystyle) >= 0) {
+        mapid.addLayer(buildings_baselayer,
+            'waterway-label');
+        if (!mapid.getSource('hillshade')) {
+            mapid.addSource('hillshade', {
+                "type": "raster-dem",
+                "url": "mapbox://mapbox.terrain-rgb"
+            });
+        }
+        mapid.addLayer(hillshade_baselayer,
+            'waterway-river-canal');
+    } else if (["mapbox://styles/mapbox/streets-v10?optimize=true", "mapbox://styles/rsbaumann/cj3s8yky0000q2rnh6e4cfn1a?optimize=true",
+            "mapbox://styles/rsbaumann/cj5pkl71x0zkn2spgwad10efa?optimize=true"
+        ].indexOf(mystyle) >= 0) {
+        mapid.addLayer(buildings_baselayer,
+            'waterway-label');
+    }
 }
 
 function calc_stops(breaks, colors) {
@@ -89,7 +121,6 @@ function addSegLayer(mapid) {
             }
         }, 'waterway-label');
 
-        //mapid.addLayer(buildings_baselayer, 'waterway-label');
         for (p = 0; p < lineColors.length; p++) {
             calcLegends(p, 'segment');
         }
@@ -112,7 +143,6 @@ function addLayerLinestring(mapid) {
 
     calcLineLayers();
     mapid.addLayer(lineLayers[0], 'waterway-label');
-    //mapid.addLayer(buildings_baselayer, 'waterway-label');
     for (var p = 0; p < breaks.length; p++) {
         calcLegends(p, 'heat-lines');
     };
@@ -182,7 +212,6 @@ function addLayerElev(mapid) {
                 "fill-extrusion-opacity": 0.9
             }
         }, 'waterway-label');
-        mapid.addLayer(buildings_baselayer, 'waterway-label');
     } catch (err) {
         console.log(err);
     }
@@ -242,6 +271,7 @@ function initVizMap() {
     }
 
     map.once('load', function() {
+        addBuildingsLayer(map)
         getBbox();
         initLayers();
     });
@@ -322,6 +352,7 @@ function switchLayer(mapid) {
     layer = document.getElementById("mapStyle").value;
     mapid.setStyle(layer);
     mapid.once('style.load', function() {
+        addBuildingsLayer(map);
         initLayers();
         isMapLoaded(map)
     });
@@ -525,7 +556,7 @@ function isMapLoaded(mapid) {
     map.on('data', afterChangeComplete);
 
     function afterChangeComplete(e) {
-        if ( (!e.type == 'source') && (!e.isSourceLoaded()) && (e.sourceId != 'composite') ) {
+        if ((!e.type == 'source') && (!e.isSourceLoaded()) && (e.sourceId != 'composite')) {
             return
         } // still not loaded; bail out.
         // now that the map is loaded, it's safe to query the features:
@@ -543,7 +574,7 @@ function getBbox() {
 function fit(mapid, geojson_object) {
     //fit gl map to a geojson file bounds - depricated for now!
     try {
-        mapid.fitBounds(geojsonExtent(geojson_object));
+        mapid.fitBounds(geojsonExtent(geojson_object), {padding: 50});
     } catch (err) {
         //Note that the user did not have any data to load
         console.log(err);
