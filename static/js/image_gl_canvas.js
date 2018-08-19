@@ -34,7 +34,13 @@ function generateMap() {
     $("#loading").show();
     //Get the current map style
     var style = map.getStyle();
-
+    for (var key in style.sources) {
+        if (key === "hillshade") {
+            delete style.sources[key].encoding;
+            delete style.sources[key].bounds;
+            delete style.sources[key].tiles;
+        }
+    }
     //Set image quality
     var width = 10;
     var height = 8;
@@ -86,6 +92,7 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
     // Create map container
     var hidden = document.createElement('div');
     hidden.className = 'hidden-map';
+    hidden.style.position = 'absolute';
     document.body.appendChild(hidden);
     var container = document.createElement('div');
     container.id = 'hidden-map';

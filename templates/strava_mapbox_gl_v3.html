@@ -82,7 +82,7 @@
                                 <br>
                                 <br>
                                 <b> Line Width </b>
-                                <input id="line_width" class="slider" data-slider-id='line_width_slider' type="text" data-slider-min="0.5" data-slider-value="2" data-slider-max="6" data-slider-step="0.5" onclick="render()">
+                                <input id="line_width" class="slider" data-slider-id='line_width_slider' type="text" data-slider-min="0.5" data-slider-value="2" data-slider-max="10" data-slider-step="0.5" onclick="render()">
                                 <br>
                                 <br>
                                 <b>Line Opacity</b>
@@ -459,7 +459,11 @@
         logo.classList.add('img-responsive');
         logo.id = 'powered-by-strava';
         logo.style.float = "left";
+        logo.style.height = "40px";
+        logo.style.widht = "125px";
+        logo.style.display = "inline-block";
         var bottom_left_el = document.getElementsByClassName('mapboxgl-ctrl-bottom-left')[0];
+        bottom_left_el.style.display = 'inline-block';
         bottom_left_el.appendChild(logo);
     });
     </script>
