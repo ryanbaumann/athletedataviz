@@ -131,7 +131,8 @@ function createPrintMap(width, height, dpi, format, unit, zoom, center,
         pitch: pitch,
         interactive: false,
         attributionControl: true,
-        preserveDrawingBuffer: true
+        preserveDrawingBuffer: true,
+        fadeDuration: 0
     });
 
     renderMap.on('load', function createImage() {
