@@ -86,21 +86,11 @@ css = Bundle('css/bootstrap.css',
              'css/style.css',
              filters='cssmin', output="gen/all.css")
 
-css_base_min = Bundle('css/style_inline_base.css',
-                filters='cssmin', output="gen/base_inline_min.css")
-
 assets.register('css_all', css)
-assets.register('css_base_min', css_base_min)
 assets.register('js_base', js_base)
 
 #Globals
 BASEPATH = app.config['HEADER'] + app.config['HOST_NAME'] + r'/'
-SHOP_URL = "https://%s:%s@athletedataviz.myshopify.com/admin" % \
-    (app.config['SHOPIFY_API_KEY'], app.config['SHOPIFY_PASSWORD'])
-
-#Shopify API
-#shopify.ShopifyResource.set_site(shop_url)
-#shop = shopify.Shop.current()
 
 ##########
 #  API   #
@@ -230,7 +220,7 @@ class Current_Acts(Resource):
             act_data = sp.get_acts_html(engine, int(ath_id)).to_html(
                 classes=["table table-striped",
                          "table table-condensed"])
-        except:
+        except e:
             print "error getting current activity list from DB!"
             raise
         gc.collect()
@@ -262,7 +252,7 @@ def clearCache(ath_id):
     try:
         Heat_Points.removeCache(ath_id)
         Heat_Lines.removeCache(ath_id)
-    except:
+    except e:
         print 'error clearing cache!'
         raise
 
@@ -301,7 +291,7 @@ def homepage():
 
         try:
             athlete = client.get_athlete()
-        except:
+        except e:
             print "rate limit exceeped for Strava api client!"
             raise
             return render_template('500.html')
@@ -309,7 +299,7 @@ def homepage():
         # Add athlete ID to the session
         session['ath_id'] = int(athlete.id)
         session['act_limit'] = int(session.get('act_limit', 10))
-        
+
         # Save the results to the database
         try:
             # Check if the athlete already exists in the db
@@ -342,7 +332,7 @@ def homepage():
             # Commit the update or new row insertion
             db.session.commit()
             db.session.close()
-        except:
+        except e:
             print "Unable to add or update athlete in database."
             raise
 
@@ -385,7 +375,7 @@ def sign_s3():
     # Folder to store images in
     try:  # set to logged in user
         ath_id = str(session['ath_id'])
-    except:  # Set to demo user if not logged in
+    except e:  # Set to demo user if not logged in
         ath_id = str(12904699)
     foldername = r'user/' + str(ath_id) + r'/'
     # Get filename and filetype from request header in URL
@@ -430,7 +420,7 @@ def auth_done():
     """ Authenticate a user with the Strava api and obtain a token """
     try:
         code = request.args.get('code')
-    except:
+    except e:
         print 'Code not found, redirecting to authentication page!'
         raise
         return redirect(url_for('homepage'))
@@ -442,7 +432,7 @@ def auth_done():
             client_id=app.config['STRAVA_CLIENT_ID'],
             client_secret=app.config['STRAVA_CLIENT_SECRET'],
             code=code)
-    except:
+    except e:
         print 'error exchanging token with Strava API!'
         raise
         return redirect(url_for('homepage'))
@@ -463,7 +453,7 @@ def strava_mapbox():
 
     try:
         athlete = Athlete.query.filter_by(ath_id=session['ath_id']).first()
-    except:
+    except e:
         print 'error getting athlete row from db!'
         raise
         return redirect(url_for('homepage'))
@@ -488,15 +478,17 @@ def strava_mapbox():
 def demodesigner():
     """A demo map for those who want to try but dont have a Strava account"""
 
+    impersonate = '12904699' #demo acount
+
     return render_template('strava_mapbox_gl_v3.html',
                            mapbox_gl_accessToken=app.config[
                                'MAPBOX_GL_ACCESS_TOKEN'],
                            mapbox_accessToken=app.config[
                                'MAPBOX_ACCESS_TOKEN'],
-                           bbox_url = BASEPATH + 'bbox/12904699',
-                           heatpoint_url=BASEPATH + 'heat_points/12904699',
-                           evelpoly_url = BASEPATH +'elev_poly/12904699',
-                           heatline_url=BASEPATH + 'heat_lines/12904699',
+                           bbox_url = BASEPATH + 'bbox/' + impersonate,
+                           heatpoint_url=BASEPATH + 'heat_points/' + impersonate,
+                           evelpoly_url = BASEPATH +'elev_poly/ '+ impersonate,
+                           heatline_url=BASEPATH + 'heat_lines/' + impersonate,
                            ath_name="ADV" + "_" + "Demo" + '_' + datetime.utcnow().strftime('%y%m%d'),
                            seg_base_url = BASEPATH + str('segment_data/?'))
 
@@ -516,14 +508,14 @@ def delete_acts():
                 try:
                     Stream.query.filter_by(act_id=act).delete(
                         synchronize_session='evaluate')
-                except:
+                except e:
                     print 'error deleting stream!'
                     raise
                 try:
                     # Delete the activity
                     Activity.query.filter_by(act_id=act).delete(
                         synchronize_session='evaluate')
-                except:
+                except e:
                     print 'error deleting activity!'
                     raise
 
@@ -531,7 +523,7 @@ def delete_acts():
             print "deleted activities from ath_id = " + str(session['ath_id'])
             flash("deleted all activities for " + str(session['ath_id']))
             db.session.close()
-        except:
+        except e:
             print "error reading arguments from delete reuqest form!"
             raise
 
@@ -709,126 +701,6 @@ def internal_error(exception):
 @app.route('/sitemap.xml')
 def static_from_root():
     return send_from_directory(app.static_folder, request.path[1:])
-
-
-#DEPRICATED @app.route('/act_limit', methods=['POST'])
-def act_input():
-    """Get the user number of activities to query"""
-    if request.method == 'POST':
-        try:
-            act_limit = request.form.get('act_limit', 10)
-            session['act_limit'] = act_limit
-            print "act limit updated to : " + str(act_limit)
-        except:
-            act_limit = 1
-            flash("Please enter a valid integer between 1 and 100")
-        # Tell the user that the value has been updated
-        flash("Activity limit updated to %s!" % (str(act_limit)))
-        return redirect(url_for('homepage', act_limit=act_limit))
-
-# NOT IN PRODUCTION - @app.route('/testmap')
-def testmap():
-    """
-    A map to test new functionality not yet in the production release
-    """
-    try:
-        avg_long, avg_lat = sp.get_acts_centroid(
-            engine, int(session['ath_id']))
-    except:
-        print "error retrieving map extents!"
-
-    client = stravalib.client.Client(access_token=session['access_token'])
-    athlete = client.get_athlete()
-
-    return render_template('testmap2.html',
-                           avg_lat=avg_lat,
-                           avg_long=avg_long,
-                           mapbox_gl_accessToken=app.config[
-                               'MAPBOX_GL_ACCESS_TOKEN'],
-                           mapbox_accessToken=app.config[
-                               'MAPBOX_ACCESS_TOKEN'],
-                           heatpoint_url=BASEPATH +
-                           'heat_points/' + str(session['ath_id']),
-                           heatline2_url=BASEPATH +
-                           'heat_lines2/' + str(session['ath_id']),
-                           ath_name=coerce_uni(athlete.firstname) + "_" + coerce_uni(athlete.lastname) + '_' + datetime.utcnow().strftime('%y%m%d'))
-
-#DEPRICATED @app.route("/submit_form", methods=["POST"])
-def submit_form():
-    username = request.form["username"]
-    full_name = request.form["full_name"]
-    avatar_url = request.form["avatar_url"]
-    update_account(username, full_name, avatar_url)
-    return redirect(url_for('profile'))
-
-
-#DEPRICATED @app.route('/about')
-def about():
-    """ Sends user to contact page """
-    return render_template('about.html')
-
-
-#DEPRICATED @app.route('/update')
-def update():
-    return render_template('update.html')
-
-# DEPRICATED -- @app.route('/uploads/<path:filename>')
-def download_strava():
-    try:
-        filename = request.args.get('filename')
-    except:
-        print 'filename not found, redirecting to data page!'
-        return redirect(url_for('strava_activity_download'))
-    return send_from_directory(app.config['UPLOAD_FOLDER'],
-                               filename, as_attachment=True)
-
-#DEPRICATED @app.route('/products')
-def products():
-    """ Temporary redirect to home page until implemented """
-    return redirect(url_for('homepage'))
-
-
-#DEPRICATED @app.route('/blog')
-def blog():
-    """ Temporary redirect to home page until implemented """
-    return redirect(url_for('homepage'))
-
-
-#DEPRICATED @app.route('/account')
-def account():
-    """ Sends user to account page """
-    return render_template('account.html',
-                           basepath=BASEPATH)
-
-
-#DEPRICATED @app.route('/newproduct')
-"""def newproduct():
-    'Posts a new product to the shopify page'
-
-    # Create a new product
-    new_product = shopify.Product()
-    new_product.title = "Burton Custom Freestyle 151"
-    new_product.product_type = "Snowboard"
-    new_product.vendor = "Burton"
-    new_product.add
-    success = new_product.save()  # returns false if the record is invalid
-    return('posted product!')
-"""
-
-#DEPRICATED @app.route('/order', methods=['GET', 'POST'])
-def order():
-    """ Sends user to contact page """
-    form = OrderForm()
-    session['img_url'] = request.args.get('url')
-    if request.method == 'POST':
-        if form.validate() == False:
-            flash('All fields are required.')
-            return render_template('order.html', form=form)
-        else:
-            return 'Form posted.'
-
-    elif request.method == 'GET':
-        return render_template('order.html', form=form, img_url=session['img_url'])
 
 
 if __name__ == '__main__':
