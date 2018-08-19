@@ -375,7 +375,7 @@ def sign_s3():
     # Folder to store images in
     try:  # set to logged in user
         ath_id = str(session['ath_id'])
-    except e:  # Set to demo user if not logged in
+    except:  # Set to demo user if not logged in
         ath_id = str(12904699)
     foldername = r'user/' + str(ath_id) + r'/'
     # Get filename and filetype from request header in URL
