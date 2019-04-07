@@ -17,7 +17,7 @@ static3==0.7.0
 wsgiref==0.1.2
 requests==2.18.4
 gunicorn==19.7.1
-psycopg2==2.7.3
+psycopg2==2.8.1
 flask-debugtoolbar==0.10.1
 celery==3.1.23
 kombu==3.0.35
