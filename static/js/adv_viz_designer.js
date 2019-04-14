@@ -259,6 +259,7 @@ function initVizMap() {
                 zoom: 4,
                 minZoom: 2,
                 maxZoom: 22,
+                maptiks_id: "Athletedataviz", 
             });
             map.addControl(new mapboxgl.NavigationControl(), 'top-right');
             map.addControl(new MapboxGeocoder({ accessToken: mapboxgl.accessToken }), 'top-left');
