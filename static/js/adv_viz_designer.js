@@ -48,7 +48,7 @@ var buildings_baselayer = {
 };
 
 var hillshade_baselayer = {
-    "id": "hillshade",
+    "id": "hillshade-2",
     "type": "hillshade",
     "source": 'hillshade',
     "paint": {
@@ -75,7 +75,7 @@ function addBuildingsLayer(mapid) {
             });
         }
         mapid.addLayer(hillshade_baselayer,
-            'waterway-river-canal');
+            'water');
     } else if (["mapbox://styles/mapbox/streets-v11?optimize=true", "mapbox://styles/rsbaumann/cj3s8yky0000q2rnh6e4cfn1a?optimize=true",
             "mapbox://styles/rsbaumann/cj5pkl71x0zkn2spgwad10efa?optimize=true"
         ].indexOf(mystyle) >= 0) {
@@ -262,7 +262,7 @@ function initVizMap() {
                 maptiks_id: "Athletedataviz", 
             });
             map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-            map.addControl(new MapboxGeocoder({ accessToken: mapboxgl.accessToken }), 'top-left');
+            map.addControl(new MapboxGeocoder({ accessToken: mapboxgl.accessToken, mapboxgl: mapboxgl }), 'top-left');
         } catch (err) {
             //Note that the user did not have any data to load
             console.log(err);
