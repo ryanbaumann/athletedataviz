@@ -5,7 +5,7 @@ var linestring_src;
 var heatpoint_src;
 var segment_src;
 var VizType = 'heat-point';
-var map_style = 'mapbox://styles/mapbox/dark-v9?optimize=true';
+var map_style = 'mapbox://styles/mapbox/dark-v10?optimize=true';
 var curStyle;
 var map;
 
@@ -63,8 +63,8 @@ var hillshade_baselayer = {
 
 function addBuildingsLayer(mapid) {
     var mystyle = document.getElementById("mapStyle").value;
-    if (["mapbox://styles/mapbox/dark-v9?optimize=true", "mapbox://styles/mapbox/light-v9?optimize=true",
-            "mapbox://styles/mapbox/outdoors-v10?optimize=true", "mapbox://styles/rsbaumann/cj5pi3ax70x8b2st4iwf52zav?optimize=true"
+    if (["mapbox://styles/mapbox/dark-v10?optimize=true", "mapbox://styles/mapbox/light-v10?optimize=true",
+            "mapbox://styles/mapbox/outdoors-v11?optimize=true", "mapbox://styles/rsbaumann/cj5pi3ax70x8b2st4iwf52zav?optimize=true"
         ].indexOf(mystyle) >= 0) {
         mapid.addLayer(buildings_baselayer,
             'waterway-label');
@@ -76,7 +76,7 @@ function addBuildingsLayer(mapid) {
         }
         mapid.addLayer(hillshade_baselayer,
             'waterway-river-canal');
-    } else if (["mapbox://styles/mapbox/streets-v10?optimize=true", "mapbox://styles/rsbaumann/cj3s8yky0000q2rnh6e4cfn1a?optimize=true",
+    } else if (["mapbox://styles/mapbox/streets-v11?optimize=true", "mapbox://styles/rsbaumann/cj3s8yky0000q2rnh6e4cfn1a?optimize=true",
             "mapbox://styles/rsbaumann/cj5pkl71x0zkn2spgwad10efa?optimize=true"
         ].indexOf(mystyle) >= 0) {
         mapid.addLayer(buildings_baselayer,
@@ -254,11 +254,12 @@ function initVizMap() {
             mapboxgl.accessToken = mapboxgl_accessToken;
             map = new mapboxgl.Map({
                 container: 'map',
-                style: 'mapbox://styles/mapbox/dark-v9?optimize=true',
+                style: 'mapbox://styles/mapbox/dark-v10?optimize=true',
                 center: mapboxgl.LngLat.convert(center_point),
                 zoom: 4,
                 minZoom: 2,
                 maxZoom: 22,
+                maptiks_id: "Athletedataviz", 
             });
             map.addControl(new mapboxgl.NavigationControl(), 'top-right');
             map.addControl(new MapboxGeocoder({ accessToken: mapboxgl.accessToken }), 'top-left');
