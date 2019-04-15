@@ -122,7 +122,7 @@ def split_long(series):
 def create_points(lat_series, long_series):
     # Creates a string from a lat/long column to map to a Geography Point
     # datatype in PostGIS
-    point_col = """ST_GeomFromText('Point(""" + str(long_series) + ' ' + str(lat_series) + """)', 4326)"""
+    point_col = '''ST_GeomFromText('Point(''' + str(long_series) + ' ' + str(lat_series) + ''')', 4326)'''
 
     return point_col
 
