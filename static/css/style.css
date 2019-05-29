@@ -793,3 +793,7 @@ form input#submit:hover {
 .mapboxgl-ctrl-group {
     -webkit-filter: invert(100%);
 }
+
+.mapboxgl-ctrl-geocoder {
+    -webkit-filter: invert(100%);
+}
