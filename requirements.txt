@@ -29,7 +29,7 @@ flask-cache==0.13.1
 flask-sslify==0.1.5
 flask-wtf==0.14.2
 ShopifyAPI==2.5.0
-eventlet==0.21.0
+eventlet==0.31.0
 flask-CORS==3.0.3
 mapbox==0.14.0
 boto3==1.4.7
