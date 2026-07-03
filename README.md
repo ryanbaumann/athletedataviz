@@ -81,6 +81,11 @@ Obtain an application ID, then set environment variables
 3) Navigate to localhost:33507 to open the ADV homepage
 
 
+
+# Agentic coding setup
+
+This repository includes a root `AGENTS.md` with coding-agent operating instructions and local Codex skills in `.codex/skills/`. Agents should read those files before making changes, especially for Google Maps Platform web development, deployment, and security work.
+
 ## Credits
 
 * [Matthew Petroff](http://mpetroff.net/), (Print Maps)
