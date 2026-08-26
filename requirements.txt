@@ -1,7 +1,7 @@
 Flask==0.12.2
 stravalib==0.9.4
 pandas==0.23.4
-numpy==1.15.0
+numpy==1.22.0
 numexpr==2.6.4
 sqlalchemy==1.0.13
 sqlalchemy-utils==0.32.18
